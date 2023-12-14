@@ -1,32 +1,34 @@
 PKG = template
 
 build:
-	pip install build
-	python -m build
+	python3 -m pip install --upgrade pip
+	python3 -m pip install build
+	python3 -m build
 
 install: build
-	pip install dist/*.tar.gz
+	python3 -m pip install dist/*.tar.gz
 
 develop:
-	pip install -e .
+	python3 -m pip install -e '.[dev]'
+	python3 -m mypy --install-types
 
 check:
-	pytest -v tests
+	python3 -m pytest -v tests
 
 uninstall:
-	pip uninstall $(PKG)
+	python3 -m pip uninstall $(PKG)
 
 clean:
 	rm -rvf dist/ build/ src/*.egg-info
 
 push-test:
-	python -m twine upload --repository testpypi dist/*
+	python3 -m twine upload --repository testpypi dist/*
 
 pull-test:
-	pip install -i https://test.pypi.org/simple/ $(PKG)
+	python3 -m pip install -i https://test.pypi.org/simple/ $(PKG)
 
 push-prod:
-	python -m twine upload dist/*
+	python3 -m twine upload dist/*
 
 pull-prod:
-	pip install $(PKG)
+	python3 -m pip install $(PKG)

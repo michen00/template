@@ -1,0 +1,39 @@
+{
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[python]": {
+    "editor.codeActionsOnSave": { "source.organizeImports": "explicit" },
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true
+  },
+  "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+  "editor.defaultFormatter": "ms-python.black-formatter",
+  "editor.formatOnSave": true,
+  "editor.inlineSuggest.enabled": true,
+  "files.autoSave": "afterDelay",
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "flake8.args": [
+    "--ignore=E203, E266, E501, W503, F403, F401",
+    "--max-line-length=88"
+  ],
+  "git.autofetch": true,
+  "isort.args": ["--profile", "black"],
+  "mypy-type-checker.args": [
+    "--follow-imports=silent",
+    "--show-column-numbers",
+    "--disallow-untyped-defs",
+    "--disallow-untyped-calls"
+  ],
+  "mypy-type-checker.severity": { "error": "Warning" },
+  "notebook.formatOnCellExecution": true,
+  "notebook.output.textLineLimit": 88,
+  "prettier.endOfLine": "auto",
+  "python.analysis.extraPaths": ["./src"],
+  "python.analysis.typeCheckingMode": "basic",
+  "python.languageServer": "Pylance",
+  "workbench.editorAssociations": { "*.ipynb": "jupyter-notebook" }
+}

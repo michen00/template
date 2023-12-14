@@ -2,13 +2,51 @@
 name = "template"
 version = "0.0.1"
 authors = [
-    { name="Jason Wilkes", email="notarealdeveloper@gmail.com" },
+    { name="Michael I Chen", email="michael.chen.0@gmail.com" },
 ]
-description = "Package template for python"
+description = "Package description"
 dependencies = [
     "is_instance",
 ]
 
-[project.urls]
-source = "https://github.com/notarealdeveloper/template"
-download = "https://pypi.org/project/template/#files"
+[project.optional-dependencies]
+dev = [
+    "black",
+    "ipython",
+    "isort",
+    "flake8",
+    "mypy",
+    "nb_black",
+    "pylint",
+    "pytest"
+]
+
+# [project.scripts]
+# script-name = "package.bin.script_name:main"
+
+# [project.urls]
+# source = "https://github.com/michen00/template"
+# download = "https://pypi.org/project/template/#files"
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+exclude = "notebook/ | *.ipynb"

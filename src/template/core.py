@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
+"""placeholder for core module"""
 
-__all__ = [
-]
+__all__ = ()
 
 import is_instance

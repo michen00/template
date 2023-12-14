@@ -1,0 +1,30 @@
+# List any file patterns that are text and should have line endings
+# normalized, i.e. convert crlf => lf
+*.conf          text
+*.css           text diff=css
+*.htm           text diff=html
+*.html          text diff=html
+*.java          text diff=java
+*.js            text
+*.json          text
+*.jsp           text
+*.md            text diff=markdown
+*.php           text diff=php
+*.properties    text
+*.py            text diff=python
+*.sh            text diff=bash
+*.sql           text
+*.tf            text
+*.ts            text
+*.txt           text
+*.xml           text
+*.yaml          text
+*.yml           text
+
+.dockerignore   text
+.gitattributes  text
+.gitignore      text
+.editorconfig   text
+.project        text
+CODEOWNERS      text
+Dockerfile      text

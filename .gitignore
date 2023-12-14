@@ -1,5 +1,53 @@
-dist
-build
-__pycache__
+# Exclude common OS files
 .DS_Store
+
+# Exclude common IDE project files
+.checkstyle
+.classpath
+.editorconfig
+.flake8
+.idea
+.project
+.pylintrc
+.settings
+.vscode/
+*.iml
+**/.vscode/*
+
+# Exclude .env files
+.env
+
+#  Local .terraform directories
+**/.terraform/*
+.terraform/
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# .tfvars files
+*.tfvars
+
+# Hashicorp Lock files
+*.lock.hcl
+
+# MS Office temporary files
+~$*
+
+# git files
+.gitattributes
+!.gitkeep
+!.gitignore
+
+# Installation artifacts
 *.egg-info
+build
+dist
+manifest.txt
+
+# Project files
+__pycache__
+.aws
+.ipynb_checkpoints
+.mypy_cache
+.pytest_cache
