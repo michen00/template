@@ -43,7 +43,6 @@
 *.egg-info
 build
 dist
-manifest.txt
 
 # Project files
 __pycache__

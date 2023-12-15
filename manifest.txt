@@ -1,0 +1,13 @@
+.vscode/settings.json
+src/template/bin/.gitkeep
+src/template/__init__.py
+src/template/core.py
+tests/.gitkeep
+.editorconfig
+.flake8
+.gitattributes
+.gitignore
+.pylintrc
+Makefile
+pyproject.toml
+README_template.md
