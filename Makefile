@@ -1,34 +1,41 @@
 PKG = template
 
-build:
-	python3 -m pip install --upgrade pip
-	python3 -m pip install build
-	python3 -m build
+PYTHON = python3
+PYTHON_DASH_M = $(PYTHON) -m
+PIP = $(PYTHON_DASH_M) pip
+PIP_INSTALL = $(PIP) install
+
+build: build-deps
+	$(PYTHON_DASH_M) build
 
 install: build
-	python3 -m pip install dist/*.tar.gz
+	$(PIP_INSTALL) dist/*.tar.gz
 
 develop:
-	python3 -m pip install -e '.[dev]'
-	python3 -m mypy --install-types
+	$(PIP_INSTALL) -e '.[dev]'
+	$(PYTHON_DASH_M) mypy --install-types
 
 check:
-	python3 -m pytest -v tests
+	$(PYTHON_DASH_M) pytest -v tests
 
 uninstall:
-	python3 -m pip uninstall $(PKG)
+	$(PIP) uninstall $(PKG)
 
 clean:
 	rm -rvf dist/ build/ src/*.egg-info
 
 push-test:
-	python3 -m twine upload --repository testpypi dist/*
+	$(PYTHON_DASH_M) twine upload --repository testpypi dist/*
 
 pull-test:
-	python3 -m pip install -i https://test.pypi.org/simple/ $(PKG)
+	$(PIP_INSTALL) -i https://test.pypi.org/simple/ $(PKG)
 
 push-prod:
-	python3 -m twine upload dist/*
+	$(PYTHON_DASH_M) twine upload dist/*
 
 pull-prod:
-	python3 -m pip install $(PKG)
+	$(PIP_INSTALL) $(PKG)
+
+build-deps:
+	@$(PIP_INSTALL) --upgrade pip >/dev/null
+	@$(PYTHON) -c 'import build' > /dev/null 2>&1 || $(PIP_INSTALL) build
