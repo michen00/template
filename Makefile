@@ -16,7 +16,9 @@ develop:
 	$(PYTHON_DASH_M) mypy --install-types
 
 check:
-	$(PYTHON_DASH_M) pytest -v tests
+	coverage run -m pytest -v tests
+	coverage report -m
+	coverage html
 
 uninstall:
 	$(PIP) uninstall $(PKG)
