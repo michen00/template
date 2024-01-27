@@ -13,7 +13,7 @@ install: build
 
 develop:
 	$(PIP_INSTALL) -e '.[dev]'
-	$(PYTHON_DASH_M) mypy --install-types
+	$(PYTHON_DASH_M) mypy --install-types --non-interactive --package $(PKG)
 
 check:
 	coverage run -m pytest -v tests
