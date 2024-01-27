@@ -5,10 +5,8 @@
 .checkstyle
 .classpath
 .editorconfig
-.flake8
 .idea
 .project
-.pylintrc
 .settings
 .vscode/
 *.iml
@@ -47,6 +45,9 @@ dist
 # Project files
 __pycache__
 .aws
+.coverage
+.flake8
 .ipynb_checkpoints
 .mypy_cache
+.pylintrc
 .pytest_cache
