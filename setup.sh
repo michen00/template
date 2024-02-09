@@ -1,26 +1,46 @@
 #!/bin/bash
 
-TEMPLATE="$(dirname "${BASH_SOURCE[0]}")"
+TEMPLATE="$(pwd)"
 MANIFEST="$TEMPLATE/manifest.txt"
 
 cat "$MANIFEST" > /dev/null 2>&1 || { echo "$MANIFEST cannot be read. Exiting script."; exit 1; }
 
-read -p "Enter a name for the project: " PROJECTNAME
+while true; do
+    while true; do
+        read -p "Enter a name for the project: " PROJECTNAME
 
-PROJECT="$(cd "$TEMPLATE" && cd .. && pwd)/$PROJECTNAME"
+        if [ -z "$PROJECTNAME" ]; then
+            echo "Project name cannot be empty."
+            continue
+        fi
+        if [[ "$PROJECTNAME" =~ [^a-zA-Z0-9_-] ]]; then
+            echo "Project name can only contain letters, numbers, hyphens, and underscores."
+            continue
+        fi
+        break
+    done
 
-if [ -d "$PROJECT" ]; then
-    echo "Directory $PROJECT exists."
-    read -p "Do you want to overwrite the directory? (y/n): " OVERWRITE
+    PROJECT="$(cd "$TEMPLATE" && cd .. && pwd)/$PROJECTNAME"
 
-    if [ "$OVERWRITE" == "y" ]; then
-        echo "Overwriting directory $PROJECT..."
-        rm -rf "$PROJECT"
-    else
-        echo "No changes made. Exiting script."
-        exit 1
+    if [ -d "$PROJECT" ]; then
+        echo "Directory $PROJECT exists."
+        if [ "$PROJECTNAME" == "template" ]; then
+            echo "Project name cannot be 'template'."
+            continue
+        fi
+
+        read -p "Do you want to overwrite the directory? (y/n): " OVERWRITE
+
+        if [ "$OVERWRITE" == "y" ]; then
+            echo "Overwriting directory $PROJECT..."
+            rm -rf "$PROJECT"
+        else
+            echo "No changes made. Exiting script."
+            exit 1
+        fi
     fi
-fi
+    break
+done
 
 while read -r FILE; do
     mkdir -p "$(dirname "$PROJECT/$FILE")"
