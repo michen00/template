@@ -55,6 +55,7 @@ cd "$PROJECT" \
 && mv "src/template" "src/$PROJECTNAME" \
 && sed -i.bak "s/template/$PROJECTNAME/g" $(find "$PROJECT" -type f -exec grep -l "template" {} +) \
 && find . -name "*.bak" -type f -delete \
+&& rm -rf "src/template" \
 && echo "Project created successfully in $PROJECT." \
 && read -p "Do you want to initialize a new Git repository in $PROJECT? (y/n): " INIT_GIT
 
