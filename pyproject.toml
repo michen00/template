@@ -18,9 +18,9 @@ dev = [
     "isort",
     "flake8",
     "mypy",
-    "nb_black",
     "pylint",
-    "pytest"
+    "pytest",
+    "twine",
 ]
 
 # [project.scripts]
