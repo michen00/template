@@ -50,4 +50,5 @@ __pycache__
 .ipynb_checkpoints
 .mypy_cache
 .pylintrc
+.pypirc
 .pytest_cache
