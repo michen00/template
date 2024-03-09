@@ -50,18 +50,17 @@ while read -r FILE; do
 done < "$MANIFEST"
 
 cd "$PROJECT" \
-&& rm -rf ".git" \
+&& rm -rf .git \
 && mv README_template.md README.md \
-&& mv "src/template" "src/$PROJECTNAME" \
+&& mv src/template "src/$PROJECTNAME" \
 && sed -i.bak "s/template/$PROJECTNAME/g" $(find "$PROJECT" -type f -exec grep -l "template" {} +) \
 && find . -name "*.bak" -type f -delete \
-&& rm -rf "src/template" \
 && echo "Project created successfully in $PROJECT." \
 && read -p "Do you want to initialize a new Git repository in $PROJECT? (y/n): " INIT_GIT
 
-if [ "$INIT_GIT" == "y" ]; then
+if [ "$INIT_GIT" == y ]; then
 
-    GITHUB_USERNAME="michen00"
+    GITHUB_USERNAME=michen00
     GITHUB_REPO_URL="https://github.com/$GITHUB_USERNAME/$PROJECTNAME.git"
     git config --global init.defaultBranch main
 
@@ -76,6 +75,10 @@ if [ "$INIT_GIT" == "y" ]; then
     && git add . \
     && git commit -m "Update template" \
     && git pull origin main --rebase -X theirs \
+    && rm -rf src/template \
+    && rm README_template.md \
+    && git add . \
+    && git commit --amend --no-edit \
     && git push -u origin main \
     && echo "Project pushed to GitHub repository: $GITHUB_REPO_URL"
     if [ $? -ne 0 ]; then
