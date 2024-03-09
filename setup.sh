@@ -1,6 +1,8 @@
 #!/bin/bash
 
 TEMPLATE="$(pwd)"
+CWD=$(basename $TEMPLATE)
+
 MANIFEST="$TEMPLATE/manifest.txt"
 
 cat "$MANIFEST" > /dev/null 2>&1 || { echo "$MANIFEST cannot be read. Exiting script."; exit 1; }
@@ -24,8 +26,8 @@ while true; do
 
     if [ -d "$PROJECT" ]; then
         echo "Directory $PROJECT exists."
-        if [ "$PROJECTNAME" == "template" ]; then
-            echo "Project name cannot be 'template'."
+        if [ "$PROJECTNAME" == "$CWD" ]; then
+            echo "Project name cannot be '"$CWD"'."
             continue
         fi
 
