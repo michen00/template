@@ -1,5 +1,5 @@
 """placeholder for core module"""
 
-__all__ = ()
+__all__: list = []
 
 import is_instance
