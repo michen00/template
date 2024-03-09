@@ -76,7 +76,7 @@ if [ "$INIT_GIT" == y ]; then
     && git commit -m "Update template" \
     && git pull origin main --rebase -X theirs \
     && rm -rf src/template \
-    && rm README_template.md \
+    && rm manifest.txt README_template.md \
     && git add . \
     && git commit --amend --no-edit \
     && git push -u origin main \
