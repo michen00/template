@@ -60,6 +60,7 @@ if [ "$INIT_GIT" == "y" ]; then
 
     GITHUB_USERNAME="michen00"
     GITHUB_REPO_URL="https://github.com/$GITHUB_USERNAME/$PROJECTNAME.git"
+    git config --global init.defaultBranch main
 
     cd "$PROJECT" && git init \
     && echo "Git repository initialized in $PROJECT"
@@ -70,7 +71,8 @@ if [ "$INIT_GIT" == "y" ]; then
 
     git remote add origin "git@github.com:$GITHUB_USERNAME/$PROJECTNAME.git" \
     && git add . \
-    && git commit -m "Initial commit from template" \
+    && git commit -m "Update template" \
+    && git pull origin main --rebase -X theirs \
     && git push -u origin main \
     && echo "Project pushed to GitHub repository: $GITHUB_REPO_URL"
     if [ $? -ne 0 ]; then
