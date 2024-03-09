@@ -68,7 +68,7 @@ if [ "$INIT_GIT" == "y" ]; then
         exit 1
     fi
 
-    git remote add origin "$GITHUB_REPO_URL" \
+    git remote add origin "git@github.com:$GITHUB_USERNAME/$PROJECTNAME.git" \
     && git add . \
     && git commit -m "Initial commit from template" \
     && git push -u origin main \
