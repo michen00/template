@@ -1,19 +1,15 @@
-PKG = template
-
-PYTHON = python3
-PYTHON_DASH_M = $(PYTHON) -m
-PIP = $(PYTHON_DASH_M) pip
-PIP_INSTALL = $(PIP) install
+PKG := template
+PIP := python -m pip
 
 build: build-deps
-	$(PYTHON_DASH_M) build
+	python -m build
 
 install: build
-	$(PIP_INSTALL) dist/*.tar.gz
+	$(PIP) install dist/*.tar.gz
 
 develop:
-	$(PIP_INSTALL) -e '.[dev]'
-	$(PYTHON_DASH_M) mypy --install-types --non-interactive --follow-imports=skip > /dev/null 2>&1
+	$(PIP) install -e '.[dev]'
+	python -m mypy --install-types --non-interactive --follow-imports=skip > /dev/null 2>&1
 
 check:
 	coverage run -m pytest -v tests
@@ -26,18 +22,21 @@ uninstall:
 clean:
 	rm -rvf dist/ build/ src/*.egg-info
 
-push-test:
-	$(PYTHON_DASH_M) twine upload --repository testpypi dist/*
+push-test: push-deps
+	python -m twine upload --repository testpypi dist/*
 
 pull-test:
-	$(PIP_INSTALL) -i https://test.pypi.org/simple/ $(PKG)
+	$(PIP) install -i https://test.pypi.org/simple/ $(PKG)
 
-push-prod:
-	$(PYTHON_DASH_M) twine upload dist/*
+push-prod: push-deps
+	python -m twine upload dist/*
 
 pull-prod:
-	$(PIP_INSTALL) $(PKG)
+	$(PIP) install $(PKG)
+
+push-deps: build
+	@python -c 'import twine' > /dev/null 2>&1 || $(PIP) install twine
 
 build-deps:
-	@$(PIP_INSTALL) --upgrade pip >/dev/null
-	@$(PYTHON) -c 'import build' > /dev/null 2>&1 || $(PIP_INSTALL) build
+	@$(PIP) install --upgrade pip >/dev/null
+	@python -c 'import build' > /dev/null 2>&1 || $(PIP) install build
