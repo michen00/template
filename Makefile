@@ -38,5 +38,5 @@ push-deps: build
 	@python -c 'import twine' > /dev/null 2>&1 || $(PIP) install twine
 
 build-deps:
-	@$(PIP) install --upgrade pip >/dev/null
+	@$(PIP) install --upgrade pip > /dev/null
 	@python -c 'import build' > /dev/null 2>&1 || $(PIP) install build
