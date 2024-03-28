@@ -9,7 +9,7 @@ install: build
 
 develop:
 	$(PIP) install -e '.[dev]'
-	python -m mypy --install-types --non-interactive --follow-imports=skip > /dev/null 2>&1
+	python -m mypy --install-types --non-interactive --package $(PKG) --follow-imports=skip > /dev/null 2>&1 || true
 
 check:
 	coverage run -m pytest -v tests
