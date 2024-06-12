@@ -2,6 +2,7 @@
 src/template/bin/.gitkeep
 src/template/__init__.py
 src/template/core.py
+src/template/py.typed
 tests/.gitkeep
 .editorconfig
 .gitattributes
