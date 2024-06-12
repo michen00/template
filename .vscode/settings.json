@@ -6,22 +6,15 @@
   "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[python]": {
     "editor.codeActionsOnSave": { "source.organizeImports": "explicit" },
-    "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.formatOnSave": true
   },
   "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
-  "editor.defaultFormatter": "ms-python.black-formatter",
   "editor.formatOnSave": true,
   "editor.inlineSuggest.enabled": true,
   "files.autoSave": "afterDelay",
   "files.trimFinalNewlines": true,
   "files.trimTrailingWhitespace": true,
-  "flake8.args": [
-    "--ignore=E203, E266, E501, W503, F403, F401",
-    "--max-line-length=88"
-  ],
   "git.autofetch": true,
-  "isort.args": ["--profile", "black"],
   "mypy-type-checker.args": [
     "--follow-imports=silent",
     "--show-column-numbers",

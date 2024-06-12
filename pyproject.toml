@@ -1,25 +1,19 @@
 [project]
 name = "template"
 version = "0.0.1"
-authors = [
-    { name="Michael I Chen", email="michael.chen.0@gmail.com" },
-]
+authors = [{ name = "Michael I Chen", email = "michael.chen.0@gmail.com" }]
 description = "Package description"
-dependencies = [
-    "is_instance",
-]
+dependencies = ["is_instance"]
 
 [project.optional-dependencies]
 dev = [
-    "black",
     "coverage",
     "coverage-badge",
     "ipython",
-    "isort",
-    "flake8",
     "mypy",
     "pylint",
     "pytest",
+    "ruff",
     "twine",
 ]
 
@@ -29,26 +23,6 @@ dev = [
 # [project.urls]
 # source = "https://github.com/michen00/template"
 # download = "https://pypi.org/project/template/#files"
-
-[tool.black]
-line-length = 88
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-
-[tool.isort]
-profile = "black"
 
 [tool.mypy]
 exclude = "notebook/ | *.ipynb"
