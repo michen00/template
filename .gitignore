@@ -52,3 +52,4 @@ __pycache__
 .pylintrc
 .pypirc
 .pytest_cache
+.venv
