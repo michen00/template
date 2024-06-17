@@ -37,7 +37,7 @@ target-version = "py312"
 
 [lint]
 select = ["ALL"]
-ignore = ["ANN101", "E203", "E266", "E501", "E712", "ERA001", "F401", "F403", "PD901"]
+ignore = ["ANN101", "E203", "E266", "E501", "E712", "ERA001", "F401", "F403", "PD901", "PLR2004"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
@@ -45,6 +45,9 @@ unfixable = []
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.pydocstyle]
+convention = "google"
 
 [format]
 # Like Black, use double quotes for strings.
