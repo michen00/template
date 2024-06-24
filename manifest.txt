@@ -6,6 +6,7 @@ src/template/py.typed
 tests/.gitkeep
 .editorconfig
 .gitattributes
+.git-blame-ignore-revs
 .gitignore
 .pylintrc
 .ruff.toml
