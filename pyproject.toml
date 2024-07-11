@@ -4,6 +4,7 @@ version = "0.0.1"
 authors = [{ name = "Michael I Chen", email = "michael.chen.0@gmail.com" }]
 description = "Package description"
 dependencies = []
+readme = "README.md"
 
 [project.optional-dependencies]
 dev = [
