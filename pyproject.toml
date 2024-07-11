@@ -21,9 +21,8 @@ dev = [
 # [project.scripts]
 # script-name = "package.bin.script_name:main"
 
-# [project.urls]
-# source = "https://github.com/michen00/template"
-# download = "https://pypi.org/project/template/#files"
+[project.urls]
+Homepage = "https://github.com/michen00/template"
 
 [tool.mypy]
 exclude = "notebook/ | *.ipynb"
