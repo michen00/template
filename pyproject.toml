@@ -1,6 +1,6 @@
 [project]
 name = "template"
-version = "0.0.1"
+version = "0.0.0"
 authors = [{ name = "Michael I Chen", email = "michael.chen.0@gmail.com" }]
 description = "Package description"
 dependencies = []
