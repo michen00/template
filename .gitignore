@@ -1,55 +1,61 @@
-# Exclude common OS files
-.DS_Store
-
-# Exclude common IDE project files
-.checkstyle
-.classpath
-.editorconfig
-.idea
-.project
-.settings
-.vscode/
-*.iml
-**/.vscode/*
-
-# Exclude .env files
-.env
-
-#  Local .terraform directories
-**/.terraform/*
-.terraform/
-
-# .tfstate files
-*.tfstate
-*.tfstate.*
-
-# .tfvars files
-*.tfvars
-
-# Hashicorp Lock files
-*.lock.hcl
-
-# MS Office temporary files
-~$*
-
-# git files
-.gitattributes
-!.gitkeep
-!.gitignore
-
 # Installation artifacts
 *.egg-info
-build
-dist
+build/
+dist/
 
-# Project files
-__pycache__
-.aws
+# Common OS-generated files
+.DS_Store
+.Spotlight-V100/
+.TemporaryItems/
+.Trashes/
+~$*
+desktop.ini
+ehthumbs.db
+thumbs.db
+
+# IDE files
+.idea/
+.project/
+.spyproject/
+.vscode/
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# Python-specific files
+__pycache__/
 .coverage
-.flake8
-.ipynb_checkpoints
-.mypy_cache
-.pylintrc
+.ipynb_checkpoints/
+.mypy_cache/
+.nox/
 .pypirc
-.pytest_cache
-.venv
+.pytest_cache/
+.tox/
+.venv/
+
+# Project-specific files
+.aws/
+.checkstyle/
+.classpath/
+.env
+.settings
+
+# Log files
+*.debug
+*.err
+*.log
+*.out
+*.trace
+
+# Temporary files
+*.bak
+*.old
+*.swo
+*.swp
+*.tmp
+
+# Git files
+!.gitattributes
+!.gitignore
+!.gitkeep
+!.gitmodules
