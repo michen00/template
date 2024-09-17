@@ -2,11 +2,19 @@
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[python]": {
-    "editor.codeActionsOnSave": { "source.organizeImports": "explicit" },
-    "editor.formatOnSave": true
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.formatOnType": false
   },
   "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
   "editor.formatOnSave": true,
@@ -21,12 +29,16 @@
     "--disallow-untyped-defs",
     "--disallow-untyped-calls"
   ],
-  "mypy-type-checker.severity": { "error": "Warning" },
+  "mypy-type-checker.severity": {
+    "error": "Warning"
+  },
   "notebook.formatOnCellExecution": true,
   "notebook.output.textLineLimit": 88,
   "prettier.endOfLine": "auto",
   "python.analysis.extraPaths": ["./src"],
   "python.analysis.typeCheckingMode": "basic",
   "python.languageServer": "Pylance",
-  "workbench.editorAssociations": { "*.ipynb": "jupyter-notebook" }
+  "workbench.editorAssociations": {
+    "*.ipynb": "jupyter-notebook"
+  }
 }
