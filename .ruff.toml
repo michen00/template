@@ -29,16 +29,14 @@ exclude = [
 ]
 
 # Same as Black.
-line-length = 88
+line-length  = 88
 indent-width = 4
 
-# Assume Python 3.12
 target-version = "py312"
 
 [lint]
 select = ["ALL"]
 ignore = [
-    "ANN101",  # missing-type-self
     "ERA001",  # commented-out-code
     "PD901",   # pandas-df-variable-name
     "PLR2004", # magic-value-comparison
@@ -47,7 +45,7 @@ ignore = [
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
-fixable = ["ALL"]
+fixable   = ["ALL"]
 unfixable = []
 
 # Allow unused variables when underscore-prefixed.
@@ -55,11 +53,17 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [lint.per-file-ignores]
 "__init__.py" = [
-    "D104", # Missing docstring in public package
-    "F401", # Unused import
-    "F403", # Import * used
+    "D104", # undocumented-public-package
+    "F401", # unused-import
+    "F403", # undefined-local-with-import-star
 ]
-"tests/*.py" = ["S101"] # Use of assert detected
+"tests/*.py" = ["S101"] # Use of assert
+"*/bin/*.py" = ["T201"] # Use of print
+"*.ipynb" = [
+    "F401", # unused-import
+    "S101", # Use of assert
+    "T201", # Use of print
+]
 
 [lint.pydocstyle]
 convention = "google"
