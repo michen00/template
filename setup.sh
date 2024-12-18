@@ -9,7 +9,7 @@ cat "$MANIFEST" > /dev/null 2>&1 || { echo "$MANIFEST cannot be read. Exiting sc
 
 while true; do
     while true; do
-        read -p "Enter a name for the project: " PROJECTNAME
+        read -pr "Enter a name for the project: " PROJECTNAME
 
         if [ -z "$PROJECTNAME" ]; then
             echo "Project name cannot be empty."
@@ -27,11 +27,11 @@ while true; do
     if [ -d "$PROJECT" ]; then
         echo "Directory $PROJECT exists."
         if [ "$PROJECTNAME" == "$CWD" ]; then
-            echo "Project name cannot be '"$CWD"'."
+            echo "Project name cannot be '$CWD'."
             continue
         fi
 
-        read -p "Do you want to overwrite the directory? (y/n): " OVERWRITE
+        read -pr "Do you want to overwrite the directory? (y/n): " OVERWRITE
 
         if [ "$OVERWRITE" == "y" ]; then
             echo "Overwriting directory $PROJECT..."
@@ -55,34 +55,38 @@ cd "$PROJECT" \
 && mv src/template "src/$PROJECTNAME" \
 && sed -i.bak "s/template/$PROJECTNAME/g" "$(find "$PROJECT" -type f -exec grep -l "template" {} +)" \
 && find . -name "*.bak" -type f -delete \
+&& if command -v poetry &> /dev/null; then
+    cd "$PROJECT" && poetry update
+fi \
 && echo "Project created successfully in $PROJECT." \
 && read -pr "Do you want to initialize a new Git repository in $PROJECT? (y/n): " INIT_GIT
 
 if [ "$INIT_GIT" == y ]; then
-
-    GITHUB_USERNAME=michen00
+    read -pr "Enter your GitHub username: " GITHUB_USERNAME
     GITHUB_REPO_URL="https://github.com/$GITHUB_USERNAME/$PROJECTNAME.git"
     git config --global init.defaultBranch main
 
-    cd "$PROJECT" && git init \
-    && echo "Git repository initialized in $PROJECT"
-    if [ $? -ne 0 ]; then
+    cd "$PROJECT" \
+    && if ! git init; then
         echo "Error: Git init failed. Exiting script."
         exit 1
+    else
+        echo "Git repository initialized in $PROJECT"
     fi
 
-    git remote add origin "git@github.com:$GITHUB_USERNAME/$PROJECTNAME.git" \
+    cd "$PROJECT" \
+    && git remote add origin "git@github.com:$GITHUB_USERNAME/$PROJECTNAME.git" \
     && git add . \
     && git commit -m "Update template" \
     && git pull origin main --rebase -X theirs \
     && rm manifest.txt README_template.md setup.sh; rm -rf src/template \
     && git add . \
     && git commit --amend --no-edit \
-    && git push -u origin main \
-    && echo "Project pushed to GitHub repository: $GITHUB_REPO_URL"
-    if [ $? -ne 0 ]; then
-        echo "Error: Git push incomplete. Exiting script."
+    && if ! git push -u origin main; then
+        echo "Error: Git push failed. Exiting script."
         exit 1
+    else
+        echo "Project pushed to GitHub repository: $GITHUB_REPO_URL"
     fi
 fi
 
