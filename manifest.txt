@@ -5,6 +5,7 @@
 .pylintrc
 .ruff.toml
 .vscode/settings.json
+environment.yml
 Makefile
 pyproject.toml
 README_template.md
