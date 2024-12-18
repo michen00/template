@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TEMPLATE="$(pwd)"
-CWD=$(basename $TEMPLATE)
+CWD=$(basename "$TEMPLATE")
 
 MANIFEST="$TEMPLATE/manifest.txt"
 
@@ -53,10 +53,10 @@ cd "$PROJECT" \
 && rm -rf .git \
 && mv README_template.md README.md \
 && mv src/template "src/$PROJECTNAME" \
-&& sed -i.bak "s/template/$PROJECTNAME/g" $(find "$PROJECT" -type f -exec grep -l "template" {} +) \
+&& sed -i.bak "s/template/$PROJECTNAME/g" "$(find "$PROJECT" -type f -exec grep -l "template" {} +)" \
 && find . -name "*.bak" -type f -delete \
 && echo "Project created successfully in $PROJECT." \
-&& read -p "Do you want to initialize a new Git repository in $PROJECT? (y/n): " INIT_GIT
+&& read -pr "Do you want to initialize a new Git repository in $PROJECT? (y/n): " INIT_GIT
 
 if [ "$INIT_GIT" == y ]; then
 
