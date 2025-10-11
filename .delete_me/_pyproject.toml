@@ -1,0 +1,54 @@
+[tool.poetry]
+# package-mode = true
+authors     = ["Michael I Chen <michael.chen.0@gmail.com>"]
+description = "an exploration in text–image learning"
+name        = "template"
+packages    = [{ include = "template", from = "src" }]
+readme      = "README.md"
+repository  = "https://github.com/michen00/template"
+version     = "0.0.0"
+
+[tool.poetry.dependencies]
+pip    = "^24.3.1"
+python = "3.12.*"
+typer  = "^0.15.1"
+
+[tool.poetry.group.dev.dependencies]
+ipykernel  = "^6.29.5"
+mypy       = "^1.13.0"
+pandera    = "^0.21.1"
+pre-commit = "^4.0.1"
+pylint     = "^3.3.2"
+ruff       = "^0.8.3"
+
+[tool.poetry.group.test.dependencies]
+pytest       = "^8.3.4"
+pytest-cov   = "^6.0.0"
+pytest-xdist = "^3.6.1"
+
+[tool.poetry.scripts]
+update-local-path = "poc.bin.update_local_path:run_script"
+
+
+[tool.mypy]
+disable_error_code = ["import-untyped"]
+enable_incomplete_feature = [
+    "InlineTypedDict",
+    "NewGenericSyntax",
+    "PrecisionTupleTypes",
+]
+exclude = "notebooks/|*.ipynb"
+packages = ["template"]
+plugins = ["pandera.mypy", "pydantic.mypy"]
+
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires      = ["poetry-core"]
+
+# [project.scripts]
+# script-name = "package.bin.script_name:main"
