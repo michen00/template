@@ -81,7 +81,8 @@ def install(session: nox.Session) -> None:  # noqa: PLR0915
                 target.symlink_to(source)
             else:
                 logger.warning(
-                    "Source file does not exist, skipping symlink: %s", source
+                    "Source file does not exist, skipping symlink: %s",
+                    source,
                 )
 
     symlink_files(contents / "icons", manifest.icons, icons)
@@ -103,7 +104,7 @@ def install(session: nox.Session) -> None:  # noqa: PLR0915
     maya_year = PYTHON_VERSION_2_MAYA_VERSION[session_python]
     env_dir = Path.home() / env_dir / maya_year
     (env_dir / "Maya.env").write_text(
-        "\n".join(f"{k}={v}" for k, v in env.items()) + "\n"
+        "\n".join(f"{k}={v}" for k, v in env.items()) + "\n",
     )
 
     # Add the site-packages directory to userSetup.py
@@ -120,12 +121,12 @@ def install(session: nox.Session) -> None:  # noqa: PLR0915
         pattern = re.compile(
             r"(?m)^(?:(?:site|__import__\s*\(\s*[\'\"]site[\'\"]\s*\))\s*\.\s*)?addsitedir"
             rf"\s*\(\s*[\'\"]{re.escape(sp)}[\'\"]\s*\)\s*"
-            r"[;\s]*(?:#.*)?$"
+            r"[;\s]*(?:#.*)?$",
         )
         content = user_setup_file.read_text()
         content = pattern.sub("", content)
         user_setup_file.write_text(
-            f'{content}\n__import__("site").addsitedir("{sp}")\n'
+            f'{content}\n__import__("site").addsitedir("{sp}")\n',
         )
 
     _ensure_addsitedir(site_packages)
@@ -134,14 +135,20 @@ def install(session: nox.Session) -> None:  # noqa: PLR0915
     # Ensure maya.cmds import is present for shelf-mode startup convenience
     content = user_setup_file.read_text()
     maya_cmds_pattern = re.compile(
-        r"(?m)^(?!\s*#)\s*from\s+maya\s+import\s+cmds\s*(?:#.*)?$"
+        r"(?m)^(?!\s*#)\s*from\s+maya\s+import\s+cmds\s*(?:#.*)?$",
     )
     if maya_cmds_pattern.search(content) is None:
         user_setup_file.write_text(f"{content}\nfrom maya import cmds\n")
     file_arg = user_setup_file.as_posix()
     session.run("ruff", "format", file_arg, external=True)
     session.run(
-        "ruff", "check", file_arg, "--fix", "--exit-zero", "--silent", external=True
+        "ruff",
+        "check",
+        file_arg,
+        "--fix",
+        "--exit-zero",
+        "--silent",
+        external=True,
     )
 
 
@@ -153,7 +160,8 @@ def uninstall(session: nox.Session) -> None:
     devkit_base = Path.home() / "devkitBase"
 
     def unlink_files(
-        items: list[Path], dest_dir: Literal["icons", "plug-ins", "scripts"]
+        items: list[Path],
+        dest_dir: Literal["icons", "plug-ins", "scripts"],
     ) -> None:
         """Unlink items from dest_dir."""
         dest = devkit_base / dest_dir
@@ -176,11 +184,14 @@ def docs(session: nox.Session) -> None:
     Pass --non-interactive to avoid serving. The first positional argument is the target
     directory.
     """
-    import argparse  # noqa: PLC0415
+    import argparse
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-b", dest="builder", default="html", help="Build target (default: html)"
+        "-b",
+        dest="builder",
+        default="html",
+        help="Build target (default: html)",
     )
     parser.add_argument("output", nargs="?", help="Output directory")
     args, posargs = parser.parse_known_args(session.posargs)
