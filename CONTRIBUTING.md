@@ -2,21 +2,11 @@
 
 # Regarding contributions
 
-All types of contributions are encouraged and valued. See the [Table of Contents](#table-of-contents) for different ways to help and details about how this project handles them. Please make sure to read the relevant section before making your contribution. It will make it a lot easier for us maintainers and smooth out the experience for all involved. We look forward to your contributions!
+Welcome! We're happy to have you here. All types of contributions are encouraged and valued.
+
+See the [Table of Contents](#table-of-contents) for different ways to help and details about how this project handles them. Please make sure to read the relevant section before making your contribution. It will make it a lot easier for us maintainers and smooth out the experience for all involved. We look forward to your contributions!
 
 The project has defined a [code of conduct](CODE_OF_CONDUCT.md) to ensure a welcoming and friendly environment. Please adhere to it in all interactions.
-
-## TODO
-
-- video demos
-
-- improve test coverage
-- use matrix python versions in CI
-- audit and review tests
-- define custom exceptions
-- define TypedDicts for script default configs
-- distribute via CloudSmith (or PyPI)
-- update names to be can-agnostic
 
 <!-- omit in toc -->
 
@@ -31,6 +21,12 @@ The project has defined a [code of conduct](CODE_OF_CONDUCT.md) to ensure a welc
 
 ## I want to contribute
 
+There are many ways to contribute. Improving the documentation is no less important than improving the code of the library itself. If you find a typo in the documentation or have made improvements, do not hesitate to create a GitHub issue or preferably submit a GitHub pull request.
+
+There are many other ways to help. In particular, improving, triaging, and investigating issues or reviewing other developers' pull requests are valuable contributions that decrease the burden on the project maintainers.
+
+Another way to contribute is to report issues you're facing, and give a "thumbs up" on issues that others reported and that are relevant to you. It also helps us if you spread the word: reference the project from your blog and articles, link to it from your website, or simply star it in GitHub to say "I use it".
+
 ### Suggesting enhancements
 
 This section guides you through submitting an enhancement suggestion, **including completely new features and minor improvements to existing functionality**. Following these guidelines will help maintainers and the community understand your suggestion and find related suggestions.
@@ -39,7 +35,7 @@ This section guides you through submitting an enhancement suggestion, **includin
 
 - Make sure that you are using the latest version.
 - Read the documentation carefully and find out if the functionality is already covered, maybe by an individual configuration.
-- Find out whether your idea fits with the scope and aims of the project. Keep in mind that we want features that will be useful to the majority of our users and not just a small subset.
+- Find out whether your idea fits with the scope and aims of the project.
 
 #### How do I submit a good enhancement suggestion?
 
@@ -59,7 +55,23 @@ Before opening a Pull Request (PR), please consider the following guidelines:
 
 And finally, when you are satisfied with your changes, open a new PR.
 
+### Recommended VSCode extensions
+
+We recommend installing the following VSCode extensions to encourage consistent code style and formatting:
+
+- [Even Better TOML](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
+- [GitHub Actions](https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-github-actions)
+- [markdownlint](https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint)
+- [MyPy Type Checker](https://marketplace.visualstudio.com/items?itemName=ms-python.mypy-type-checker)
+- [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- [Pylint](https://marketplace.visualstudio.com/items?itemName=ms-python.pylint)
+- [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+- [Ruff](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
+- [ShellCheck](https://marketplace.visualstudio.com/items?itemName=timonwong.shellcheck)
+- [shfmt](https://marketplace.visualstudio.com/items?itemName=mkhl.shfmt)
+- [YAML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)
+
 ## Creating a release
 
 1. Describe the new release in `CHANGELOG.md` (`git reset main && git pull && git cliff --unreleased`)
-1. TODO: finish this section
+1. ...

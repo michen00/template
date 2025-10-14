@@ -58,9 +58,6 @@ cd "$PROJECT" &&
   mv src/template "src/$PROJECTNAME" &&
   sed -i.bak "s/template/$PROJECTNAME/g" "$(find "$PROJECT" -type f -exec grep -l "template" {} +)" &&
   find . -name "*.bak" -type f -delete &&
-  if command -v poetry &> /dev/null; then
-    cd "$PROJECT" && poetry update
-  fi &&
   echo "Project created successfully in $PROJECT." &&
   read -pr "Do you want to initialize a new Git repository in $PROJECT? (y/n): " INIT_GIT
 
@@ -80,7 +77,7 @@ if [ "$INIT_GIT" == y ]; then
   cd "$PROJECT" &&
     git remote add origin "git@github.com:$GITHUB_USERNAME/$PROJECTNAME.git" &&
     git add . &&
-    git commit -m "Update template" &&
+    git commit -m "chore: update template" &&
     git pull origin main --rebase -X theirs &&
     rm manifest.txt README_template.md setup.sh
   rm -rf src/template &&
