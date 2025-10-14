@@ -1,0 +1,6 @@
+exclude_dirs:
+  - noxfile.py
+assert_used:
+  skips:
+    - ./**/test_*.py
+    - ./tests/**

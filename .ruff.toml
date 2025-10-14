@@ -57,6 +57,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
     "F401", # unused-import
     "F403", # undefined-local-with-import-star
 ]
+"noxfile.py" = ["S603"] # subprocess-without-shell-equals-true
 "tests/*.py" = ["S101"] # Use of assert
 "*/bin/*.py" = ["T201"] # Use of print
 "*.ipynb" = [
