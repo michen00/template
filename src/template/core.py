@@ -1,3 +1,3 @@
-"""Placeholder for core module."""
+"""Placeholder for the core module."""
 
-__all__: list = []
+__all__ = ()

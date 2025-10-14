@@ -30,3 +30,4 @@ src/template/bin/example_script.py
 src/template/core.py
 src/template/py.typed
 tests/.gitkeep
+uv.lock

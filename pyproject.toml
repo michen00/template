@@ -4,9 +4,8 @@ version = "0.0.0"
 description = "template"
 readme = "README.md"
 authors = [{ name = "Michael I Chen", email = "michael.chen.0@gmail.com" }]
-requires-python = ">=3.10,<3.12"
+requires-python = ">=3.11"
 dependencies = [
-    "nox[uv]>=2025.5.1",
     "numpy>=2.2.6",
     "pandera[polars]>=0.25.0",
     "plotly>=6.3.1",
@@ -26,6 +25,7 @@ example-script = "template.example_script:main"
 [dependency-groups]
 dev = [
     "mypy>=1.17.0",
+    "nox[uv]>=2025.5.1",
     "pip>=25.2",
     "pre-commit>=4.3.0",
     "pylint>=3.3.2",
@@ -60,6 +60,12 @@ strict = true
 warn_return_any = true
 warn_unreachable = true
 
+[[tool.uv.index]]
+name        = "testpypi"
+url         = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit    = true
+
 [tool.pytest.ini_options]
 addopts = [
     "-ra",
@@ -76,3 +82,7 @@ markers = [
 minversion = "8.2"
 testpaths = ["tests"]
 xfail_strict = true
+
+[build-system]
+requires      = ["uv_build >= 0.8.17, <0.9.0"]
+build-backend = "uv_build"
