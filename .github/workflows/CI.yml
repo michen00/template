@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .codespellrc
+      - .coveragerc
+      - .editorconfig
+      - .pylintrc
+      - .python-version
+      - "*.{yaml,yml}"
+      - "*.lock"
+      - "*.md"
+      - "*.py"
+      - "*.sh"
+      - "*.toml"
+      - src/**
+      - tests/**
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash -el {0}
+
+env:
+  CACHE_NUMBER: 0
+
+jobs:
+  run-ci:
+    name: Run CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12"]
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set cache date
+        run: |
+          echo "DATE=$(date +'%Y%m%d')" >> "$GITHUB_ENV"
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            .github/workflows/.cache-buster
+            .github/workflows/CI.yml
+            noxfile.py
+            pyproject.toml
+            uv.lock
+      - name: Cache .venv directory
+        id: cache-venv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: ${{ runner.os }}-venv-${{ hashFiles('uv.lock') }}-${{ hashFiles('pyproject.toml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+      - name: Cache pre-commit hooks
+        id: cache-pre-commit
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+      - name: Cache nox environments
+        uses: actions/cache@v4
+        with:
+          path: .nox
+          key: ${{ runner.os }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('uv.lock') }}-${{ hashFiles('pyproject.toml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+      - name: Install dependencies
+        run: uv sync --no-editable --no-install-project
+      - name: Run pytest
+        run: |
+          uv sync --only-group test
+          uv run nox -s test
+      - name: Lint code
+        run: |
+          uv sync --only-dev
+          uv run nox -s precommit
