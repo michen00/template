@@ -1,6 +1,6 @@
 """A placeholder test."""
 
-__all__: list = []
+__all__ = ()
 
 
 def test_() -> None:
