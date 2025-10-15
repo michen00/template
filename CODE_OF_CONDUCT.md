@@ -26,7 +26,7 @@ We agree to restrict the following behaviors in our community. Instances, threat
 
 1. **Harassment.** Violating explicitly expressed boundaries or engaging in unnecessary personal attention after any clear request to stop.
 2. **Character attacks.** Making insulting, demeaning, or pejorative comments directed at a community member or group of people.
-3. **Stereotyping or discrimination.** Characterizing anyone’s personality or behavior on the basis of immutable identities or traits.
+3. **Stereotyping or discrimination.** Characterizing anyone’s personality or behavior based on immutable identities or traits.
 4. **Sexualization.** Behaving in a way that would generally be considered inappropriately intimate in the context or purpose of the community.
 5. **Violating confidentiality**. Sharing or acting on someone's personal or private information without their permission.
 6. **Endangerment.** Causing, encouraging, or threatening violence or other harm toward any person or group.
@@ -45,7 +45,7 @@ Tensions can occur between community members even when they are trying their bes
 
 When an incident does occur, it is important to report it promptly. Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at [michael.chen.0@gmail.com](mailto:michael.chen.0@gmail.com). All complaints will be reviewed and investigated promptly and fairly.
 
-Community Moderators take reports of violations seriously and will make every effort to respond in a timely manner. They will investigate all reports of code of conduct violations, reviewing messages, logs, and recordings, or interviewing witnesses and other participants. Community Moderators will keep investigation and enforcement actions as transparent as possible while prioritizing safety and confidentiality. In order to honor these values, enforcement actions are carried out in private with the involved parties, but communicating to the whole community may be part of a mutually agreed upon resolution.
+Community Moderators take reports of violations seriously and will make every effort to respond in a timely manner. They will investigate all reports of code of conduct violations, reviewing messages, logs, and recordings, or interviewing witnesses and other participants. Community Moderators will keep investigation and enforcement actions as transparent as possible while prioritizing safety and confidentiality. To honor these values, enforcement actions are carried out in private with the involved parties, but communicating to the whole community may be part of a mutually agreed-upon resolution.
 
 ## Addressing and Repairing Harm
 
@@ -60,7 +60,7 @@ If an investigation by the Community Moderators finds that this Code of Conduct 
    2. Consequence: A private, written warning with a time-limited cooldown period designed to underscore the seriousness of the situation and give the community members involved time to process the incident. The cooldown period may be limited to particular communication channels or interactions with particular community members.
    3. Repair: Examples of repair may include making an apology, using the cooldown period to reflect on actions and impact, and being thoughtful about re-entering community spaces after the period is over.
 3. Temporary Suspension
-   1. Event: A pattern of repeated violation which the Community Moderators have tried to address with warnings, or a single serious violation.
+   1. Event: A pattern of repeated violations that Community Moderators have tried to address with warnings, or a single serious violation.
    2. Consequence: A private written warning with conditions for return from suspension. In general, temporary suspensions give the person being suspended time to reflect upon their behavior and possible corrective actions.
    3. Repair: Examples of repair include respecting the spirit of the suspension, meeting the specified conditions for return, and being thoughtful about how to reintegrate with the community when the suspension is lifted.
 4. Permanent Ban
@@ -72,7 +72,7 @@ This enforcement ladder is intended as a guideline. It does not limit the abilit
 
 ## Scope
 
-This Code of Conduct applies within all community spaces, and also applies when an individual is officially representing the community in public or other spaces. Examples of representing our community include using an official email address, posting via an official social media account, or acting as an appointed representative at an online or offline event.
+This Code of Conduct applies within all community spaces and also applies when an individual is officially representing the community in public or other spaces. Examples of representing our community include using an official email address, posting via an official social media account, or acting as an appointed representative at an online or offline event.
 
 ## Attribution
 
