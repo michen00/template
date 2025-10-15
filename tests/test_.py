@@ -1,4 +1,4 @@
-"""placeholder test."""
+"""A placeholder test."""
 
 __all__: list = []
 
