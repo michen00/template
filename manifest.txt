@@ -11,6 +11,7 @@
 .githooks/prepare-commit-msg
 .github/.copilot-instructions.md
 .github/dependabot.yml
+.github/instructions/CI.instructions.md
 .github/workflows/.cache-buster
 .github/workflows/CI.yml
 .github/workflows/greet-new-contributors.yml
