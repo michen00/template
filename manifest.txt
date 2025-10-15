@@ -30,7 +30,6 @@ cliff.toml
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 docs/__init__.py
-environment.yml
 LICENSE
 Makefile
 noxfile.py
