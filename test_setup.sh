@@ -42,21 +42,21 @@ import time
 
 project_name = os.environ["PROJECT_NAME"]
 
-master_fd, slave_fd = pty.openpty()
+controller_fd, client_fd = pty.openpty()
 process = subprocess.Popen(
     ["./setup.sh"],
-    stdin=slave_fd,
+    stdin=client_fd,
     stdout=subprocess.PIPE,
     stderr=subprocess.PIPE,
     text=True,
 )
-os.close(slave_fd)
+os.close(client_fd)
 
 for line in ("2", project_name):
-    os.write(master_fd, (line + "\n").encode())
+    os.write(controller_fd, (line + "\n").encode())
     time.sleep(0.2)
 
-os.close(master_fd)
+os.close(controller_fd)
 stdout, stderr = process.communicate()
 
 sys.stdout.write(stdout)
