@@ -1,9 +1,10 @@
 name: Lint GitHub Actions workflows
+permissions:
+  contents: read
 on:
   pull_request:
     paths:
       - ".github/workflows/**"
-
 jobs:
   actionlint:
     runs-on: ubuntu-latest
