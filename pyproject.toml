@@ -25,7 +25,7 @@ example-script = "template.example_script:main"
 
 [dependency-groups]
 dev = [
-    "mypy>=1.18.2   ",
+    "mypy>=1.18.2",
     "pip>=25.2",
     "pre-commit>=4.3.0",
     "prek>=0.2.8",
