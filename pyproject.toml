@@ -6,12 +6,13 @@ readme = "README.md"
 authors = [{ name = "Michael I Chen", email = "michael.chen.0@gmail.com" }]
 requires-python = ">=3.11"
 dependencies = [
-    "numpy>=2.2.6",
+    "nox[uv]>=2025.10.14",
+    "numpy>=2.3.4",
     "pandera[polars]>=0.25.0",
     "plotly>=6.3.1",
     "polars>=1.32.2",
     "pydantic-settings>=2.10.1",
-    "pydantic>=2.11.7",
+    "pydantic>=2.12.2",
     "pyyaml>=6.0.2",
     "rich-argparse>=1.7.1",
     "structlog>=25.4.0",
@@ -25,7 +26,6 @@ example-script = "template.example_script:main"
 [dependency-groups]
 dev = [
     "mypy>=1.18.2   ",
-    "nox[uv]>=2025.5.1",
     "pip>=25.2",
     "pre-commit>=4.3.0",
     "prek>=0.2.8",
