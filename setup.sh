@@ -43,7 +43,8 @@ replace_template_tokens() {
 
   while IFS= read -r file; do
     [ -n "$file" ] || continue
-    sed -i.bak "s/template/$project_name/g" "$file" || return 1
+    # Force POSIX locale so BSD sed handles non-UTF8 bytes predictably.
+    LC_ALL=C sed -i.bak "s/template/$project_name/g" "$file" || return 1
   done <<< "$files"
 
   return 0
@@ -102,7 +103,7 @@ if [[ $SETUP_CHOICE == "1" ]]; then
     # Skip if it's in manifest
     SHOULD_KEEP=false
     for KEEP in "${KEEP_FILES[@]}"; do
-      if [[ $FILE_REL == "$KEEP" ]] || [[ $FILE_REL == "$KEEP"/* ]]; then
+      if [[ $KEEP == "$FILE_REL" ]] || [[ $KEEP == "$FILE_REL"/* ]]; then
         SHOULD_KEEP=true
         break
       fi
