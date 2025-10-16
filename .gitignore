@@ -780,4 +780,5 @@ vite.config.ts.timestamp-*
 # End of https://github.com/github/gitignore/blob/main/Global/Patch.gitignore
 
 .delete-me/
+!.githooks/.gitignore
 !.gitkeep
