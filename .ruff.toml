@@ -37,6 +37,7 @@ target-version = "py312"
 [lint]
 select = ["ALL"]
 ignore = [
+    "COM812",  # missing-trailing-comma
     "ERA001",  # commented-out-code
     "PLR2004", # magic-value-comparison
     "TD002",   # missing-todo-author
