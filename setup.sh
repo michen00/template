@@ -1,18 +1,31 @@
 #!/bin/bash
 
+# TODO: refactor
+
 TEMPLATE="$(pwd)"
 MANIFEST="$TEMPLATE/manifest.txt"
+QUIET="${SETUP_SH_QUIET:-0}"
 
-rename_workflow_copilot_file() {
-  local root_dir="$1"
-  local hidden_file="$root_dir/.github/workflows/.copilot-instructions.md"
-  local target_file="$root_dir/.github/workflows/copilot-instructions.md"
-
-  if [ -f "$hidden_file" ]; then
-    mv "$hidden_file" "$target_file" || return 1
+quiet_echo() {
+  if [ "$QUIET" != "1" ]; then
+    echo "$1"
   fi
+}
 
-  return 0
+quiet_blank() {
+  if [ "$QUIET" != "1" ]; then
+    echo ""
+  fi
+}
+
+read_input() {
+  local __var="$1"
+  local __prompt="$2"
+  if [ "$QUIET" = "1" ]; then
+    read -r "${__var:?}"
+  else
+    read -r -p "$__prompt" "${__var:?}"
+  fi
 }
 
 replace_template_tokens() {
@@ -43,17 +56,17 @@ cat "$MANIFEST" > /dev/null 2>&1 || {
 }
 
 # Ask user where to set up the project
-echo "Where would you like to set up your project?"
-echo "1) Current directory (will remove files not in manifest)"
-echo "2) New directory"
-read -r -p "Enter choice (1 or 2): " SETUP_CHOICE
+quiet_echo "Where would you like to set up your project?"
+quiet_echo "1) Current directory (will remove files not in manifest)"
+quiet_echo "2) New directory"
+read_input SETUP_CHOICE "Enter choice (1 or 2): "
 
 if [ "$SETUP_CHOICE" == "1" ]; then
   # === CURRENT DIRECTORY SETUP ===
 
   # Get project name
   while true; do
-    read -r -p "Enter a name for the project: " PROJECTNAME
+    read_input PROJECTNAME "Enter a name for the project: "
 
     if [ -z "$PROJECTNAME" ]; then
       echo "Project name cannot be empty."
@@ -69,8 +82,8 @@ if [ "$SETUP_CHOICE" == "1" ]; then
   PROJECT="$TEMPLATE"
 
   # Show what will be removed
-  echo ""
-  echo "The following files will be REMOVED (not in manifest):"
+  quiet_blank
+  quiet_echo "The following files will be REMOVED (not in manifest):"
 
   # Build list of files to keep (from manifest)
   KEEP_FILES=()
@@ -102,15 +115,15 @@ if [ "$SETUP_CHOICE" == "1" ]; then
 
     if ! $SHOULD_KEEP; then
       TO_REMOVE+=("$FILE_REL")
-      echo "  - $FILE_REL"
+      quiet_echo "  - $FILE_REL"
     fi
   done < <(find . -mindepth 1 -maxdepth 1 -print0)
 
-  echo ""
-  read -r -p "Continue with setup? This will DELETE the files listed above. (y/n): " CONFIRM
+  quiet_blank
+  read_input CONFIRM "Continue with setup? This will DELETE the files listed above. (y/n): "
 
   if [ "$CONFIRM" != "y" ]; then
-    echo "Setup cancelled. No changes made."
+    quiet_echo "Setup cancelled. No changes made."
     exit 0
   fi
 
@@ -121,11 +134,11 @@ if [ "$SETUP_CHOICE" == "1" ]; then
 
   # Transform template files
   mv README_template.md README.md &&
+    mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
     mv src/template "src/$PROJECTNAME" &&
-    rename_workflow_copilot_file "$PROJECT" &&
     replace_template_tokens "$PROJECT" "$PROJECTNAME" &&
     find "$PROJECT" -name "*.bak" -type f -delete &&
-    echo "Project set up successfully in $PROJECT."
+    quiet_echo "Project set up successfully in $PROJECT."
 
 elif [ "$SETUP_CHOICE" == "2" ]; then
   # === NEW DIRECTORY SETUP ===
@@ -133,14 +146,14 @@ elif [ "$SETUP_CHOICE" == "2" ]; then
   # Get project name and validate directory doesn't exist
   while true; do
     while true; do
-      read -r -p "Enter a name for the project: " PROJECTNAME
+      read_input PROJECTNAME "Enter a name for the project: "
 
       if [ -z "$PROJECTNAME" ]; then
-        echo "Project name cannot be empty."
+        quiet_echo "Project name cannot be empty."
         continue
       fi
       if [[ $PROJECTNAME =~ [^a-zA-Z0-9_-] ]]; then
-        echo "Project name can only contain letters, numbers, hyphens, and underscores."
+        quiet_echo "Project name can only contain letters, numbers, hyphens, and underscores."
         continue
       fi
       break
@@ -149,15 +162,15 @@ elif [ "$SETUP_CHOICE" == "2" ]; then
     PROJECT="$(cd "$TEMPLATE" && cd .. && pwd)/$PROJECTNAME"
 
     if [ -d "$PROJECT" ]; then
-      echo "Directory $PROJECT already exists."
-      read -r -p "Do you want to overwrite it? (y/n): " OVERWRITE
+      quiet_echo "Directory $PROJECT already exists."
+      read_input OVERWRITE "Do you want to overwrite it? (y/n): "
 
       if [ "$OVERWRITE" == "y" ]; then
-        echo "Overwriting directory $PROJECT..."
+        quiet_echo "Overwriting directory $PROJECT..."
         rm -rf "$PROJECT"
         break
       else
-        echo "Please choose a different name."
+        quiet_echo "Please choose a different name."
         continue
       fi
     fi
@@ -180,16 +193,16 @@ elif [ "$SETUP_CHOICE" == "2" ]; then
   # Transform template files
   cd "$PROJECT" &&
     mv README_template.md README.md &&
+    mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
     mv src/template "src/$PROJECTNAME" &&
-    rename_workflow_copilot_file "$PROJECT" &&
     replace_template_tokens "$PROJECT" "$PROJECTNAME" &&
     find "$PROJECT" -name "*.bak" -type f -delete &&
-    echo "Project created successfully in $PROJECT."
+    quiet_echo "Project created successfully in $PROJECT."
 
 else
-  echo "Invalid choice. Exiting script."
+  quiet_echo "Invalid choice. Exiting script."
   exit 1
 fi
 
-echo "Project setup complete. Happy coding!"
+quiet_echo "Project setup complete. Happy coding!"
 exit 0
