@@ -30,9 +30,11 @@ CHANGELOG.md
 cliff.toml
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
+data/.gitignore
 docs/__init__.py
 LICENSE
 Makefile
+notebooks/.gitkeep
 noxfile.py
 pyproject.toml
 README_template.md
