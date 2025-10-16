@@ -140,7 +140,7 @@ if [[ $SETUP_CHOICE == "1" ]]; then
     find "$PROJECT" -name "*.bak" -type f -delete &&
     quiet_echo "Project set up successfully in $PROJECT."
 
-elif [ "$SETUP_CHOICE" == "2" ]; then
+elif [[ $SETUP_CHOICE == "2" ]]; then
   # === NEW DIRECTORY SETUP ===
 
   # Get project name and validate directory doesn't exist
