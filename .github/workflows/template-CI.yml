@@ -1,0 +1,20 @@
+name: Template Setup CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - setup.sh
+      - manifest.txt
+      - test_setup.sh
+      - .github/workflows/template-CI.yml
+  workflow_dispatch:
+
+jobs:
+  setup-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Run setup.sh integration test
+        run: ./test_setup.sh

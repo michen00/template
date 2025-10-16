@@ -23,34 +23,39 @@
   "[yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "chat.agent.enabled": true,
   "diffEditor.ignoreTrimWhitespace": false,
+  "evenBetterToml.schema.enabled": true,
   "evenBetterToml.formatter.alignComments": true,
   "evenBetterToml.formatter.alignEntries": true,
+  "evenBetterToml.formatter.allowedBlankLines": 2,
   "evenBetterToml.formatter.arrayAutoCollapse": true,
   "evenBetterToml.formatter.arrayTrailingComma": true,
+  "evenBetterToml.formatter.columnWidth": 88,
+  "evenBetterToml.formatter.indentTables": false,
+  "evenBetterToml.formatter.reorderArrays": false,
+  "evenBetterToml.formatter.reorderInlineTables": false,
+  "evenBetterToml.formatter.reorderKeys": false,
   "evenBetterToml.formatter.trailingNewline": true,
+  "evenBetterToml.schema.associations": {
+    ".ruff.toml": "https://json.schemastore.org/ruff.json",
+    "pyproject.toml": "https://json.schemastore.org/pyproject.json"
+  },
   "files.trimFinalNewlines": true,
   "files.trimTrailingWhitespace": true,
-  "mypy-type-checker.args": [
-    "--strict",
-    "--allow-redefinition",
-    "--ignore-missing-imports",
-    "--follow-imports=silent",
-    "--pretty",
-    "--show-column-numbers",
-    "--show-error-code-links",
-    "--show-error-context",
-    "--warn-return-any",
-    "--warn-unreachable",
-    "--enable-error-code=ignore-without-code",
-    "--enable-incomplete-feature=InlineTypedDict,NewGenericSyntax,PrecisionTupleTypes"
-  ],
-  "mypy-type-checker.severity": { "error": "Warning" },
+  "makefile.configureOnOpen": true,
+  "mypy-type-checker.args": ["--config-file=pyproject.toml"],
+  "mypy-type-checker.importStrategy": "fromEnvironment",
+  "mypy-type-checker.severity": {
+    "error": "Warning"
+  },
+  "notebook.defaultFormatter": "charliermarsh.ruff",
   "notebook.output.textLineLimit": 88,
   "prettier.endOfLine": "auto",
   "prettier.htmlWhitespaceSensitivity": "strict",
-  "python.analysis.extraPaths": ["./src"],
-  "python.analysis.typeCheckingMode": "basic",
+  "prettier.printWidth": 88,
+  "pylint.importStrategy": "fromEnvironment",
   "python.testing.pytestArgs": ["tests"],
-  "python.testing.pytestEnabled": true
+  "python.testing.pytestEnabled": true,
+  "shfmt.formatIgnored": false
 }

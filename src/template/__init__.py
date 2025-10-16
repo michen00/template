@@ -1,3 +1,3 @@
-"init file for template package."
+"""Top-level init file for template package."""
 
 from .core import *

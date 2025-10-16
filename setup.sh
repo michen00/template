@@ -1,94 +1,209 @@
 #!/bin/bash
 
+# TODO: refactor
+
 TEMPLATE="$(pwd)"
-CWD=$(basename "$TEMPLATE")
-
 MANIFEST="$TEMPLATE/manifest.txt"
+QUIET="${SETUP_SH_QUIET:-0}"
 
-cat "$MANIFEST" > /dev/null 2>&1 || { echo "$MANIFEST cannot be read. Exiting script."; exit 1; }
+quiet_echo() {
+  if [ "$QUIET" != "1" ]; then
+    echo "$1"
+  fi
+}
 
-while true; do
-    while true; do
-        read -pr "Enter a name for the project: " PROJECTNAME
+quiet_blank() {
+  if [ "$QUIET" != "1" ]; then
+    echo ""
+  fi
+}
 
-        if [ -z "$PROJECTNAME" ]; then
-            echo "Project name cannot be empty."
-            continue
-        fi
-        if [[ "$PROJECTNAME" =~ [^a-zA-Z0-9_-] ]]; then
-            echo "Project name can only contain letters, numbers, hyphens, and underscores."
-            continue
-        fi
+read_input() {
+  local __var="$1"
+  local __prompt="$2"
+  if [ "$QUIET" = "1" ]; then
+    read -r "${__var:?}"
+  else
+    read -r -p "$__prompt" "${__var:?}"
+  fi
+}
+
+replace_template_tokens() {
+  local search_root="$1"
+  local project_name="$2"
+  local files
+
+  files=$(
+    find "$search_root" -type f -not -name ".gitignore" -exec grep -l "template" {} + 2> /dev/null || true
+  )
+
+  if [ -z "$files" ]; then
+    return 0
+  fi
+
+  while IFS= read -r file; do
+    [ -n "$file" ] || continue
+    # Force POSIX locale so BSD sed handles non-UTF8 bytes predictably.
+    LC_ALL=C sed -i.bak "s/template/$project_name/g" "$file" || return 1
+  done <<< "$files"
+
+  return 0
+}
+
+# Verify manifest exists
+cat "$MANIFEST" > /dev/null 2>&1 || {
+  echo "$MANIFEST cannot be read. Exiting script."
+  exit 1
+}
+
+# Ask user where to set up the project
+quiet_echo "Where would you like to set up your project?"
+quiet_echo "1) Current directory (will remove files not in manifest)"
+quiet_echo "2) New directory"
+read_input SETUP_CHOICE "Enter choice (1 or 2): "
+
+if [[ $SETUP_CHOICE == "1" ]]; then
+  # === CURRENT DIRECTORY SETUP ===
+
+  # Get project name
+  while true; do
+    read_input PROJECTNAME "Enter a name for the project: "
+
+    if [ -z "$PROJECTNAME" ]; then
+      echo "Project name cannot be empty."
+      continue
+    fi
+    if [[ $PROJECTNAME =~ [^a-zA-Z0-9_-] ]]; then
+      echo "Project name can only contain letters, numbers, hyphens, and underscores."
+      continue
+    fi
+    break
+  done
+
+  PROJECT="$TEMPLATE"
+
+  # Show what will be removed
+  quiet_blank
+  quiet_echo "The following files will be REMOVED (not in manifest):"
+
+  # Build list of files to keep (from manifest)
+  KEEP_FILES=()
+  while IFS= read -r FILE; do
+    KEEP_FILES+=("$FILE")
+  done < "$MANIFEST"
+
+  # Always keep .git directory if it exists
+  KEEP_FILES+=(".git")
+
+  # Find files to remove
+  TO_REMOVE=()
+  while IFS= read -r -d '' FILE; do
+    FILE_REL="${FILE#./}"
+
+    # Skip if it's in manifest
+    SHOULD_KEEP=false
+    for KEEP in "${KEEP_FILES[@]}"; do
+      if [[ $KEEP == "$FILE_REL" ]] || [[ $KEEP == "$FILE_REL"/* ]]; then
+        SHOULD_KEEP=true
         break
+      fi
+    done
+
+    # Always remove setup files
+    if [[ $FILE_REL == "setup.sh" ]] || [[ $FILE_REL == "manifest.txt" ]]; then
+      SHOULD_KEEP=false
+    fi
+
+    if ! $SHOULD_KEEP; then
+      TO_REMOVE+=("$FILE_REL")
+      quiet_echo "  - $FILE_REL"
+    fi
+  done < <(find . -mindepth 1 -maxdepth 1 -print0)
+
+  quiet_blank
+  read_input CONFIRM "Continue with setup? This will DELETE the files listed above. (y/n): "
+
+  if [ "$CONFIRM" != "y" ]; then
+    quiet_echo "Setup cancelled. No changes made."
+    exit 0
+  fi
+
+  # Remove non-manifest files
+  for FILE in "${TO_REMOVE[@]}"; do
+    rm -rf "$FILE"
+  done
+
+  # Transform template files
+  mv README_template.md README.md &&
+    mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
+    mv src/template "src/$PROJECTNAME" &&
+    replace_template_tokens "$PROJECT" "$PROJECTNAME" &&
+    find "$PROJECT" -name "*.bak" -type f -delete &&
+    quiet_echo "Project set up successfully in $PROJECT."
+
+elif [[ $SETUP_CHOICE == "2" ]]; then
+  # === NEW DIRECTORY SETUP ===
+
+  # Get project name and validate directory doesn't exist
+  while true; do
+    while true; do
+      read_input PROJECTNAME "Enter a name for the project: "
+
+      if [ -z "$PROJECTNAME" ]; then
+        quiet_echo "Project name cannot be empty."
+        continue
+      fi
+      if [[ $PROJECTNAME =~ [^a-zA-Z0-9_-] ]]; then
+        quiet_echo "Project name can only contain letters, numbers, hyphens, and underscores."
+        continue
+      fi
+      break
     done
 
     PROJECT="$(cd "$TEMPLATE" && cd .. && pwd)/$PROJECTNAME"
 
     if [ -d "$PROJECT" ]; then
-        echo "Directory $PROJECT exists."
-        if [ "$PROJECTNAME" == "$CWD" ]; then
-            echo "Project name cannot be '$CWD'."
-            continue
-        fi
+      quiet_echo "Directory $PROJECT already exists."
+      read_input OVERWRITE "Do you want to overwrite it? (y/n): "
 
-        read -pr "Do you want to overwrite the directory? (y/n): " OVERWRITE
-
-        if [ "$OVERWRITE" == "y" ]; then
-            echo "Overwriting directory $PROJECT..."
-            rm -rf "$PROJECT"
-        else
-            echo "No changes made. Exiting script."
-            exit 1
-        fi
+      if [ "$OVERWRITE" == "y" ]; then
+        quiet_echo "Overwriting directory $PROJECT..."
+        rm -rf "$PROJECT"
+        break
+      else
+        quiet_echo "Please choose a different name."
+        continue
+      fi
     fi
     break
-done
+  done
 
-while read -r FILE; do
-    mkdir -p "$(dirname "$PROJECT/$FILE")"
-    cp -r "$TEMPLATE/$FILE" "$PROJECT/$(dirname "$FILE")"
-done < "$MANIFEST"
-
-cd "$PROJECT" \
-&& rm -rf .git \
-&& mv README_template.md README.md \
-&& mv src/template "src/$PROJECTNAME" \
-&& sed -i.bak "s/template/$PROJECTNAME/g" "$(find "$PROJECT" -type f -exec grep -l "template" {} +)" \
-&& find . -name "*.bak" -type f -delete \
-&& if command -v poetry &> /dev/null; then
-    cd "$PROJECT" && poetry update
-fi \
-&& echo "Project created successfully in $PROJECT." \
-&& read -pr "Do you want to initialize a new Git repository in $PROJECT? (y/n): " INIT_GIT
-
-if [ "$INIT_GIT" == y ]; then
-    read -pr "Enter your GitHub username: " GITHUB_USERNAME
-    GITHUB_REPO_URL="https://github.com/$GITHUB_USERNAME/$PROJECTNAME.git"
-    git config --global init.defaultBranch main
-
-    cd "$PROJECT" \
-    && if ! git init; then
-        echo "Error: Git init failed. Exiting script."
-        exit 1
+  # Copy manifest files to new directory
+  while IFS= read -r FILE; do
+    [ -n "$FILE" ] || continue
+    SRC_PATH="$TEMPLATE/$FILE"
+    DEST_DIR="$PROJECT/$(dirname "$FILE")"
+    mkdir -p "$DEST_DIR"
+    if [ -e "$SRC_PATH" ]; then
+      cp -r "$SRC_PATH" "$DEST_DIR"
     else
-        echo "Git repository initialized in $PROJECT"
+      echo "Warning: $FILE listed in manifest but missing." >&2
     fi
+  done < "$MANIFEST"
 
-    cd "$PROJECT" \
-    && git remote add origin "git@github.com:$GITHUB_USERNAME/$PROJECTNAME.git" \
-    && git add . \
-    && git commit -m "Update template" \
-    && git pull origin main --rebase -X theirs \
-    && rm manifest.txt README_template.md setup.sh; rm -rf src/template \
-    && git add . \
-    && git commit --amend --no-edit \
-    && if ! git push -u origin main; then
-        echo "Error: Git push failed. Exiting script."
-        exit 1
-    else
-        echo "Project pushed to GitHub repository: $GITHUB_REPO_URL"
-    fi
+  # Transform template files
+  cd "$PROJECT" &&
+    mv README_template.md README.md &&
+    mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
+    mv src/template "src/$PROJECTNAME" &&
+    replace_template_tokens "$PROJECT" "$PROJECTNAME" &&
+    find "$PROJECT" -name "*.bak" -type f -delete &&
+    quiet_echo "Project created successfully in $PROJECT."
+
+else
+  quiet_echo "Invalid choice. Exiting script."
+  exit 1
 fi
 
-echo "Project setup complete. Happy coding!"
+quiet_echo "Project setup complete. Happy coding!"
 exit 0

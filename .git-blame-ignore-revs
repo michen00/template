@@ -1,0 +1,2 @@
+970e88a0747d74494bca84af5df3f0fc77451e9e  # style(CODE_OF_CONDUCT.md): update whitespace
+c9d101ba3d41152abaaef58a157a88e57f758c64  # style: update revision format for check-jsonschema in pre-commit config

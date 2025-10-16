@@ -1,0 +1,8 @@
+[alias]
+  archive-branch = "!sh .githooks/archive-utils.sh archive_branch"
+  delete-archive = "!sh .githooks/archive-utils.sh delete_archive"
+  init-archive-tracking = "!git config --add remote.origin.fetch 'refs/archive/*:refs/archive/*' && echo Archive tracking initialized"
+  list-archived = "!sh .githooks/archive-utils.sh list_archived"
+  pull-archived = "!sh .githooks/archive-utils.sh pull_archived"
+  purge-archive = "!sh .githooks/archive-utils.sh purge_archive"
+  restore-archive = "!sh .githooks/archive-utils.sh restore_archive"

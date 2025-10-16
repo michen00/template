@@ -1,0 +1,27 @@
+name: greet-new-contributors
+
+permissions:
+  issues: write
+  pull-requests: write
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: greet pull requests
+        if: github.event_name == 'pull_request'
+        uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-message: |
+            Thank you for your contribution! 🎉
+
+            We appreciate your time and effort in submitting this pull request. A maintainer will review it soon. If you have any questions, feel free to ask!
+
+            Thank you for your cooperation 🙏
