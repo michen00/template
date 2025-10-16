@@ -151,7 +151,7 @@ disable-git-hooks: ## Disable the use of Git hooks locally
 ################################
 
 .PHONY: uninstall
-uninstall: check-uv ## Uninstall the project
+uninstall: check-install-uv ## Uninstall the project
 	@echo "Uninstalling project..."
 	$(UV) pip uninstall .
 
@@ -243,11 +243,12 @@ run-pre-commit: build/install-dev ## Run the pre-commit checks
 ## development shortcuts ##
 ###########################
 
-.PHONY: check-uv
-check-uv: ## Check if uv is installed
-	@command -v uv >/dev/null 2>&1 || { \
-        echo "$(BOLD)$(RED)uv is not installed$(RESET)"; \
-        exit 1; \
+.PHONY: check-install-uv
+check-install-uv: ## Check if uv is installed
+	@set -e; \
+    command -v uv >/dev/null 2>&1 || { \
+        echo "$(BOLD)$(RED)installing uv$(RESET)"; \
+        curl -LsSf https://astral.sh/uv/install.sh | sh; \
     }
 
 .PHONY: bust-ci-cache
@@ -271,7 +272,7 @@ push-prod: build ## Publish the package to PyPI using Poetry
 
 .PHONY: build
 CACHE ?= true
-build: check-uv clean ## Build the package using uv (CACHE={true|false}, default=true)
+build: check-install-uv clean ## Build the package using uv (CACHE={true|false}, default=true)
 	$(UV) build $(if $(filter false,$(CACHE)),--no-cache,) && echo "Package built successfully!"
 
 MARKER_FILE = build/$(VERSION).marker
@@ -297,6 +298,6 @@ build/install-deps: build/install-python-versions
 	$(UV) sync --no-editable --no-install-project
 	mkdir -p $(dir $@) && touch $@
 
-.PHONY: check-uv build/install-python-versions
+.PHONY: check-install-uv build/install-python-versions
 build/install-python-versions:
 	$(UV) python install $(shell cat .python-version)
