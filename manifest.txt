@@ -14,7 +14,6 @@
 .github/instructions/CI.instructions.md
 .github/workflows/.cache-buster
 .github/workflows/CI.yml
-.github/workflows/greet-new-contributors.yml
 .github/workflows/lint-github-actions.yml
 .gitignore
 .markdownlint.yml
