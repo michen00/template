@@ -6,27 +6,21 @@ VENV = .venv
 DEBUG    ?= false
 VERBOSE  ?= false
 
-PYTEST_FLAGS := $(if $(DEBUG),-vv,$(if $(VERBOSE),-v,))
 UV_FLAGS = -v
+RM_FLAGS := -rfv
 
 ifeq ($(DEBUG),true)
     MAKEFLAGS += --debug=v
     PYTEST_FLAGS := -vv
-    RM_FLAGS = -rfv
+else ifeq ($(VERBOSE),true)
+    PYTEST_FLAGS := -v
 else
-    ifeq ($(VERBOSE),true)
-        MAKEFLAGS += --verbose
-        PYTEST_FLAGS := -v
-        RM_FLAGS := -rfv
-    else
-        MAKEFLAGS += --silent
-        RM_FLAGS := -rf
-        UV_FLAGS = -q
-    endif
+    MAKEFLAGS += --silent
+    PYTEST_FLAGS :=
+    UV_FLAGS = -q
+    RM_FLAGS := -rf
 endif
 
-PYTEST_FLAGS := $(if $(DEBUG),-vv,$(if $(VERBOSE),-v,))
-RM_FLAGS := -rf$(if $(or $(DEBUG),$(VERBOSE)),v,)
 PYTEST := pytest $(PYTEST_FLAGS)
 RM := rm $(RM_FLAGS)
 UV := uv $(UV_FLAGS)
