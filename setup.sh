@@ -61,7 +61,7 @@ quiet_echo "1) Current directory (will remove files not in manifest)"
 quiet_echo "2) New directory"
 read_input SETUP_CHOICE "Enter choice (1 or 2): "
 
-if [ "$SETUP_CHOICE" == "1" ]; then
+if [[ $SETUP_CHOICE == "1" ]]; then
   # === CURRENT DIRECTORY SETUP ===
 
   # Get project name
