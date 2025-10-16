@@ -31,6 +31,17 @@ PYTEST := pytest $(PYTEST_FLAGS)
 RM := rm $(RM_FLAGS)
 UV := uv $(UV_FLAGS)
 
+PRECOMMIT ?= pre-commit
+ifneq ($(shell command -v prek >/dev/null 2>&1 && echo y),)
+    PRECOMMIT := prek
+    ifneq ($(filter true,$(DEBUG) $(VERBOSE)),)
+        $(info Using prek for pre-commit checks)
+        ifeq ($(DEBUG),true)
+            PRECOMMIT := $(PRECOMMIT) -v
+        endif
+    endif
+endif
+
 # Terminal formatting (tput with fallbacks)
 _COLOR  := $(shell tput sgr0 2>/dev/null || echo "\033[0m")
 BOLD    := $(shell tput bold 2>/dev/null || echo "\033[1m")
@@ -222,7 +233,7 @@ run-pre-commit: build/install-dev ## Run the pre-commit checks
         echo "Pre-commit hooks missing. Installing pre-commit hooks..."; \
         $(MAKE) enable-pre-commit-only; \
     fi
-	$(UV) run pre-commit run --all-files
+	$(UV) run $(PRECOMMIT) run --all-files
 
 .PHONY: .display-lint-complete
 .display-lint-complete: ## Display a message when linting is complete
