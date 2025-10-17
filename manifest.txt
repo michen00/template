@@ -42,5 +42,7 @@ src/template/bin/.gitkeep
 src/template/bin/example_script.py
 src/template/core.py
 src/template/py.typed
+tests/__init__.py
 tests/.gitkeep
+tests/test_.py
 uv.lock
