@@ -95,12 +95,21 @@ repos:
     rev: v0.11.0.1
     hooks:
       - id: shellcheck
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.8
+    hooks:
+      - id: actionlint
   # static type analysis
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.18.2
     hooks:
       - id: mypy
-        args: ["--config-file=pyproject.toml", "--install-types", "--non-interactive"]
+        args:
+          [
+            "--config-file=pyproject.toml",
+            "--install-types",
+            "--non-interactive",
+          ]
         additional_dependencies:
           - nox[uv]
           - pydantic[mypy]
