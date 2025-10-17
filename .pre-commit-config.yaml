@@ -100,7 +100,12 @@ repos:
     rev: v1.18.2
     hooks:
       - id: mypy
-        args: ["--config-file=pyproject.toml", "--install-types", "--non-interactive"]
+        args:
+          [
+            "--config-file=pyproject.toml",
+            "--install-types",
+            "--non-interactive",
+          ]
         additional_dependencies:
           - nox[uv]
           - pydantic[mypy]
