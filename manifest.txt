@@ -6,6 +6,7 @@
 .gitattributes
 .gitconfigs/alias
 .gitconfigs/hooks
+.githooks/.gitignore
 .githooks/archive-utils.sh
 .githooks/commit-msg
 .githooks/prepare-commit-msg
