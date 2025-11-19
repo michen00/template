@@ -88,14 +88,14 @@ develop: build/install-dev ## Install the project for development (WITH_HOOKS={t
            git stash pop; \
        fi
 
-.PHONY: check
+.PHONY: test
 PARALLEL ?= false
-check: build/install-test ## Run all tests with coverage (PARALLEL={true|false}, default=false)
+test: build/install-test ## Run all tests with coverage (PARALLEL={true|false}, default=false)
 	@PYTEST_CMD="$(PYTEST)"; [ "$(PARALLEL)" = "true" ] && PYTEST_CMD="$$PYTEST_CMD -n auto"; \
     $(UV) run $$PYTEST_CMD --cov=src --cov-report=term-missing
 
-.PHONY: test
-test: check ## Alias for running tests
+.PHONY: check
+check: format-all test ## Run all code quality checks and tests
 
 ###############
 ## Git hooks ##
