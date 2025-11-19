@@ -73,6 +73,9 @@ max-complexity = 15
 [lint.pydocstyle]
 convention = "google"
 
+[lint.pylint]
+max-branches = 15
+
 [format]
 # Like Black, use double quotes for strings.
 quote-style = "double"
