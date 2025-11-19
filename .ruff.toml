@@ -75,6 +75,7 @@ convention = "google"
 
 [lint.pylint]
 max-branches = 15
+max-returns  = 10
 
 [format]
 # Like Black, use double quotes for strings.
