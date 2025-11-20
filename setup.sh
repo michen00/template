@@ -31,6 +31,7 @@ read_input() {
 replace_template_tokens() {
   local search_root="$1"
   local project_name="$2"
+  local placeholder="__SETUP_SH_TEMPLATES__"
   local files
 
   files=$(
@@ -43,8 +44,13 @@ replace_template_tokens() {
 
   while IFS= read -r file; do
     [ -n "$file" ] || continue
-    # Force POSIX locale so BSD sed handles non-UTF8 bytes predictably.
-    LC_ALL=C sed -i.bak "s/template/$project_name/g" "$file" || return 1
+    # Force POSIX locale so BSD sed handles non-UTF8 bytes predictably, and avoid
+    # touching the plural "templates" used in comments/documentation.
+    LC_ALL=C sed -i.bak \
+      -e "s/templates/$placeholder/g" \
+      -e "s/template/$project_name/g" \
+      -e "s/$placeholder/templates/g" \
+      "$file" || return 1
   done <<< "$files"
 
   return 0

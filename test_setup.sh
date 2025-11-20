@@ -150,6 +150,21 @@ PY
   popd > /dev/null
 }
 
+assert_templates_preserved() {
+  local project_root="$1"
+  local cliff_path="$project_root/cliff.toml"
+
+  if [[ ! -f $cliff_path ]]; then
+    printf '%s[ERROR]%s missing %s.\n' "$RED" "$RESET" "$cliff_path" >&2
+    exit 1
+  fi
+
+  if ! grep -q "templates" "$cliff_path"; then
+    printf '%s[ERROR]%s expected %s to retain the word "templates" (do not replace plural tokens).\n' "$RED" "$RESET" "$cliff_path" >&2
+    exit 1
+  fi
+}
+
 verify_new_directory_project() {
   local project_dir="$1"
   local project_name="$2"
@@ -200,6 +215,8 @@ verify_new_directory_project() {
     printf '%s[ERROR]%s found leftover .bak files in %s.\n' "$RED" "$RESET" "$project_dir" >&2
     exit 1
   fi
+
+  assert_templates_preserved "$project_dir"
 }
 
 verify_inplace_project() {
@@ -258,6 +275,8 @@ verify_inplace_project() {
     printf '%s[ERROR]%s found leftover .bak files in %s.\n' "$RED" "$RESET" "$project_root" >&2
     exit 1
   fi
+
+  assert_templates_preserved "$project_root"
 }
 
 PROJECT_NAME_NEW="sample$(date +%s)"
