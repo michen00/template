@@ -34,8 +34,11 @@ replace_template_tokens() {
   local placeholder="__SETUP_SH_TEMPLATES__"
   local files
 
+  # Find files that contain the literal "template". Exclude the top-level
+  # `.gitignore` in the template root (we don't want to rewrite that file),
+  # and avoid matching binary files by asking grep to ignore binaries.
   files=$(
-    find "$search_root" -type f -not -name ".gitignore" -exec grep -l "template" {} + 2> /dev/null || true
+    find "$search_root" -type f -not -path "$search_root/.gitignore" -exec grep -Il "template" {} + 2> /dev/null || true
   )
 
   if [ -z "$files" ]; then
