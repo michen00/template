@@ -56,8 +56,7 @@ The `Makefile` is the primary entry point for development tasks.
 
 - `src/template/`: Source code for the template package.
 - `tests/`: Test suite.
-- `.github/`: GitHub Actions workflows and instructions.
-  - `.github/copilot-instructions.md`: Detailed instructions for Copilot (renamed to `copilot-instructions.md` in new projects).
+- `.github/`: GitHub Actions workflows and Copilot instructions.
 - `manifest.txt`: Allowlist of files to include in new projects.
 - `setup.sh`: Instantiation script.
 - `pyproject.toml`: Project configuration (build, deps, tools).
