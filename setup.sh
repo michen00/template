@@ -65,7 +65,7 @@ disable_example_script() {
 
   if [ -f "$pyproject" ]; then
     LC_ALL=C sed -i.bak \
-      -e 's/^\[project.scripts\]/# [project.scripts]/' \
+      -e 's/^\[project\.scripts\]/# [project.scripts]/' \
       -e 's/^example-script = /# example-script = /' \
       "$pyproject" || return 1
   fi
