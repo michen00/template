@@ -59,6 +59,19 @@ replace_template_tokens() {
   return 0
 }
 
+disable_example_script() {
+  local project_dir="$1"
+  local pyproject="$project_dir/pyproject.toml"
+
+  if [ -f "$pyproject" ]; then
+    LC_ALL=C sed -i.bak \
+      -e 's/^\[project.scripts\]/# [project.scripts]/' \
+      -e 's/^example-script = /# example-script = /' \
+      "$pyproject" || return 1
+  fi
+  return 0
+}
+
 # Verify manifest exists
 cat "$MANIFEST" > /dev/null 2>&1 || {
   echo "$MANIFEST cannot be read. Exiting script."
@@ -147,6 +160,7 @@ if [[ $SETUP_CHOICE == "1" ]]; then
     mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
     mv src/template "src/$PROJECTNAME" &&
     replace_template_tokens "$PROJECT" "$PROJECTNAME" &&
+    disable_example_script "$PROJECT" &&
     find "$PROJECT" -name "*.bak" -type f -delete &&
     quiet_echo "Project set up successfully in $PROJECT."
 
@@ -206,6 +220,7 @@ elif [[ $SETUP_CHOICE == "2" ]]; then
     mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
     mv src/template "src/$PROJECTNAME" &&
     replace_template_tokens "$PROJECT" "$PROJECTNAME" &&
+    disable_example_script "$PROJECT" &&
     find "$PROJECT" -name "*.bak" -type f -delete &&
     quiet_echo "Project created successfully in $PROJECT."
 
