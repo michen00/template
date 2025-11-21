@@ -6,7 +6,7 @@
 - **Source of Truth:** All setup behavior lives in `setup.sh` and the allowlist in `manifest.txt`. When you add, rename, or remove files, update both so the script copies the right assets.
 - **String Replacement Contract:** The setup flow renames `src/template` to `src/$PROJECTNAME`, replaces the literal `template` across text files (skips `.gitignore`), and then removes `setup.sh`, `manifest.txt`, and `README_template.md`. Keep identifiers substitution-safe—avoid clever uses of the word `template` that would break after replacement.
 - **Dual Setup Paths:** Option 1 mutates the current directory by deleting anything not listed in the manifest; option 2 creates a clean sibling directory. Exercise both paths whenever you touch the manifest or the destructive logic.
-- **Workflow Rename:** After copying, the script renames `.github/workflows/.copilot-instructions.md` to `copilot-instructions.md`. If you add workflow-side instructions, ensure the hidden file exists in this repo so the rename keeps working.
+- **Workflow Rename:** After copying, the script renames `.github/workflows/.copilot-instructions.md` to `.github/workflows/copilot-instructions.md`. If you add workflow-side instructions, ensure the hidden file exists in this repo so the rename keeps working.
 - **Directory Highlights:**
   - `src/template/` ships the package skeleton and CLI stub (`bin/example_script.py` → `example-script`).
   - `tests/test_.py` is a placeholder to prove pytest discovery; keep fixtures name-agnostic so the token replacement stays valid.
