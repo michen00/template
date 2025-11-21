@@ -31,19 +31,29 @@ EOF
 
 # Hardcoded URLs (used if no input is provided)
 DEFAULT_URLS=(
-  "https://github.com/github/gitignore/blob/main/Python.gitignore"
+  # Language / runtime / ecosystem
   "https://github.com/github/gitignore/blob/main/community/Python/JupyterNotebooks.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore"
+  "https://github.com/github/gitignore/blob/main/Node.gitignore"
+  "https://github.com/github/gitignore/blob/main/Python.gitignore"
+
+  # IDEs / editors
   "https://github.com/github/gitignore/blob/main/Global/Eclipse.gitignore"
+  "https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/SublimeText.gitignore"
+  "https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore"
+  "https://github.com/github/gitignore/blob/main/VisualStudio.gitignore"
+
+  # OS / platform
   "https://github.com/github/gitignore/blob/main/Global/Linux.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/macOS.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Windows.gitignore"
-  "https://github.com/github/gitignore/blob/main/Node.gitignore"
+
+  # Tools / documents / misc artifacts
   "https://github.com/github/gitignore/blob/main/Global/Archives.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Backup.gitignore"
+  "https://github.com/github/gitignore/blob/main/Global/Cursor.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Diff.gitignore"
+  "https://github.com/github/gitignore/blob/main/Global/MicrosoftOffice.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Patch.gitignore"
 )
 
@@ -166,5 +176,6 @@ else
   echo "Unknown OS: unable to ensure single trailing newline"
 fi
 
-echo -e "\n!.gitkeep" >> "$OUTPUT_FILE"
+echo -e "\n.delete-me/" >> "$OUTPUT_FILE"
+echo -e "!.gitkeep" >> "$OUTPUT_FILE"
 echo "Combined .gitignore created as $OUTPUT_FILE"
