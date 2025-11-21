@@ -176,6 +176,7 @@ else
   echo "Unknown OS: unable to ensure single trailing newline"
 fi
 
+# Directory for temporary files marked for deletion; safe to ignore in all generated projects
 echo -e "\n.delete-me/" >> "$OUTPUT_FILE"
 echo -e "!.gitkeep" >> "$OUTPUT_FILE"
 echo "Combined .gitignore created as $OUTPUT_FILE"
