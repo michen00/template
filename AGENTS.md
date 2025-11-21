@@ -82,4 +82,4 @@ The `Makefile` is the primary entry point for development tasks.
 
 ### Updating Instructions
 
-- If you update how the project works, update `.github/copilot-instructions.md` so that agents working on _derived_ projects have the correct info.
+- Consider updating `.github/copilot-instructions.md` when you make significant changes to how the project works, so that agents working on _derived_ projects have accurate information.
