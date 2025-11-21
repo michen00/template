@@ -158,6 +158,7 @@ if [[ $SETUP_CHOICE == "1" ]]; then
   # Transform template files
   mv README_template.md README.md &&
     mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
+    mv .AGENTS.md AGENTS.md &&
     mv src/template "src/$PROJECTNAME" &&
     replace_template_tokens "$PROJECT" "$PROJECTNAME" &&
     disable_example_script "$PROJECT" &&
@@ -218,6 +219,7 @@ elif [[ $SETUP_CHOICE == "2" ]]; then
   cd "$PROJECT" &&
     mv README_template.md README.md &&
     mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
+    mv .AGENTS.md AGENTS.md &&
     mv src/template "src/$PROJECTNAME" &&
     replace_template_tokens "$PROJECT" "$PROJECTNAME" &&
     disable_example_script "$PROJECT" &&
