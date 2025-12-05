@@ -36,11 +36,9 @@ repos:
       - id: ruff-check
         types_or: [python, pyi, jupyter, toml]
         args: [--fix, --show-fixes]
-        # args: [--fix, --unsafe-fixes, --show-fixes, --output-format=github, --exit-non-zero-on-fix, --verbose]
       - id: ruff-format
         types_or: [python, pyi, jupyter, toml]
         args: []
-        # args: [--check, --diff, --verbose]
   - repo: https://github.com/scop/pre-commit-shfmt
     rev: v3.12.0-2
     hooks:
