@@ -10,7 +10,7 @@ set -euo pipefail
 
 CONFIG_FILE=".pre-commit-config.yaml"
 
-if [[ ! -f "$CONFIG_FILE" ]]; then
+if [[ ! -f $CONFIG_FILE ]]; then
   echo "Error: $CONFIG_FILE not found in current directory" >&2
   exit 1
 fi
