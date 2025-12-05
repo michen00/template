@@ -14,6 +14,7 @@
 .github/.copilot-instructions.md
 .github/dependabot.yml
 .github/instructions/CI.instructions.md
+.github/scripts/ci-ruff-args.sh
 .github/workflows/.cache-buster
 .github/workflows/CI.yml
 .github/workflows/lint-github-actions.yml
