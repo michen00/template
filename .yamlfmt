@@ -1,3 +1,4 @@
+gitignore_excludes: true
 formatter:
   max_line_length: 88
   type: basic
