@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # Purpose: Replace ruff-check and ruff-format args in .pre-commit-config.yaml
-#          with the CI-optimized versions (currently commented out).
-#          This enables stricter checking and better GitHub output formatting in CI.
+#          with CI-optimized versions for stricter checking and better GitHub output formatting.
+#
 
 # TODO: be less hacky
 
