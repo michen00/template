@@ -70,9 +70,6 @@ WITH_HOOKS ?= true
 develop: build/install-dev ## Install the project for development (WITH_HOOKS={true|false}, default=true)
 	@echo "Installing missing type stubs..." && \
         $(UV) run mypy --install-types --non-interactive --follow-imports=silent > /dev/null 2>&1 || true
-	@if [ "$(WITH_HOOKS)" = "true" ]; then \
-        $(MAKE) enable-pre-commit; \
-    fi
 	@git config --local --add include.path "$(CURDIR)/.gitconfigs/alias"
 	@git config blame.ignoreRevsFile .git-blame-ignore-revs
 	@git lfs install --local; \
@@ -88,6 +85,9 @@ develop: build/install-dev ## Install the project for development (WITH_HOOKS={t
        if [ $$stash_was_needed -eq 1 ]; then \
            git stash pop; \
        fi
+	@if [ "$(WITH_HOOKS)" = "true" ]; then \
+        $(MAKE) enable-pre-commit; \
+    fi
 
 .PHONY: test
 PARALLEL ?= false
@@ -119,8 +119,9 @@ TO_REMOVE := \
     */.venv \
     .coverage \
     .eggs \
+	.git/hooks/commit-msg \
     .git/hooks/pre-commit \
-    .githooks/pre-commit \
+	.git/hooks/pre-push \
     .ipynb_checkpoints \
     .mypy_cache \
     .pytest_cache \
