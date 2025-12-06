@@ -2,7 +2,6 @@
 .codespellrc
 .coveragerc
 .editorconfig
-.git-blame-ignore-revs
 .gitattributes
 .gitconfigs/alias
 .github/.copilot-instructions.md
