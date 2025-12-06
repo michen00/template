@@ -121,3 +121,4 @@ repos:
           - pytest
           - types-pyyaml
           - typer
+        stages: ["pre-push"]
