@@ -17,7 +17,7 @@
 - **Publishing Hooks:** `make push-test` and `make push-prod` call `uv publish`; they read the version from `pyproject.toml`. Confirm `VERSION` bumps and changelog alignment (`cliff.toml`) before shipping.
 - **Developer Workflow:** `make develop WITH_HOOKS=true` installs dev deps, missing typing stubs, and local git hooks; set `WITH_HOOKS=false` to skip git config changes. `make enable-git-hooks` / `make disable-git-hooks` toggle commit hooks for contributors.
 - **Review Checklist:** After updates, run `setup.sh` in both modes, inspect the generated repo, and execute `make check`. Verify token replacement still works, and that no new files fell outside the manifest.
-- **Conventional Commits:** Stick with `<type>(<scope>): <subject>`; scopes usually match top-level directories (`src`, `tests`, `docs`, `ci`). Release tooling depends on this format.
+- **Conventional Commits:** Commit summaries should be <=50 characters. Stick with `<type>(<scope>): <subject>`; scopes usually match top-level directories (`src`, `tests`, `docs`, `ci`). Release tooling depends on this format.
 
 Ping for clarifications or cases that deserve deeper treatment.
 

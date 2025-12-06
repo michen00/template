@@ -64,7 +64,7 @@ The `Makefile` is the primary entry point for development tasks.
 
 ## 5. Contribution Guidelines
 
-- **Commit Messages:** Follow Conventional Commits (e.g., `feat(core): add new utility`).
+- **Commit Messages:** Follow Conventional Commits (e.g., `feat(core): add new utility`). Summaries should be <=50 characters.
 - **Changelog:** Managed via `git cliff`.
 - **Code Style:** Enforced by `ruff` and `mypy`.
 
