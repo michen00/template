@@ -23,6 +23,8 @@
 .scripts/concat_gitignores.sh
 .vscode/extensions.json
 .vscode/settings.json
+.yamlfmt
+.yamllint
 CHANGELOG.md
 cliff.toml
 CODE_OF_CONDUCT.md
