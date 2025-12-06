@@ -98,11 +98,11 @@ repos:
       - id: mixed-line-ending
       - id: name-tests-test
         args: [--pytest-test-first]
-  - repo: https://github.com/google/yamlfmt
-    rev: v0.20.0
-    hooks:
-      - id: yamlfmt
-        args: ["--verbose"]
+  # - repo: https://github.com/google/yamlfmt
+  #   rev: v0.20.0
+  #   hooks:
+  #     - id: yamlfmt
+  #       args: ["--verbose"]
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.37.1
     hooks:
