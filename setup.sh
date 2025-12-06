@@ -72,6 +72,42 @@ disable_example_script() {
   return 0
 }
 
+validate_project_name() {
+  local __var="$1"
+  local __name="$2"
+
+  while true; do
+    if [ -z "$__name" ]; then
+      quiet_echo "Project name cannot be empty."
+      read_input "$__var" "Enter a name for the project: "
+      __name="${!__var}"
+      continue
+    fi
+    if [[ $__name =~ [^a-zA-Z0-9_-] ]]; then
+      quiet_echo "Project name can only contain letters, numbers, hyphens, and underscores."
+      read_input "$__var" "Enter a name for the project: "
+      __name="${!__var}"
+      continue
+    fi
+    break
+  done
+  eval "$__var='$__name'"
+}
+
+finalize_setup() {
+  local project_dir="$1"
+  local project_name="$2"
+
+  cd "$project_dir" &&
+    mv README_template.md README.md &&
+    mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
+    mv .AGENTS.md AGENTS.md &&
+    mv src/template "src/$project_name" &&
+    replace_template_tokens "$project_dir" "$project_name" &&
+    disable_example_script "$project_dir" &&
+    find "$project_dir" -name "*.bak" -type f -delete
+}
+
 # Verify manifest exists
 cat "$MANIFEST" > /dev/null 2>&1 || {
   echo "$MANIFEST cannot be read. Exiting script."
@@ -87,20 +123,9 @@ read_input SETUP_CHOICE "Enter choice (1 or 2): "
 if [[ $SETUP_CHOICE == "1" ]]; then
   # === CURRENT DIRECTORY SETUP ===
 
-  # Get project name
-  while true; do
-    read_input PROJECTNAME "Enter a name for the project: "
-
-    if [ -z "$PROJECTNAME" ]; then
-      echo "Project name cannot be empty."
-      continue
-    fi
-    if [[ $PROJECTNAME =~ [^a-zA-Z0-9_-] ]]; then
-      echo "Project name can only contain letters, numbers, hyphens, and underscores."
-      continue
-    fi
-    break
-  done
+  # Get and validate project name
+  read_input PROJECTNAME "Enter a name for the project: "
+  validate_project_name PROJECTNAME "$PROJECTNAME"
 
   PROJECT="$TEMPLATE"
 
@@ -156,52 +181,30 @@ if [[ $SETUP_CHOICE == "1" ]]; then
   done
 
   # Transform template files
-  mv README_template.md README.md &&
-    mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
-    mv .AGENTS.md AGENTS.md &&
-    mv src/template "src/$PROJECTNAME" &&
-    replace_template_tokens "$PROJECT" "$PROJECTNAME" &&
-    disable_example_script "$PROJECT" &&
-    find "$PROJECT" -name "*.bak" -type f -delete &&
-    touch .git-blame-ignore-revs &&
+  finalize_setup "$PROJECT" "$PROJECTNAME" &&
     quiet_echo "Project set up successfully in $PROJECT."
 
 elif [[ $SETUP_CHOICE == "2" ]]; then
   # === NEW DIRECTORY SETUP ===
 
-  # Get project name and validate directory doesn't exist
-  while true; do
-    while true; do
-      read_input PROJECTNAME "Enter a name for the project: "
+  # Get and validate project name
+  read_input PROJECTNAME "Enter a name for the project: "
+  validate_project_name PROJECTNAME "$PROJECTNAME"
 
-      if [ -z "$PROJECTNAME" ]; then
-        quiet_echo "Project name cannot be empty."
-        continue
-      fi
-      if [[ $PROJECTNAME =~ [^a-zA-Z0-9_-] ]]; then
-        quiet_echo "Project name can only contain letters, numbers, hyphens, and underscores."
-        continue
-      fi
-      break
-    done
+  PROJECT="$(cd "$TEMPLATE" && cd .. && pwd)/$PROJECTNAME"
 
-    PROJECT="$(cd "$TEMPLATE" && cd .. && pwd)/$PROJECTNAME"
+  if [ -d "$PROJECT" ]; then
+    quiet_echo "Directory $PROJECT already exists."
+    read_input OVERWRITE "Do you want to overwrite it? (y/n): "
 
-    if [ -d "$PROJECT" ]; then
-      quiet_echo "Directory $PROJECT already exists."
-      read_input OVERWRITE "Do you want to overwrite it? (y/n): "
-
-      if [ "$OVERWRITE" == "y" ]; then
-        quiet_echo "Overwriting directory $PROJECT..."
-        rm -rf "$PROJECT"
-        break
-      else
-        quiet_echo "Please choose a different name."
-        continue
-      fi
+    if [ "$OVERWRITE" != "y" ]; then
+      quiet_echo "Setup cancelled. No changes made."
+      exit 0
     fi
-    break
-  done
+
+    quiet_echo "Overwriting directory $PROJECT..."
+    rm -rf "$PROJECT"
+  fi
 
   # Copy manifest files to new directory
   while IFS= read -r FILE; do
@@ -215,16 +218,10 @@ elif [[ $SETUP_CHOICE == "2" ]]; then
       echo "Warning: $FILE listed in manifest but missing." >&2
     fi
   done < "$MANIFEST"
+  touch "$DEST_DIR/.git-blame-ignore-revs"
 
   # Transform template files
-  cd "$PROJECT" &&
-    mv README_template.md README.md &&
-    mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
-    mv .AGENTS.md AGENTS.md &&
-    mv src/template "src/$PROJECTNAME" &&
-    replace_template_tokens "$PROJECT" "$PROJECTNAME" &&
-    disable_example_script "$PROJECT" &&
-    find "$PROJECT" -name "*.bak" -type f -delete &&
+  finalize_setup "$PROJECT" "$PROJECTNAME" &&
     quiet_echo "Project created successfully in $PROJECT."
 
 else
