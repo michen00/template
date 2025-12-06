@@ -34,28 +34,28 @@ for transform in "${TRANSFORMATIONS[@]}"; do
   # Capture the old args before replacement
   old_args=$(perl -ne "
     BEGIN { \$in_hook = 0; }
-    if (/id: $hook_id/) {
+    if (/id:\s+$hook_id\s*\$/) {
       \$in_hook = 1;
     }
     if (\$in_hook && /^\s+args: (\[.*\])\s*\$/) {
       print \$1;
       last;
     }
-    if (/^  - repo:/ || (/id:/ && !/id: $hook_id/)) {
+    if (/^  - repo:/ || (/id:\s+\S+\s*\$/ && !/id:\s+$hook_id\s*\$/)) {
       \$in_hook = 0;
     }
   " "$CONFIG_FILE")
 
   perl -i -pe "
     BEGIN { \$in_hook = 0; }
-    if (/id: $hook_id/) {
+    if (/id:\s+$hook_id\s*\$/) {
       \$in_hook = 1;
     }
     if (\$in_hook && /^\s+args: \[.*\]\s*\$/) {
       s/args: \[.*\]/args: $new_args/;
       \$in_hook = 0;
     }
-    if (/^  - repo:/ || (/id:/ && !/id: $hook_id/)) {
+    if (/^  - repo:/ || (/id:\s+\S+\s*\$/ && !/id:\s+$hook_id\s*\$/)) {
       \$in_hook = 0;
     }
   " "$CONFIG_FILE"
