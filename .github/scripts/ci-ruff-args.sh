@@ -34,11 +34,11 @@ for transform in "${TRANSFORMATIONS[@]}"; do
 
   # Build multiline YAML array format from pipe-delimited args
   # Indentation: 8 spaces for args: [, 10 spaces for items, 8 spaces for closing ]
-  multiline_args="        args: ["
+  multiline_args="        args:\n          ["
   for ((i = 1; i < ${#parts[@]}; i++)); do
-    multiline_args+=$(printf "\n          %s," "${parts[i]}")
+    multiline_args+=$(printf "\n            %s," "${parts[i]}")
   done
-  multiline_args+=$(printf "\n        ]")
+  multiline_args+=$(printf "\n          ]")
 
   # Build single-line format for echo message
   new_args_single_line="["
