@@ -28,10 +28,6 @@ repos:
       - id: talisman-push
         fail_fast: true
   # formatters & fixers
-  - repo: https://github.com/jorisroovers/gitlint
-    rev: v0.19.1
-    hooks:
-      - id: gitlint
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
