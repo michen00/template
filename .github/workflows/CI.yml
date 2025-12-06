@@ -46,6 +46,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - name: Secret scanning
         uses: trufflesecurity/trufflehog@v3.91.2
         with:
