@@ -62,4 +62,7 @@ for transform in "${TRANSFORMATIONS[@]}"; do
   echo "  $hook_id: $old_args → $new_args"
 done
 
+# Clean up backup file
+rm "${CONFIG_FILE}.bak"
+
 echo "✓ Ruff args updated for CI"
