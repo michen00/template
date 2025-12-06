@@ -46,6 +46,10 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v5
+      - name: Secret scanning
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --results=verified,unknown
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
