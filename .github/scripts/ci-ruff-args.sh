@@ -23,8 +23,9 @@ declare -a TRANSFORMATIONS=(
 
 echo "Modifying ruff args in $CONFIG_FILE for CI..."
 
-# Create a backup
+# Create a backup and ensure cleanup on exit
 cp "$CONFIG_FILE" "${CONFIG_FILE}.bak"
+trap 'rm -f "${CONFIG_FILE}.bak"' EXIT
 
 # Apply each transformation with context-aware matching
 for transform in "${TRANSFORMATIONS[@]}"; do
@@ -61,8 +62,5 @@ for transform in "${TRANSFORMATIONS[@]}"; do
 
   echo "  $hook_id: $old_args → $new_args"
 done
-
-# Clean up backup file
-rm "${CONFIG_FILE}.bak"
 
 echo "✓ Ruff args updated for CI"
