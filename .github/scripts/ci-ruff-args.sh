@@ -47,18 +47,18 @@ for transform in "${TRANSFORMATIONS[@]}"; do
   " "$CONFIG_FILE")
 
   perl -i -pe "
-		BEGIN { \$in_hook = 0; }
-		if (/id: $hook_id/) {
-			\$in_hook = 1;
-		}
-		if (\$in_hook && /^\s+args: \[.*\]\s*\$/) {
-			s/args: \[.*\]/args: $new_args/;
-			\$in_hook = 0;
-		}
-		if (/^  - repo:/ || (/id:/ && !/id: $hook_id/)) {
-			\$in_hook = 0;
-		}
-	" "$CONFIG_FILE"
+    BEGIN { \$in_hook = 0; }
+    if (/id: $hook_id/) {
+      \$in_hook = 1;
+    }
+    if (\$in_hook && /^\s+args: \[.*\]\s*\$/) {
+      s/args: \[.*\]/args: $new_args/;
+      \$in_hook = 0;
+    }
+    if (/^  - repo:/ || (/id:/ && !/id: $hook_id/)) {
+      \$in_hook = 0;
+    }
+  " "$CONFIG_FILE"
 
   echo "  $hook_id: $old_args → $new_args"
 done
