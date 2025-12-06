@@ -108,6 +108,8 @@ jobs:
           uv run nox -s test
       - name: Lint code
         run: |-
+          cat .pre-commit-config.yaml
           bash .github/scripts/ci-ruff-args.sh
+          cat .pre-commit-config.yaml
           uv sync --only-dev
           uv run nox -s precommit
