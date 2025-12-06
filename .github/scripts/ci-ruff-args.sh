@@ -33,7 +33,7 @@ for transform in "${TRANSFORMATIONS[@]}"; do
   hook_id="${parts[0]}"
 
   # Build multiline YAML array format from pipe-delimited args
-  # Indentation: 8 spaces for args: [, 10 spaces for items, 8 spaces for closing ]
+  # Indentation: 8 spaces for 'args:', 10 spaces for '[', 12 spaces for items, 10 spaces for ']'
   multiline_args="        args:\n          ["
   for ((i = 1; i < ${#parts[@]}; i++)); do
     multiline_args+=$(printf "\n            %s," "${parts[i]}")
