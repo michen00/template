@@ -47,12 +47,12 @@ for transform in "${TRANSFORMATIONS[@]}"; do
   " "$CONFIG_FILE")
 
   perl -i -pe "
-    BEGIN { \$in_hook = 0; }
+    BEGIN { \$in_hook = 0; \$new_args = q($new_args); }
     if (/id:\s+$hook_id\s*\$/) {
       \$in_hook = 1;
     }
     if (\$in_hook && /^\s+args: \[.*\]\s*\$/) {
-      s/args: \[.*\]/args: $new_args/;
+      s/args: \[.*\]/args: \$new_args/;
       \$in_hook = 0;
     }
     if (/^  - repo:/ || (/id:\s+\S+\s*\$/ && !/id:\s+$hook_id\s*\$/)) {
