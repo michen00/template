@@ -106,6 +106,7 @@ enable-git-hooks: configure-git-hooks ## Enable Git hooks
 	@set -e; \
     mv .gitconfigs/hooks .gitconfigs/hooks.bak && \
     trap 'mv .gitconfigs/hooks.bak .gitconfigs/hooks' EXIT; \
+    $(UV) run pre-commit install --hook-type commit-msg && \
     $(UV) run pre-commit install && \
     mv .git/hooks/pre-commit .githooks/pre-commit && \
     echo "pre-commit hooks moved to .githooks/pre-commit"
@@ -113,7 +114,9 @@ enable-git-hooks: configure-git-hooks ## Enable Git hooks
 .PHONY: enable-pre-commit-only
 enable-pre-commit-only: ## Enable pre-commit hooks without enabling commit hooks
 	@git config --local --unset-all include.path > /dev/null 2>&1 || true
-	@rm -f .githooks/pre-commit && $(UV) run pre-commit install
+	@rm -f .githooks/pre-commit && \
+    $(UV) run pre-commit install --hook-type commit-msg && \
+    $(UV) run pre-commit install
 
 .PHONY: enable-commit-hooks-only
 enable-commit-hooks-only: configure-git-hooks ## Enable commit hooks without enabling pre-commit hooks
