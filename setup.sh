@@ -163,6 +163,7 @@ if [[ $SETUP_CHOICE == "1" ]]; then
     replace_template_tokens "$PROJECT" "$PROJECTNAME" &&
     disable_example_script "$PROJECT" &&
     find "$PROJECT" -name "*.bak" -type f -delete &&
+    touch .git-blame-ignore-revs &&
     quiet_echo "Project set up successfully in $PROJECT."
 
 elif [[ $SETUP_CHOICE == "2" ]]; then
