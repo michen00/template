@@ -184,10 +184,10 @@ clean: ## Remove build artifacts, caches, and temporary files
 clean-uninstall: clean uninstall ## Clean up project artifacts and uninstall the package
 
 .PHONY: clean-reinstall
-clean-reinstall: clean-uninstall install ## Clean up project artifacts and reinstall the package
+clean-reinstall: clean-uninstall .WAIT install ## Clean up project artifacts and reinstall the package
 
 .PHONY: clean-reinstall-dev
-clean-reinstall-dev: clean-uninstall develop ## Clean up project artifacts and reinstall the package for development (WITH_HOOKS={true|false}, default=true)
+clean-reinstall-dev: clean-uninstall .WAIT develop ## Clean up project artifacts and reinstall the package for development (WITH_HOOKS={true|false}, default=true)
 
 ##################
 ## code quality ##
@@ -214,10 +214,10 @@ lint-unsafe: build/install-dev ## Lint the code with Ruff, fixing issues where p
 	@$(MAKE) .display-lint-complete
 
 .PHONY: format
-format: lint ruff-format ## Format the code with Ruff
+format: lint .WAIT ruff-format ## Format the code with Ruff
 
 .PHONY: format-unsafe
-format-unsafe: lint-unsafe ruff-format ## Format the code with Ruff using --unsafe-fixes
+format-unsafe: lint-unsafe .WAIT ruff-format ## Format the code with Ruff using --unsafe-fixes
 
 .PHONY: run-pre-commit
 run-pre-commit: build/install-dev ## Run the pre-commit checks
