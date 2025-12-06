@@ -47,7 +47,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Secret scanning
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@v3.91.2
         with:
           extra_args: --results=verified,unknown
       - name: Set up Python
