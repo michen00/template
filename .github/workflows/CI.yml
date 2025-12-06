@@ -5,19 +5,20 @@ on:
     branches:
       - main
     paths:
-      - .codespellrc
-      - .coveragerc
-      - .editorconfig
-      - .pylintrc
-      - .python-version
-      - "*.{yaml,yml}"
-      - "*.lock"
-      - "*.md"
-      - "*.py"
-      - "*.sh"
-      - "*.toml"
-      - src/**
-      - tests/**
+      - ".codespellrc"
+      - ".coveragerc"
+      - ".editorconfig"
+      - ".pylintrc"
+      - ".python-version"
+      - "**/*.lock"
+      - "**/*.md"
+      - "**/*.py"
+      - "**/*.sh"
+      - "**/*.toml"
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "src/**"
+      - "tests/**"
   workflow_dispatch:
 
 concurrency:
