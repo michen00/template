@@ -79,6 +79,7 @@ The `Makefile` is the primary entry point for development tasks.
 
 - Edit `.github/workflows/CI.yml`.
 - Note that `.github/workflows/.cache-buster` is used to reset caches.
+- **CI Ruff Args:** Before running pre-commit in CI, `.github/scripts/ci-ruff-args.sh` modifies `.pre-commit-config.yaml` with stricter ruff args for better GitHub integration. This means CI behavior differs slightly from local `make check`, which uses the default args.
 
 ### Updating Instructions
 
