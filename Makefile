@@ -292,6 +292,6 @@ build/install-deps: build/install-python-versions
 	$(UV) sync --no-editable --no-install-project
 	mkdir -p $(dir $@) && touch $@
 
-.PHONY: check-install-uv build/install-python-versions
-build/install-python-versions:
+.PHONY: build/install-python-versions
+build/install-python-versions: check-install-uv
 	$(UV) python install $(shell cat .python-version)
