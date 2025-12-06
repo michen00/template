@@ -4,7 +4,7 @@
 #          with CI-optimized versions for stricter checking and better GitHub output formatting.
 #
 
-# TODO: be less hacky
+# TODO: be less hacky; dynamically modifying at CI time is unsatisfying
 
 set -euo pipefail
 
