@@ -19,6 +19,7 @@
 .github/workflows/CI.yml
 .github/workflows/lint-github-actions.yml
 .gitignore
+.gitlint
 .markdownlint.yml
 .pre-commit-config.yaml
 .pylintrc
