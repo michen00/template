@@ -2,6 +2,7 @@ VERSION ?= $(shell grep -E '^version[[:space:]]*=' pyproject.toml | sed 's/.*=[[
 VENV = .venv
 
 .ONESHELL:
+.WAIT:
 
 DEBUG    ?= false
 VERBOSE  ?= false
