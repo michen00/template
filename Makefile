@@ -179,7 +179,7 @@ format: lint .WAIT ruff-format ## Format the code with Ruff
 format-unsafe: lint-unsafe .WAIT ruff-format ## Format the code with Ruff using --unsafe-fixes
 
 .PHONY: run-pre-commit
-run-pre-commit: build/install-dev enable-pre-commit ## Run the pre-commit checks
+run-pre-commit: build/install-dev ## Run the pre-commit checks
 	$(UV) run $(PRECOMMIT) run --all-files
 
 .PHONY: .display-lint-complete
