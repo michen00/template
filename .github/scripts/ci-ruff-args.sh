@@ -15,11 +15,10 @@ if [[ ! -f $CONFIG_FILE ]]; then
   exit 1
 fi
 
-# Define transformations: hook_id|space-separated args
-# Will be converted to multi-line YAML array format to respect 88 character limit
+# Define transformations: hook_id|new_args
 declare -a TRANSFORMATIONS=(
-  "ruff-check|--fix --unsafe-fixes --show-fixes --output-format=github --exit-non-zero-on-fix --verbose"
-  "ruff-format|--check --diff --verbose"
+  "ruff-check|[--fix, --unsafe-fixes, --show-fixes, --output-format=github, --exit-non-zero-on-fix, --verbose]"
+  "ruff-format|[--check, --diff, --verbose]"
 )
 
 echo "Modifying ruff args in $CONFIG_FILE for CI..."
@@ -30,9 +29,9 @@ trap 'rm -f "${CONFIG_FILE}.bak"' EXIT
 
 # Apply each transformation with context-aware matching
 for transform in "${TRANSFORMATIONS[@]}"; do
-  IFS='|' read -r hook_id args_string <<< "$transform"
+  IFS='|' read -r hook_id new_args <<< "$transform"
 
-  # Capture the old args before replacement (for logging)
+  # Capture the old args before replacement
   old_args=$(perl -ne "
     BEGIN { \$in_hook = 0; }
     if (/id:\s+$hook_id\s*\$/) {
@@ -47,34 +46,21 @@ for transform in "${TRANSFORMATIONS[@]}"; do
     }
   " "$CONFIG_FILE")
 
-  # Replace inline args array with multi-line format using perl
   perl -i -pe "
-    BEGIN {
-      \$in_hook = 0;
-      \$hook_id_pattern = q($hook_id);
-      @args = qw($args_string);
-    }
-    if (/id:\s+\$hook_id_pattern\s*\$/) {
+    BEGIN { \$in_hook = 0; \$new_args = q($new_args); }
+    if (/id:\s+$hook_id\s*\$/) {
       \$in_hook = 1;
-      print;
-      next;
     }
-    if (\$in_hook && /^\s+args:\s*\[.*\]\s*\$/) {
-      # Replace with multi-line format
-      print \"        args:\n\";
-      for my \$arg (@args) {
-        print \"          - \$arg\n\";
-      }
-      \$in_hook = 0;
-      next;
-    }
-    if (/^  - repo:/ || (/id:\s+\S+\s*\$/ && !/id:\s+\$hook_id_pattern\s*\$/)) {
+    if (\$in_hook && /^\s+args: \[.*\]\s*\$/) {
+      s/args: \[.*\]/args: \$new_args/;
       \$in_hook = 0;
     }
-    print;
+    if (/^  - repo:/ || (/id:\s+\S+\s*\$/ && !/id:\s+$hook_id\s*\$/)) {
+      \$in_hook = 0;
+    }
   " "$CONFIG_FILE"
 
-  echo "  $hook_id: $old_args → multi-line format"
+  echo "  $hook_id: $old_args → $new_args"
 done
 
 # Remove stages: ["pre-push"] from mypy hook to run it in CI
@@ -92,19 +78,5 @@ perl -i -pe '
     $in_mypy = 0;
   }
 ' "$CONFIG_FILE"
-
-# Format the modified file with yamlfmt to ensure it passes yamllint
-# This prevents yamlfmt from modifying it during pre-commit and causing yamllint failures
-echo "Formatting $CONFIG_FILE with yamlfmt..."
-# Try multiple methods to run yamlfmt (it may not be available yet in CI)
-if command -v yamlfmt &> /dev/null; then
-  yamlfmt "$CONFIG_FILE" 2> /dev/null || echo "Note: yamlfmt formatting attempted" >&2
-elif uv run --no-project yamlfmt "$CONFIG_FILE" 2> /dev/null; then
-  : # yamlfmt ran successfully via uv
-else
-  # yamlfmt not available yet - it will format during pre-commit run
-  # The file should still be valid YAML, just may need formatting
-  echo "Note: yamlfmt not available yet, will be formatted during pre-commit run" >&2
-fi
 
 echo "✓ Pre-commit config updated for CI"
