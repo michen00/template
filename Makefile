@@ -82,8 +82,8 @@ develop: build/install-dev ## Install the project for development (WITH_HOOKS={t
        else \
            stash_was_needed=0; \
        fi; \
-       git checkout main && git pull && \
-       git lfs pull && git checkout $$current_branch; \
+       git switch main && git pull && \
+       git lfs pull && git switch $$current_branch; \
        if [ $$stash_was_needed -eq 1 ]; then \
            git stash pop; \
        fi
