@@ -12,6 +12,10 @@ ci:
     for more information, see https://pre-commit.ci
 
 repos:
+  - repo: https://github.com/pre-commit/sync-pre-commit-deps
+    rev: v0.0.3
+    hooks:
+      - id: sync-pre-commit-deps
   # security
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.28.0
