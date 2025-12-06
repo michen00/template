@@ -63,4 +63,20 @@ for transform in "${TRANSFORMATIONS[@]}"; do
   echo "  $hook_id: $old_args → $new_args"
 done
 
-echo "✓ Ruff args updated for CI"
+# Remove stages: ["pre-push"] from mypy hook to run it in CI
+echo "Removing mypy pre-push stage restriction..."
+perl -i -pe '
+  BEGIN { $in_mypy = 0; }
+  if (/id:\s+mypy\s*$/) {
+    $in_mypy = 1;
+  }
+  if ($in_mypy && /^\s+stages:\s*\[.*\]\s*$/) {
+    $_ = "";
+    $in_mypy = 0;
+  }
+  if (/^  - repo:/ || (/id:\s+\S+\s*$/ && !/id:\s+mypy\s*$/)) {
+    $in_mypy = 0;
+  }
+' "$CONFIG_FILE"
+
+echo "✓ Pre-commit config updated for CI"
