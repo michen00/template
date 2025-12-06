@@ -57,7 +57,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set cache date
-        run: |
+        run: |-
           echo "DATE=$(date +'%Y%m%d')" >> "$GITHUB_ENV"
       - name: Set up uv
         uses: astral-sh/setup-uv@v7
@@ -69,31 +69,48 @@ jobs:
             noxfile.py
             pyproject.toml
             uv.lock
+      - name: Prepare cache keys
+        id: prepare-cache-keys
+        env:
+          HASH_UV: ${{ hashFiles('uv.lock') }}
+          HASH_PYPROJECT: ${{ hashFiles('pyproject.toml') }}
+          HASH_PRECOMMIT: ${{ hashFiles('.pre-commit-config.yaml') }}
+          HASH_NOXFILE: ${{ hashFiles('noxfile.py') }}
+          STAMP: ${{ format('{0}-{1}', env.DATE, env.CACHE_NUMBER) }}
+        run: |-
+          py="${HASH_PYPROJECT}-${STAMP}"
+          uv="${HASH_UV}-${py}"
+          {
+            echo "py=${py}"
+            echo "uv=${uv}"
+            echo "pc=${HASH_PRECOMMIT}-${STAMP}"
+            echo "nox=${HASH_NOXFILE}-${uv}"
+          } >> "$GITHUB_OUTPUT"
       - name: Cache .venv directory
         id: cache-venv
         uses: actions/cache@v4
         with:
           path: .venv
-          key: ${{ runner.os }}-venv-${{ hashFiles('uv.lock') }}-${{ hashFiles('pyproject.toml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+          key: ${{ runner.os }}-venv-${{ steps.prepare-cache-keys.outputs.uv }}
       - name: Cache pre-commit hooks
         id: cache-pre-commit
         uses: actions/cache@v4
         with:
           path: ~/.cache/pre-commit
-          key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+          key: ${{ runner.os }}-precommit-${{ steps.prepare-cache-keys.outputs.pc }}
       - name: Cache nox environments
         uses: actions/cache@v4
         with:
           path: .nox
-          key: ${{ runner.os }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('uv.lock') }}-${{ hashFiles('pyproject.toml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+          key: ${{ runner.os }}-nox-${{ steps.prepare-cache-keys.outputs.nox }}
       - name: Install dependencies
         run: uv sync --no-editable --no-install-project
       - name: Run pytest
-        run: |
+        run: |-
           uv sync --only-group test
           uv run nox -s test
       - name: Lint code
-        run: |
+        run: |-
           bash .github/scripts/ci-ruff-args.sh
           uv sync --only-dev
           uv run nox -s precommit
