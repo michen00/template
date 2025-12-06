@@ -87,6 +87,15 @@ repos:
       - id: mixed-line-ending
       - id: name-tests-test
         args: [--pytest-test-first]
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.20.0
+    hooks:
+      - id: yamlfmt
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.37.1
+    hooks:
+      - id: yamllint
+        args: [--strict]
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
@@ -105,12 +114,7 @@ repos:
     rev: v1.18.2
     hooks:
       - id: mypy
-        args:
-          [
-            "--config-file=pyproject.toml",
-            "--install-types",
-            "--non-interactive",
-          ]
+        args: ["--config-file=pyproject.toml", "--install-types", "--non-interactive"]
         additional_dependencies:
           - nox[uv]
           - pydantic[mypy]
