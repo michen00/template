@@ -119,9 +119,9 @@ TO_REMOVE := \
     */.venv \
     .coverage \
     .eggs \
-	.git/hooks/commit-msg \
+    .git/hooks/commit-msg \
     .git/hooks/pre-commit \
-	.git/hooks/pre-push \
+    .git/hooks/pre-push \
     .ipynb_checkpoints \
     .mypy_cache \
     .pytest_cache \
