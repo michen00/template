@@ -15,6 +15,7 @@ switch_case_indent = true
 [*.{conf,java,js,json,jsp,php,tf,ts,xml,yaml,yml}]
 indent_size = 2
 indent_style = space
+max_line_length = 88
 
 [*.{py}]
 indent_size = 4
