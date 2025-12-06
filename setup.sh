@@ -218,10 +218,10 @@ elif [[ $SETUP_CHOICE == "2" ]]; then
       echo "Warning: $FILE listed in manifest but missing." >&2
     fi
   done < "$MANIFEST"
-  touch "$DEST_DIR/.git-blame-ignore-revs"
 
   # Transform template files
   finalize_setup "$PROJECT" "$PROJECTNAME" &&
+    echo "" > .git-blame-ignore-revs &&
     quiet_echo "Project created successfully in $PROJECT."
 
 else
