@@ -1,15 +1,10 @@
 .AGENTS.md
-.bandit.yml
 .codespellrc
 .coveragerc
 .editorconfig
 .git-blame-ignore-revs
 .gitattributes
 .gitconfigs/alias
-.gitconfigs/hooks
-.githooks/.gitignore
-.githooks/commit-msg
-.githooks/prepare-commit-msg
 .github/.copilot-instructions.md
 .github/dependabot.yml
 .github/instructions/CI.instructions.md
