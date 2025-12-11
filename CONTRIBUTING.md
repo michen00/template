@@ -17,6 +17,7 @@ The project has defined a [code of conduct](CODE_OF_CONDUCT.md) to ensure a welc
     - [Before Submitting an Enhancement](#before-submitting-an-enhancement)
     - [How do I submit a good enhancement suggestion?](#how-do-i-submit-a-good-enhancement-suggestion)
   - [Your first code contribution](#your-first-code-contribution)
+  - [Contribution workflow](#contribution-workflow)
   - [Recommended VSCode extensions](#recommended-vscode-extensions)
 - [Creating a release](#creating-a-release)
 
@@ -55,6 +56,17 @@ Before opening a Pull Request (PR), please consider the following guidelines:
 - Explanatory comments related to code functions are strongly recommended.
 
 And finally, when you are satisfied with your changes, open a new PR.
+
+### Contribution workflow
+
+Here’s how we suggest you go about proposing a change to this project:
+
+1. [Fork this project](https://help.github.com/articles/fork-a-repo/) to your account.
+2. [Create a branch](https://help.github.com/articles/creating-and-deleting-branches-within-your-repository) for the change you intend to make.
+3. Make your changes to your fork.
+4. [Send a pull request](https://help.github.com/articles/using-pull-requests/) from your fork’s branch to our `main` branch.
+
+Using the web-based interface to make changes is fine too, and will help you by automatically forking the project and prompting to send a pull request too.
 
 ### Recommended VSCode extensions
 
