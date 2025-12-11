@@ -17,6 +17,7 @@ The project has defined a [code of conduct](CODE_OF_CONDUCT.md) to ensure a welc
     - [Before Submitting an Enhancement](#before-submitting-an-enhancement)
     - [How do I submit a good enhancement suggestion?](#how-do-i-submit-a-good-enhancement-suggestion)
   - [Your first code contribution](#your-first-code-contribution)
+  - [Recommended VSCode extensions](#recommended-vscode-extensions)
 - [Creating a release](#creating-a-release)
 
 ## I want to contribute
