@@ -37,6 +37,7 @@ DEFAULT_URLS=(
   "https://github.com/github/gitignore/blob/main/Python.gitignore"
 
   # IDEs / editors
+  "https://github.com/github/gitignore/blob/main/Global/Cursor.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Eclipse.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/SublimeText.gitignore"
@@ -51,7 +52,6 @@ DEFAULT_URLS=(
   # Tools / documents / misc artifacts
   "https://github.com/github/gitignore/blob/main/Global/Archives.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Backup.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/Cursor.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Diff.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/MicrosoftOffice.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Patch.gitignore"
