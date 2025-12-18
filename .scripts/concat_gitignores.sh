@@ -39,8 +39,10 @@ DEFAULT_URLS=(
   # IDEs / editors
   "https://github.com/github/gitignore/blob/main/Global/Cursor.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Eclipse.gitignore"
+  "https://github.com/github/gitignore/blob/main/Global/Emacs.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/SublimeText.gitignore"
+  "https://github.com/github/gitignore/blob/main/Global/Vim.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore"
   "https://github.com/github/gitignore/blob/main/VisualStudio.gitignore"
 
