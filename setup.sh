@@ -105,7 +105,9 @@ finalize_setup() {
     mv src/template "src/$project_name" &&
     replace_template_tokens "$project_dir" "$project_name" &&
     disable_example_script "$project_dir" &&
-    find "$project_dir" -name "*.bak" -type f -delete
+    find "$project_dir" -name "*.bak" -type f -delete &&
+    echo "" > .git-blame-ignore-revs &&
+    quiet_echo "Project set up successfully in $PROJECT."
 }
 
 # Verify manifest exists
@@ -180,9 +182,7 @@ if [[ $SETUP_CHOICE == "1" ]]; then
     rm -rf "$FILE"
   done
 
-  # Transform template files
-  finalize_setup "$PROJECT" "$PROJECTNAME" &&
-    quiet_echo "Project set up successfully in $PROJECT."
+  finalize_setup "$PROJECT" "$PROJECTNAME"
 
 elif [[ $SETUP_CHOICE == "2" ]]; then
   # === NEW DIRECTORY SETUP ===
@@ -219,10 +219,7 @@ elif [[ $SETUP_CHOICE == "2" ]]; then
     fi
   done < "$MANIFEST"
 
-  # Transform template files
-  finalize_setup "$PROJECT" "$PROJECTNAME" &&
-    echo "" > .git-blame-ignore-revs &&
-    quiet_echo "Project created successfully in $PROJECT."
+  finalize_setup "$PROJECT" "$PROJECTNAME"
 
 else
   quiet_echo "Invalid choice. Exiting script."
