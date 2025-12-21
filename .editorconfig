@@ -21,11 +21,5 @@ max_line_length = 88
 indent_size = 4
 indent_style = space
 
-[.githooks/*]
-indent_size = 2
-indent_style = space
-space_redirects = true
-switch_case_indent = true
-
 [Makefile]
 indent_style = tab
