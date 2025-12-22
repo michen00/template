@@ -52,7 +52,7 @@ jobs:
       - name: Test updated pre-commit hooks
         run: |
           if ! pre-commit run --all-files; then
-            echo "Pre-commit hooks failed. Please review the log above for details." >&2
+            echo "Pre-commit hooks failed. Please review the log for details." >&2
             exit 1
           fi
       - name: Push changes and create PR
