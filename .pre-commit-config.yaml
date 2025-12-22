@@ -114,6 +114,10 @@ repos:
     hooks:
       - id: yamllint
         args: [--strict]
+  - repo: https://github.com/crate-ci/typos
+    rev: typos-dict-v0.13.13
+    hooks:
+      - id: typos
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
