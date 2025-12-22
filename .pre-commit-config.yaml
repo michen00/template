@@ -13,36 +13,55 @@ ci:
 
 default_stages: [pre-commit]
 repos:
+  # maintenance
   - repo: https://github.com/pre-commit/sync-pre-commit-deps
     rev: v0.0.3
     hooks:
       - id: sync-pre-commit-deps
-  # security
+
+  # security (fail fast)
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.30.0
     hooks:
       - id: gitleaks
         fail_fast: true
+  - repo: https://github.com/thoughtworks/talisman
+    rev: v1.37.0
+    hooks:
+      - id: talisman-push # pre-push
+        fail_fast: true
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
       - id: detect-private-key
-  - repo: https://github.com/thoughtworks/talisman
-    rev: v1.37.0
-    hooks:
-      - id: talisman-push
         fail_fast: true
-  # git commit message style
+
+  # git commit policy
   - repo: https://github.com/michen00/custom-commit-hooks
     rev: v0.0.0
     hooks:
-      - id: enhance-scope
-      - id: conventional-merge-commit
+      - id: conventional-merge-commit # commit-msg
+      - id: conventional-merge-commit # prepare-commit-msg
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1
     hooks:
       - id: gitlint
-  # formatters & fixers
+
+  # hygiene (cheap, non-formatting)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: destroyed-symlinks
+      - id: mixed-line-ending
+
+  # formatting before linting
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -66,18 +85,8 @@ repos:
     hooks:
       - id: markdownlint
         args: ["--fix"]
-  # configuration validation
-  - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.24.1
-    hooks:
-      - id: validate-pyproject
-        additional_dependencies: ["validate-pyproject-schema-store[all]"]
-  - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.35.0
-    hooks:
-      - id: check-dependabot
-      - id: check-github-workflows
-  # general checks & linting
+
+  # linting
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
@@ -88,20 +97,11 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
-      - id: check-added-large-files
-        args: ["--maxkb=1024"]
-      - id: check-ast
-      - id: check-case-conflict
-      - id: check-executables-have-shebangs
       - id: check-json
-      - id: check-merge-conflict
-      - id: check-shebang-scripts-are-executable
-      - id: check-symlinks
       - id: check-toml
       - id: check-yaml
+      - id: check-ast
       - id: debug-statements
-      - id: destroyed-symlinks
-      - id: mixed-line-ending
       - id: name-tests-test
         args: [--pytest-test-first]
   # - repo: https://github.com/google/yamlfmt
@@ -127,6 +127,7 @@ repos:
     rev: v1.7.9
     hooks:
       - id: actionlint
+
   # static type analysis
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.19.0
@@ -140,3 +141,15 @@ repos:
           - types-pyyaml
           - typer
         stages: ["pre-push"]
+
+  # configuration validation
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.24.1
+    hooks:
+      - id: validate-pyproject
+        additional_dependencies: ["validate-pyproject-schema-store[all]"]
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.35.0
+    hooks:
+      - id: check-dependabot
+      - id: check-github-workflows
