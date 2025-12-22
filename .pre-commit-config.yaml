@@ -23,6 +23,10 @@ repos:
     hooks:
       - id: gitleaks
         fail_fast: true
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: detect-private-key
   - repo: https://github.com/thoughtworks/talisman
     rev: v1.37.0
     hooks:
