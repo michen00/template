@@ -40,7 +40,7 @@ repos:
   - repo: https://github.com/michen00/custom-commit-hooks
     rev: v0.0.0
     hooks:
-      - id: conventional-merge-commit # commit-msg
+      - id: enhance-scope # commit-msg
       - id: conventional-merge-commit # prepare-commit-msg
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1
