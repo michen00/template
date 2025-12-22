@@ -1,3 +1,4 @@
 [codespell]
-skip = ./CHANGELOG.md,*.lock
-count = true
+skip = .gitignore,CHANGELOG.md,*.lock
+check-hidden = true
+builtin = clear,rare,usage
