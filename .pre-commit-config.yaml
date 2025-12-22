@@ -100,6 +100,7 @@ repos:
       - id: check-toml
       - id: check-yaml
       - id: debug-statements
+      - id: destroyed-symlinks
       - id: mixed-line-ending
       - id: name-tests-test
         args: [--pytest-test-first]
