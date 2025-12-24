@@ -57,7 +57,8 @@ jobs:
             }
             return "unknown";
       - name: greet bug reports
-        if: steps.bot-author-check.outputs.result != 'true' && github.event_name == 'issues' && steps.check-labels.outputs.result == 'bug'
+        if: steps.bot-author-check.outputs.result != 'true' && github.event_name == 'issues'
+          && steps.check-labels.outputs.result == 'bug'
         uses: actions/first-interaction@v3
         with:
           issue_message: |
@@ -67,7 +68,8 @@ jobs:
 
             A maintainer will be with you soon! Thank you for your cooperation 🙏
       - name: greet feature requests
-        if: steps.bot-author-check.outputs.result != 'true' && github.event_name == 'issues' && steps.check-labels.outputs.result == 'enhancement'
+        if: steps.bot-author-check.outputs.result != 'true' && github.event_name == 'issues'
+          && steps.check-labels.outputs.result == 'enhancement'
         uses: actions/first-interaction@v3
         with:
           issue_message: |
@@ -87,7 +89,7 @@ jobs:
             Thank you for your contribution! We appreciate your time and effort in submitting this issue. A maintainer will review it soon. If you have any questions, feel free to ask!
 
             Thank you for your cooperation 🙏
-          pr_message: |
+          pr_message: |-
             🎉 Welcome to the `template` community! 🎉
 
             Thank you for your contribution! We appreciate your time and effort in submitting this pull request. A maintainer will review it soon. If you have any questions, feel free to ask!

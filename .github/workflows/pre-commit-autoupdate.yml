@@ -36,7 +36,8 @@ jobs:
           CACHE_NUMBER: 0
         with:
           path: ~/.cache/pre-commit
-          key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}-${{ env.CACHE_NUMBER }} # yamllint disable-line rule:line-length
+          key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}-${{
+            env.CACHE_NUMBER }} # yamllint disable-line rule:line-length
       - name: Install pre-commit hooks
         if: steps.cache-pre-commit.outputs.cache-hit != 'true'
         run: |
