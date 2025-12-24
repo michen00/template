@@ -71,9 +71,9 @@ Using the web-based interface to make changes is fine too, and will help you by 
 #### Creating a release
 
 1. Prepare a release branch: `git switch main && git pull && git switch -c release/vX.Y.Z`
-1. Describe the new release in `CHANGELOG.md`: `git cliff --unreleased`
+1. Describe the new release in `CHANGELOG.md`; use `git cliff --unreleased` to generate entries.
 1. Bump the version in `pyproject.toml`.
-1. Commit the changes (`git commit -am "chore: release vX.Y.Z"`).
+1. Commit the changes: `git commit -am "chore: release vX.Y.Z"`
 1. Push to your fork and open a PR.
 1. After the PR is merged, get the latest main: `git switch main && git pull`
 1. Create a signed tag: `git tag -a vX.Y.Z -m vX.Y.Z -s`
