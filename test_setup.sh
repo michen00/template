@@ -181,8 +181,8 @@ verify_new_directory_project() {
     exit 1
   fi
 
-  if [[ -f "$project_dir/README_template.md" ]]; then
-    printf '%s[ERROR]%s README_template.md should have been renamed in %s.\n' "$RED" "$RESET" "$project_dir" >&2
+  if [[ -f "$project_dir/.README.md" ]]; then
+    printf '%s[ERROR]%s .README.md should have been renamed in %s.\n' "$RED" "$RESET" "$project_dir" >&2
     exit 1
   fi
 
@@ -231,8 +231,8 @@ verify_inplace_project() {
     exit 1
   fi
 
-  if [[ -f "$project_root/README_template.md" ]]; then
-    printf '%s[ERROR]%s README_template.md should have been renamed in %s.\n' "$RED" "$RESET" "$project_root" >&2
+  if [[ -f "$project_root/.README.md" ]]; then
+    printf '%s[ERROR]%s .README.md should have been renamed in %s.\n' "$RED" "$RESET" "$project_root" >&2
     exit 1
   fi
 

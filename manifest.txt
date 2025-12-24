@@ -23,6 +23,7 @@
 .pre-commit-config.yaml
 .pylintrc
 .python-version
+.README.md
 .readthedocs.yaml
 .ruff.toml
 .vscode/extensions.json
@@ -40,7 +41,6 @@ Makefile
 notebooks/.gitkeep
 noxfile.py
 pyproject.toml
-README_template.md
 src/template/__init__.py
 src/template/bin/.gitkeep
 src/template/bin/example_script.py
