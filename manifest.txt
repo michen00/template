@@ -28,7 +28,6 @@
 .ruff.toml
 .vscode/extensions.json
 .vscode/settings.json
-.yamlfmt
 .yamllint
 CHANGELOG.md
 cliff.toml

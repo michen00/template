@@ -1,7 +1,0 @@
-gitignore_excludes: true
-formatter:
-  max_line_length: 88
-  type: basic
-  trim_trailing_whitespace: true
-  eof_newline: true
-  retain_line_breaks_single: true
