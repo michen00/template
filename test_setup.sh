@@ -206,8 +206,48 @@ verify_new_directory_project() {
     exit 1
   fi
 
+  if [[ ! -f "$project_dir/AGENTS.md" ]]; then
+    printf '%s[ERROR]%s missing AGENTS.md in %s.\n' "$RED" "$RESET" "$project_dir" >&2
+    exit 1
+  fi
+
+  if [[ -f "$project_dir/.AGENTS.md" ]]; then
+    printf '%s[ERROR]%s found hidden .AGENTS.md in %s (should have been renamed).\n' "$RED" "$RESET" "$project_dir" >&2
+    exit 1
+  fi
+
+  if [[ ! -f "$project_dir/CLAUDE.md" ]]; then
+    printf '%s[ERROR]%s missing CLAUDE.md in %s.\n' "$RED" "$RESET" "$project_dir" >&2
+    exit 1
+  fi
+
+  if [[ -f "$project_dir/.CLAUDE.md" ]]; then
+    printf '%s[ERROR]%s found hidden .CLAUDE.md in %s (should have been renamed).\n' "$RED" "$RESET" "$project_dir" >&2
+    exit 1
+  fi
+
   if ! grep -q "$project_name" "$project_dir/pyproject.toml"; then
     printf '%s[ERROR]%s pyproject.toml does not contain the project name %s.\n' "$RED" "$RESET" "$project_name" >&2
+    exit 1
+  fi
+
+  if ! grep -q "# \[project.scripts\]" "$project_dir/pyproject.toml"; then
+    printf '%s[ERROR]%s example-script in pyproject.toml should be commented out.\n' "$RED" "$RESET" >&2
+    exit 1
+  fi
+
+  if ! grep -q "# example-script = " "$project_dir/pyproject.toml"; then
+    printf '%s[ERROR]%s example-script entry in pyproject.toml should be commented out.\n' "$RED" "$RESET" >&2
+    exit 1
+  fi
+
+  if [[ ! -f "$project_dir/.gitignore" ]]; then
+    printf '%s[ERROR]%s .gitignore missing in %s.\n' "$RED" "$RESET" "$project_dir" >&2
+    exit 1
+  fi
+
+  if ! grep -q "This .gitignore is composed of the following templates" "$project_dir/.gitignore"; then
+    printf '%s[ERROR]%s .gitignore appears to be missing the expected header.\n' "$RED" "$RESET" >&2
     exit 1
   fi
 
@@ -261,8 +301,48 @@ verify_inplace_project() {
     exit 1
   fi
 
+  if [[ ! -f "$project_root/AGENTS.md" ]]; then
+    printf '%s[ERROR]%s missing AGENTS.md in %s.\n' "$RED" "$RESET" "$project_root" >&2
+    exit 1
+  fi
+
+  if [[ -f "$project_root/.AGENTS.md" ]]; then
+    printf '%s[ERROR]%s found hidden .AGENTS.md in %s (should have been renamed).\n' "$RED" "$RESET" "$project_root" >&2
+    exit 1
+  fi
+
+  if [[ ! -f "$project_root/CLAUDE.md" ]]; then
+    printf '%s[ERROR]%s missing CLAUDE.md in %s.\n' "$RED" "$RESET" "$project_root" >&2
+    exit 1
+  fi
+
+  if [[ -f "$project_root/.CLAUDE.md" ]]; then
+    printf '%s[ERROR]%s found hidden .CLAUDE.md in %s (should have been renamed).\n' "$RED" "$RESET" "$project_root" >&2
+    exit 1
+  fi
+
   if ! grep -q "$project_name" "$project_root/pyproject.toml"; then
     printf '%s[ERROR]%s pyproject.toml does not contain the project name %s.\n' "$RED" "$RESET" "$project_name" >&2
+    exit 1
+  fi
+
+  if ! grep -q "# \[project.scripts\]" "$project_root/pyproject.toml"; then
+    printf '%s[ERROR]%s example-script in pyproject.toml should be commented out.\n' "$RED" "$RESET" >&2
+    exit 1
+  fi
+
+  if ! grep -q "# example-script = " "$project_root/pyproject.toml"; then
+    printf '%s[ERROR]%s example-script entry in pyproject.toml should be commented out.\n' "$RED" "$RESET" >&2
+    exit 1
+  fi
+
+  if [[ ! -f "$project_root/.gitignore" ]]; then
+    printf '%s[ERROR]%s .gitignore missing in %s.\n' "$RED" "$RESET" "$project_root" >&2
+    exit 1
+  fi
+
+  if ! grep -q "This .gitignore is composed of the following templates" "$project_root/.gitignore"; then
+    printf '%s[ERROR]%s .gitignore appears to be missing the expected header.\n' "$RED" "$RESET" >&2
     exit 1
   fi
 
