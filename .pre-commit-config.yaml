@@ -73,7 +73,7 @@ repos:
       - id: prettier
         types_or: [css, html, javascript, json, scss, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.8
+    rev: v0.14.10
     hooks:
       - id: ruff-check
         types_or: [jupyter, pyi, python, toml]
@@ -138,7 +138,7 @@ repos:
 
   # static type analysis
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.19.0
+    rev: v1.19.1
     hooks:
       - id: mypy
         args: ["--config-file=pyproject.toml", "--install-types", "--non-interactive"]
@@ -157,7 +157,7 @@ repos:
       - id: validate-pyproject
         additional_dependencies: ["validate-pyproject-schema-store[all]"]
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.35.0
+    rev: 0.36.0
     hooks:
       - id: check-dependabot
       - id: check-github-workflows
