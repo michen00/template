@@ -10,9 +10,12 @@
 .github/instructions/CI.instructions.md
 .github/scripts/archive-utils.sh
 .github/scripts/ci-ruff-args.sh
+.github/scripts/concat_gitignores.sh
 .github/workflows/.cache-buster
 .github/workflows/CI.yml
+.github/workflows/greet-new-contributors.yml
 .github/workflows/lint-github-actions.yml
+.github/workflows/pre-commit-autoupdate.yml
 .gitignore
 .gitlint
 .markdownlint.yml
