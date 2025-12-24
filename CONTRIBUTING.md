@@ -68,6 +68,18 @@ Here’s how we suggest you go about proposing a change to this project:
 
 Using the web-based interface to make changes is fine too, and will help you by automatically forking the project and prompting to send a pull request too.
 
+#### Creating a release
+
+1. Prepare a release branch: `git switch main && git pull && git switch -c release/vX.Y.Z`
+1. Describe the new release in `CHANGELOG.md`: `git cliff --unreleased`
+1. Bump the version in `pyproject.toml`.
+1. Commit the changes (`git commit -am "chore: release vX.Y.Z"`).
+1. Push to your fork and open a PR.
+1. After the PR is merged, get the latest main: `git switch main && git pull`
+1. Create a signed tag: `git tag -a vX.Y.Z -m vX.Y.Z -s`
+1. Push with tags: `git push --follow-tags`
+1. Create a release on GitHub: `gh release create vX.Y.Z --generate-notes`
+
 ### Recommended VSCode extensions
 
 We recommend installing the following VSCode extensions to encourage consistent code style and formatting:
@@ -83,8 +95,3 @@ We recommend installing the following VSCode extensions to encourage consistent 
 - [ShellCheck](https://marketplace.visualstudio.com/items?itemName=timonwong.shellcheck)
 - [shfmt](https://marketplace.visualstudio.com/items?itemName=mkhl.shfmt)
 - [YAML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)
-
-## Creating a release
-
-1. Describe the new release in `CHANGELOG.md` (`git reset main && git pull && git cliff --unreleased`)
-1. ...
