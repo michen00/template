@@ -206,17 +206,22 @@ format: lint .WAIT ruff-format ## Format the code with Ruff
 .PHONY: format-unsafe
 format-unsafe: lint-unsafe .WAIT ruff-format ## Format the code with Ruff using --unsafe-fixes
 
-.PHONY: run-pre-commit
-run-pre-commit: build/install-dev ## Run the pre-commit checks
-	$(UV) run $(PRECOMMIT) run --all-files
-
 .PHONY: .display-lint-complete
 .display-lint-complete: ## Display a message when linting is complete
 	@echo "$(BOLD)$(YELLOW)Linting complete!$(_COLOR)"
 
 .PHONY: enable-pre-commit
 enable-pre-commit: ## Enable pre-commit hooks (along with commit-msg and pre-push hooks)
-	@$(UV) run pre-commit install --hook-type commit-msg --hook-type pre-commit --hook-type pre-push
+	@if command -v pre-commit >/dev/null 2>&1; then \
+        $(UV) run pre-commit install --hook-type commit-msg --hook-type pre-commit --hook-type pre-push --hook-type prepare-commit-msg ; \
+    else \
+        echo "$(YELLOW)Warning: pre-commit is not installed. Skipping hook installation.$(_COLOR)"; \
+        echo "Install it with: pip install pre-commit (or brew install pre-commit on macOS)"; \
+    fi
+
+.PHONY: run-pre-commit
+run-pre-commit: build/install-dev ## Run the pre-commit checks
+	$(UV) run $(PRECOMMIT) run --all-files
 
 ###########################
 ## development shortcuts ##
