@@ -327,7 +327,7 @@ verify_inplace_project() {
   fi
 
   if ! grep -q "# \[project.scripts\]" "$project_root/pyproject.toml"; then
-    printf '%s[ERROR]%s example-script in pyproject.toml should be commented out.\n' "$RED" "$RESET" >&2
+    printf '%s[ERROR]%s [project.scripts] section header in pyproject.toml should be commented out.\n' "$RED" "$RESET" >&2
     exit 1
   fi
 
