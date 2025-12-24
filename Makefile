@@ -37,13 +37,13 @@ ifneq ($(shell command -v prek >/dev/null 2>&1 && echo y),)
     endif
 endif
 
-# Terminal formatting (tput with fallbacks)
+# Terminal formatting (tput with fallbacks to ANSI codes)
 _COLOR  := $(shell tput sgr0 2>/dev/null || echo "\033[0m")
 BOLD    := $(shell tput bold 2>/dev/null || echo "\033[1m")
-CYAN    := $(shell tput setaf 6 2>/dev/null || echo "\033[36m")
-GREEN   := $(shell tput setaf 2 2>/dev/null || echo "\033[32m")
-RED     := $(shell tput setaf 1 2>/dev/null || echo "\033[31m")
-YELLOW  := $(shell tput setaf 3 2>/dev/null || echo "\033[33m")
+CYAN    := $(shell tput setaf 6 2>/dev/null || echo "\033[0;36m")
+GREEN   := $(shell tput setaf 2 2>/dev/null || echo "\033[0;32m")
+RED     := $(shell tput setaf 1 2>/dev/null || echo "\033[0;31m")
+YELLOW  := $(shell tput setaf 3 2>/dev/null || echo "\033[0;33m")
 
 .DEFAULT_GOAL := help
 .PHONY: help
