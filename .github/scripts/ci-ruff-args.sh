@@ -32,7 +32,17 @@ for transform in "${TRANSFORMATIONS[@]}"; do
   IFS='|' read -ra parts <<< "$transform"
   hook_id="${parts[0]}"
 
-  # Build multiline YAML array format from pipe-delimited args
+  # Build single-line format
+  single_line_args="        args: ["
+  for ((i = 1; i < ${#parts[@]}; i++)); do
+    if [[ $i -gt 1 ]]; then
+      single_line_args+=", "
+    fi
+    single_line_args+="${parts[i]}"
+  done
+  single_line_args+="]"
+
+  # Build multiline YAML array format (for hooks with many args)
   # Indentation: 8 spaces for 'args:', 10 spaces for '[', 12 spaces for items, 10 spaces for ']'
   multiline_args="        args:\n          ["
   for ((i = 1; i < ${#parts[@]}; i++)); do
@@ -40,15 +50,16 @@ for transform in "${TRANSFORMATIONS[@]}"; do
   done
   multiline_args+=$(printf "\n          ]")
 
-  # Build single-line format for echo message
-  new_args_single_line="["
-  for ((i = 1; i < ${#parts[@]}; i++)); do
-    if [[ $i -gt 1 ]]; then
-      new_args_single_line+=", "
-    fi
-    new_args_single_line+="${parts[i]}"
-  done
-  new_args_single_line+="]"
+  # Choose format based on arg count: single-line for <=3 args, multiline otherwise
+  arg_count=$((${#parts[@]} - 1))
+  if [[ $arg_count -le 3 ]]; then
+    replacement_args="$single_line_args"
+  else
+    replacement_args="$multiline_args"
+  fi
+
+  # For echo message
+  new_args_single_line="[${single_line_args#*: \[}"
 
   # Capture the old args before replacement
   old_args=$(perl -ne "
@@ -65,18 +76,28 @@ for transform in "${TRANSFORMATIONS[@]}"; do
     }
   " "$CONFIG_FILE")
 
-  # Replace args with multiline format
-  # The multiline string already has correct absolute indentation
-  perl -i -0pe "
-    BEGIN { \$in_hook = 0; \$multiline = qq($multiline_args); }
-    if (/id:\s+$hook_id\s*\$/m) {
+  # Replace or insert args using line-by-line processing (NOT slurp mode)
+  # This ensures we only modify args within the correct hook context
+  perl -i -pe "
+    BEGIN { \$in_hook = 0; \$done = 0; \$new_args = qq($replacement_args); }
+    # Enter hook context when we find the target hook id
+    if (/^\\s+-\\s+id:\\s+$hook_id\\s*\$/) {
       \$in_hook = 1;
+      \$done = 0;
     }
-    if (\$in_hook && /^(\s+)args: \[.*?\]\s*\$/m) {
-      s/^(\s+)args: \[.*?\]\s*\$/\$multiline/m;
+    # Replace existing args line if in correct hook context
+    elsif (\$in_hook && !\$done && /^\\s+args:\\s*\\[.*\\]\\s*\$/) {
+      \$_ = \"\$new_args\\n\";
+      \$done = 1;
+    }
+    # Exit hook context and insert args if we hit next hook/repo without finding args
+    elsif (\$in_hook && !\$done && (/^\\s+-\\s+id:/ || /^\\s+-\\s+repo:/)) {
+      \$_ = \"\$new_args\\n\" . \$_;
+      \$done = 1;
       \$in_hook = 0;
     }
-    if (/^  - repo:/m || (/id:\s+\S+\s*\$/m && !/id:\s+$hook_id\s*\$/m)) {
+    # Exit hook context when entering a new repo
+    elsif (/^\\s+-\\s+repo:/) {
       \$in_hook = 0;
     }
   " "$CONFIG_FILE"
