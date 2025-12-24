@@ -27,6 +27,7 @@
 
 - This script handles the renaming and copying process.
 - **Caution:** Be extremely careful when modifying this script. It performs destructive actions (renaming, deleting).
+- During setup, the script automatically attempts to generate a fresh `.gitignore` from GitHub templates. If this fails (network issues, etc.), it falls back to the static `.gitignore` from the manifest.
 
 ## 3. Development Workflow
 
@@ -83,4 +84,9 @@ The `Makefile` is the primary entry point for development tasks.
 
 ### Updating Instructions
 
-- Consider updating `.github/copilot-instructions.md` when you make significant changes to how the project works, so that agents working on _derived_ projects have accurate information.
+- When making significant changes to the template, update these files to keep them in sync:
+  - `AGENTS.md` and `.AGENTS.md` (AI agent instructions)
+  - `CLAUDE.md` and `.CLAUDE.md` (Claude Code instructions)
+  - `.github/.copilot-instructions.md` and `.github/copilot-instructions.md` (GitHub Copilot instructions)
+  - `.github/instructions/CI.instructions.md` (CI workflow instructions)
+  - `README.md` (general documentation)
