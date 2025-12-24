@@ -71,15 +71,15 @@ repos:
     rev: v3.7.4
     hooks:
       - id: prettier
-        types_or: [yaml, html, css, scss, javascript, json]
+        types_or: [css, html, javascript, json, scss, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.8
     hooks:
       - id: ruff-check
-        types_or: [python, pyi, jupyter, toml]
+        types_or: [jupyter, pyi, python, toml]
         args: [--fix, --show-fixes]
       - id: ruff-format
-        types_or: [python, pyi, jupyter, toml]
+        types_or: [jupyter, pyi, python, toml]
         args: []
   - repo: https://github.com/scop/pre-commit-shfmt
     rev: v3.12.0-2
