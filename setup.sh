@@ -94,6 +94,26 @@ validate_project_name() {
   eval "$__var='$__name'"
 }
 
+regenerate_gitignore() {
+  local project_dir="$1"
+
+  # Try to regenerate .gitignore using the concat script
+  quiet_echo "Attempting to generate fresh .gitignore from GitHub templates..."
+
+  if [ -f "$project_dir/.github/scripts/concat_gitignores.sh" ]; then
+    if (cd "$project_dir" && bash .github/scripts/concat_gitignores.sh > /dev/null 2>&1); then
+      quiet_echo "✓ Generated fresh .gitignore from upstream templates"
+    else
+      quiet_echo "⚠ Failed to fetch templates (network issue?). Using static .gitignore as fallback."
+    fi
+  else
+    quiet_echo "⚠ concat_gitignores.sh script not found. Using static .gitignore."
+  fi
+
+  # Always return success so setup continues regardless
+  return 0
+}
+
 finalize_setup() {
   local project_dir="$1"
   local project_name="$2"
@@ -105,6 +125,7 @@ finalize_setup() {
     mv src/template "src/$project_name" &&
     replace_template_tokens "$project_dir" "$project_name" &&
     disable_example_script "$project_dir" &&
+    regenerate_gitignore "$project_dir" &&
     find "$project_dir" -name "*.bak" -type f -delete &&
     echo "" > .git-blame-ignore-revs &&
     quiet_echo "Project set up successfully in $PROJECT."
