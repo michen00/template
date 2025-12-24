@@ -44,11 +44,12 @@ for transform in "${TRANSFORMATIONS[@]}"; do
 
   # Build multiline YAML array format (for hooks with many args)
   # Indentation: 8 spaces for 'args:', 10 spaces for '[', 12 spaces for items, 10 spaces for ']'
+  # Use literal \n escapes throughout so perl's qq() can properly interpolate them
   multiline_args="        args:\n          ["
   for ((i = 1; i < ${#parts[@]}; i++)); do
-    multiline_args+=$(printf "\n            %s," "${parts[i]}")
+    multiline_args+="\n            ${parts[i]},"
   done
-  multiline_args+=$(printf "\n          ]")
+  multiline_args+="\n          ]"
 
   # Choose format based on arg count: single-line for <=3 args, multiline otherwise
   arg_count=$((${#parts[@]} - 1))
