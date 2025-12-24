@@ -192,7 +192,3 @@ For detailed information about:
 - CI/CD configuration
 
 See the generated project's documentation files after setup.
-
-## License
-
-See [LICENSE](LICENSE) file for details.
