@@ -80,7 +80,6 @@ repos:
         args: [--fix, --show-fixes]
       - id: ruff-format
         types_or: [jupyter, pyi, python, toml]
-        args: []
   - repo: https://github.com/scop/pre-commit-shfmt
     rev: v3.12.0-2
     hooks:
