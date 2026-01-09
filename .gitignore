@@ -1,5 +1,5 @@
 #############################################################################################
-# This .gitignore is composed of the following templates (retrieved 2025-12-22):
+# This .gitignore is composed of the following templates (retrieved 2026-01-08):
 # - https://github.com/github/gitignore/blob/main/community/Python/JupyterNotebooks.gitignore
 # - https://github.com/github/gitignore/blob/main/Node.gitignore
 # - https://github.com/github/gitignore/blob/main/Python.gitignore
@@ -939,7 +939,7 @@ DocProject/Help/html
 publish/
 
 # Publish Web Output
-*.[Pp]publish.xml
+*.[Pp]ublish.xml
 *.azurePubxml
 # Note: Comment the next line if you want to checkin your web deploy settings,
 # but database connection strings (with potential passwords) will be unencrypted
@@ -1069,7 +1069,7 @@ node_modules/
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
 
-# Packet dependency manager
+# Paket dependency manager
 **/.paket/paket.exe
 paket-files/
 
