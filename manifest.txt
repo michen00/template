@@ -11,7 +11,6 @@
 .github/instructions/CI.instructions.md
 .github/scripts/archive-utils.sh
 .github/scripts/ci-ruff-args.sh
-.github/scripts/concat_gitignores.sh
 .github/workflows/.cache-buster
 .github/workflows/CI.yml
 .github/workflows/greet-new-contributors.yml
@@ -40,6 +39,8 @@ Makefile
 notebooks/.gitkeep
 noxfile.py
 pyproject.toml
+scripts/concat_gitignores.sh
+scripts/update-unreleased.sh
 src/template/__init__.py
 src/template/bin/.gitkeep
 src/template/bin/example_script.py
