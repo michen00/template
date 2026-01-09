@@ -39,7 +39,7 @@ Makefile
 notebooks/.gitkeep
 noxfile.py
 pyproject.toml
-scripts/concat_gitignores.sh
+scripts/concat-gitignores.sh
 scripts/update-unreleased.sh
 src/template/__init__.py
 src/template/bin/.gitkeep
