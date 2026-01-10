@@ -37,6 +37,7 @@ DEFAULT_URLS=(
   "https://github.com/github/gitignore/blob/main/Python.gitignore"
 
   # IDEs / editors
+  "https://github.com/github/gitignore/blob/main/Global/Cloud9.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Cursor.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Eclipse.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Emacs.gitignore"
@@ -178,7 +179,16 @@ else
   echo "Unknown OS: unable to ensure single trailing newline"
 fi
 
-# Directory for temporary files marked for deletion; safe to ignore in all generated projects
-echo -e "\n.delete-me/" >> "$OUTPUT_FILE"
-echo -e "!.gitkeep" >> "$OUTPUT_FILE"
+# Add additional ignore patterns
+cat >> "$OUTPUT_FILE" << EOF
+
+# Cursor IDE-specific directory
+.cursor/
+
+# Directory for temporary files marked for deletion
+.delete-me/
+
+!.gitkeep
+EOF
+
 echo "Combined .gitignore created as $OUTPUT_FILE"

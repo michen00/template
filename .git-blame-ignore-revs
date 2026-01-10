@@ -6,3 +6,5 @@ a1cdf26a5b722b2fed87d66827036455d571054c  # style: adjust line breaks
 fa26d1ec96934088a0ea8d6a7ce97cdfd76d6135  # style: shorten a line
 4b621b91fb208c5e1d874514ff0e1200920227a8  # style(.pre-commit-config.yaml): alphabetize arrays
 8795a8d9bb982074458fa7618d3c9d4d4c4a3a05  # style: drop an empty array
+801a245459700e7a6f74d4d6df4ddba0e60c3abc  # style: prefer single quotes
+62f68aaf3936e9cc0b2554cae14cc82838d3de57  # style: add line break

@@ -51,6 +51,9 @@ unfixable = []
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
+[lint.flake8-quotes]
+inline-quotes = "single"
+
 [lint.mccabe]
 # Flag errors (`C901`) whenever the complexity level exceeds `max-complexity`.
 max-complexity = 15
@@ -78,13 +81,13 @@ max-branches = 15
 max-returns  = 10
 
 [format]
-# Like Black, use double quotes for strings.
-quote-style = "double"
+# Unlike Black, use single quotes for strings.
+quote-style = "single"
 
 # Like Black, indent with spaces, rather than tabs.
 indent-style = "space"
 
-# Like Black, respect magic trailing commas.
+# Unlike Black, disregard magic trailing commas.
 skip-magic-trailing-comma = false
 
 # Like Black, automatically detect the appropriate line ending.
