@@ -97,10 +97,23 @@ template/
 
 ### Commit Messages
 
-- Follow **Conventional Commits** format: `<type>(<scope>): <subject>`
-  - **Types:** `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`
-  - **Subject:** Imperative mood, <=50 characters
-  - **Atomic Commits:** One logical change per commit
+Follow **Conventional Commits** format: `<type>(<scope>): <subject>`
+
+- **Types:** `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`
+- **Imperative Mood:** Write subjects as commands (e.g., "add feature" not "added feature")
+- **Lowercase Start:** The first word after the colon should be lowercase (unless it's a proper noun, acronym, etc.)
+- **Summary Length:** Keep the subject line under 51 characters (≤50)
+- **Body Line Length:** Wrap body text at 72 characters
+- **Atomic Commits:** One logical change per commit
+
+**Example:**
+
+```text
+feat(core): add user authentication module
+
+Implement JWT-based authentication with refresh token support.
+This includes login, logout, and token refresh endpoints.
+```
 
 ### Code Style
 

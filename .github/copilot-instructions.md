@@ -17,7 +17,13 @@
 - **Publishing Hooks:** `make push-test` and `make push-prod` call `uv publish`; they read the version from `pyproject.toml`. Confirm `VERSION` bumps and changelog alignment (`cliff.toml`) before shipping.
 - **Developer Workflow:** `make develop WITH_HOOKS=true` installs dev deps, missing typing stubs, and local git hooks; set `WITH_HOOKS=false` to skip git config changes. `make enable-git-hooks` / `make disable-git-hooks` toggle commit hooks for contributors.
 - **Review Checklist:** After updates, run `setup.sh` in both modes, inspect the generated repo, and execute `make check`. Verify token replacement still works, and that no new files fell outside the manifest.
-- **Conventional Commits:** Commit summaries should be <=50 characters. Stick with `<type>(<scope>): <subject>`; scopes usually match top-level directories (`src`, `tests`, `docs`, `ci`). Release tooling depends on this format.
+- **Conventional Commits:** Follow `<type>(<scope>): <subject>` format.
+  - **Types:** `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`
+  - **Imperative Mood:** Write subjects as commands (e.g., "add feature" not "added feature")
+  - **Lowercase Start:** The first word after the colon should be lowercase (unless it's a proper noun, acronym, etc.)
+  - **Summary Length:** Keep the subject line under 51 characters (≤50)
+  - **Body Line Length:** Wrap body text at 72 characters
+  - **Scopes:** Usually match top-level directories (`src`, `tests`, `docs`, `ci`). Release tooling depends on this format.
 
 Ping for clarifications or cases that deserve deeper treatment.
 
