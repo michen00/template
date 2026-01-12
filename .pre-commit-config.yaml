@@ -39,7 +39,7 @@ repos:
 
   # git commit policy
   - repo: https://github.com/michen00/custom-commit-hooks
-    rev: v0.0.1
+    rev: v0.0.3
     hooks:
       - id: enhance-scope # commit-msg
       - id: conventional-merge-commit # prepare-commit-msg
@@ -74,7 +74,7 @@ repos:
       - id: prettier
         types_or: [css, html, javascript, json, scss, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
+    rev: v0.14.11
     hooks:
       - id: ruff-check
         types_or: [jupyter, pyi, python, toml]
@@ -115,7 +115,7 @@ repos:
       - id: yamllint
         args: [--strict]
   - repo: https://github.com/crate-ci/typos
-    rev: v1.41.0
+    rev: v1
     hooks:
       - id: typos
   - repo: https://github.com/codespell-project/codespell
