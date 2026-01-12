@@ -6,11 +6,11 @@ on:
     branches:
       - main
     paths:
-      - ".codespellrc"
-      - ".coveragerc"
-      - ".editorconfig"
-      - ".pylintrc"
-      - ".python-version"
+      - .codespellrc
+      - .coveragerc
+      - .editorconfig
+      - .pylintrc
+      - .python-version
       - "**/*.lock"
       - "**/*.md"
       - "**/*.py"

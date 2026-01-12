@@ -25,7 +25,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           check-latest: true
-          cache: "pip"
+          cache: pip
       - name: Install pre-commit
         run: |
           python -m pip install --upgrade pip
