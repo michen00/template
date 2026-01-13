@@ -1354,6 +1354,10 @@ Backup of *.doc*
 
 # End of https://github.com/github/gitignore/blob/main/Global/Patch.gitignore
 
+# Cursor IDE-specific directory
 .cursor/
+
+# Directory for temporary files marked for deletion
 .delete-me/
+
 !.gitkeep

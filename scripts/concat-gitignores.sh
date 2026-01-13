@@ -180,12 +180,15 @@ else
 fi
 
 # Add additional ignore patterns
-{
-  # .cursor IDE-specific directory
-  echo -e "\n.cursor/"
-  # Directory for temporary files marked for deletion; safe to ignore in all generated projects
-  echo -e ".delete-me/"
-  echo -e "!.gitkeep"
-} >> "$OUTPUT_FILE"
+cat >> "$OUTPUT_FILE" << EOF
+
+# Cursor IDE-specific directory
+.cursor/
+
+# Directory for temporary files marked for deletion
+.delete-me/
+
+!.gitkeep
+EOF
 
 echo "Combined .gitignore created as $OUTPUT_FILE"
