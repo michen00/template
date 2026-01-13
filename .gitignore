@@ -1,8 +1,9 @@
 #############################################################################################
-# This .gitignore is composed of the following templates (retrieved 2026-01-08):
+# This .gitignore is composed of the following templates (retrieved 2026-01-12):
 # - https://github.com/github/gitignore/blob/main/community/Python/JupyterNotebooks.gitignore
 # - https://github.com/github/gitignore/blob/main/Node.gitignore
 # - https://github.com/github/gitignore/blob/main/Python.gitignore
+# - https://github.com/github/gitignore/blob/main/Global/Cloud9.gitignore
 # - https://github.com/github/gitignore/blob/main/Global/Cursor.gitignore
 # - https://github.com/github/gitignore/blob/main/Global/Eclipse.gitignore
 # - https://github.com/github/gitignore/blob/main/Global/Emacs.gitignore
@@ -414,6 +415,16 @@ __marimo__/
 .streamlit/secrets.toml
 
 # End of https://github.com/github/gitignore/blob/main/Python.gitignore
+
+####################
+# Cloud9.gitignore #
+####################
+
+# Cloud9 IDE - http://c9.io
+.c9revisions
+.c9
+
+# End of https://github.com/github/gitignore/blob/main/Global/Cloud9.gitignore
 
 ####################
 # Cursor.gitignore #
@@ -1343,5 +1354,6 @@ Backup of *.doc*
 
 # End of https://github.com/github/gitignore/blob/main/Global/Patch.gitignore
 
+.cursor/
 .delete-me/
 !.gitkeep
