@@ -37,6 +37,7 @@ DEFAULT_URLS=(
   "https://github.com/github/gitignore/blob/main/Python.gitignore"
 
   # IDEs / editors
+  "https://github.com/github/gitignore/blob/main/Global/Cloud9.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Cursor.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Eclipse.gitignore"
   "https://github.com/github/gitignore/blob/main/Global/Emacs.gitignore"
