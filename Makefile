@@ -231,7 +231,7 @@ run-pre-commit: build/install-dev ## Run the pre-commit checks
 check-install-uv: ## Check if uv is installed
 	@set -e; \
     command -v uv >/dev/null 2>&1 || { \
-        echo "$(BOLD)$(RED)installing uv$(RESET)"; \
+        echo "$(BOLD)$(RED)installing uv$(_COLOR)"; \
         curl -LsSf https://astral.sh/uv/install.sh | sh; \
     }
 
