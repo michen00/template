@@ -81,18 +81,6 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-COMMIT_MSG="docs(${CHANGELOG}): autoupdate Unreleased section"
-
-# Convert string arguments to arrays for safe expansion
-CLIFF_ARGS_ARRAY=()
-COMMIT_ARGS_ARRAY=()
-if [[ -n "$CLIFF_ARGS" ]]; then
-  read -ra CLIFF_ARGS_ARRAY <<< "$CLIFF_ARGS"
-fi
-if [[ -n "$COMMIT" ]]; then
-  read -ra COMMIT_ARGS_ARRAY <<< "$COMMIT"
-fi
-
 # Check we're in a git repository
 if [ ! -d .git ]; then
   echo "Error: Must be run from the root of a git repository." >&2
@@ -112,6 +100,8 @@ if [[ ! -f "$CHANGELOG" ]]; then
   exit 1
 fi
 
+COMMIT_MSG="docs(${CHANGELOG}): autoupdate Unreleased section"
+
 # Check if the last commit was an auto-update (avoid infinite loop)
 LAST_COMMIT_MSG=$(git log -1 --pretty=%s 2> /dev/null || echo "")
 LAST_COMMIT_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD 2> /dev/null || echo "")
@@ -119,6 +109,16 @@ if [[ $LAST_COMMIT_MSG == "$COMMIT_MSG" && $LAST_COMMIT_FILES == "$CHANGELOG" ]]
   echo "Skipping: Last commit was already a CHANGELOG auto-update."
   echo "No new commits to include."
   exit 0
+fi
+
+# Convert string arguments to arrays for safe expansion
+CLIFF_ARGS_ARRAY=()
+COMMIT_ARGS_ARRAY=()
+if [[ -n "$CLIFF_ARGS" ]]; then
+  read -ra CLIFF_ARGS_ARRAY <<< "$CLIFF_ARGS"
+fi
+if [[ -n "$COMMIT" ]]; then
+  read -ra COMMIT_ARGS_ARRAY <<< "$COMMIT"
 fi
 
 STASHED=false
