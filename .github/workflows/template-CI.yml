@@ -5,8 +5,14 @@ permissions:
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
+    paths:
+      - setup.sh
+      - manifest.txt
+      - test_setup.sh
+      - .github/workflows/template-CI.yml
+  push:
+    branches: [main]
     paths:
       - setup.sh
       - manifest.txt
