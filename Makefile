@@ -243,11 +243,11 @@ bust-ci-cache: ## Bust the CI cache
     git commit -m "ci: bust cache on $$(date +'%Y-%m-%d %H:%M')"
 
 .PHONY: push-test
-push-test: build ## Publish the package to TestPyPI using Poetry
+push-test: build ## Publish the package to TestPyPI using uv
 	@$(UV) publish --index testpypi && echo "Package published to TestPyPI!"
 
 .PHONY: push-prod
-push-prod: build ## Publish the package to PyPI using Poetry
+push-prod: build ## Publish the package to PyPI using uv
 	@$(UV) publish && echo "Package published to PyPI!"
 
 ##############
