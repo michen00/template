@@ -52,15 +52,25 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-CHANGELOG="CHANGELOG.md"
-STASHED=false
-STASH_MSG="update-unreleased: auto-stash ${CHANGELOG}"
-
 # Check we're in a git repository
 if [ ! -d .git ]; then
   echo "Error: Must be run from the root of a git repository." >&2
   exit 1
 fi
+
+CHANGELOG="CHANGELOG.md"
+
+# Check if the last commit was an auto-update (avoid infinite loop)
+LAST_COMMIT_MSG=$(git log -1 --pretty=%s 2> /dev/null || echo "")
+LAST_COMMIT_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD 2> /dev/null || echo "")
+if [[ $LAST_COMMIT_MSG == "$COMMIT_MSG" && $LAST_COMMIT_FILES == "$CHANGELOG" ]]; then
+  echo "Skipping: Last commit was already a CHANGELOG auto-update."
+  echo "No new commits to include."
+  exit 0
+fi
+
+STASHED=false
+STASH_MSG="update-unreleased: auto-stash ${CHANGELOG}"
 
 # Helper to re-stage files, skipping any that no longer exist
 restage_other_files() {
@@ -111,15 +121,6 @@ if [[ $COMMIT == true ]]; then
       git restore --staged -- "$file"
     done <<< "$OTHER_STAGED_FILES"
   fi
-fi
-
-# Check if the last commit was an auto-update (avoid infinite loop)
-LAST_COMMIT_MSG=$(git log -1 --pretty=%s 2> /dev/null || echo "")
-LAST_COMMIT_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD 2> /dev/null || echo "")
-if [[ $LAST_COMMIT_MSG == "$COMMIT_MSG" && $LAST_COMMIT_FILES == "$CHANGELOG" ]]; then
-  echo "Skipping: Last commit was already a CHANGELOG auto-update."
-  echo "No new commits to include."
-  exit 0
 fi
 
 # Stash uncommitted changes to CHANGELOG.md if any
