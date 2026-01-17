@@ -1,11 +1,27 @@
 ---
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    directory: /
+  - package-ecosystem: uv
+    directory: "/"
+    schedule:
+      interval: daily
+    groups:
+      uv-patch-minor:
+        update-types: ["minor", "patch"]
+  - package-ecosystem: uv
+    directory: "/"
     schedule:
       interval: weekly
+    cooldown:
+      semver-major-days: 30
+    groups:
+      uv-major:
+        update-types: ["major"]
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: cron
+      cronjob: "0 0 1,15 * *" # 1st and 15th monthly at midnight UTC
     groups:
       actions:
-        patterns:
-          - "*"
+        patterns: ["*"]
