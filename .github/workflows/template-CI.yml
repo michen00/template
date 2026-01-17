@@ -1,8 +1,5 @@
 ---
 name: template setup CI
-permissions:
-  contents: read
-
 on:
   pull_request:
     branches: [main]
@@ -19,6 +16,9 @@ on:
       - test_setup.sh
       - .github/workflows/template-CI.yml
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   setup-test:

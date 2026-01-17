@@ -19,8 +19,7 @@ jobs:
     env:
       PR_NUMBER: ${{ github.event.pull_request.number }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
       - name: Validate PR title
         id: validate-title
         env:
@@ -40,15 +39,17 @@ jobs:
             exit 1
           fi
       - name: Wait for checks to complete
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: steps.validate-title.outputs.valid == 'true'
         run: |
           gh pr checks "$PR_NUMBER" --fail-fast --required --watch || {
             echo "Required checks failed or timed out"
             exit 1
           }
+      - name: Approve a PR if not already approved
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Approve a PR if not already approved
         if: steps.validate-title.outputs.valid == 'true'
         run: |
           APPROVED=$(gh pr view "$PR_NUMBER" --json reviewDecision -q .reviewDecision)
@@ -57,5 +58,3 @@ jobs:
           else
             gh pr review --approve "$PR_NUMBER" && echo "PR approved."
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,15 +1,14 @@
 ---
 name: greet new contributors
-
-permissions:
-  issues: write
-  pull-requests: write
-
 on:
   issues:
     types: [opened]
   pull_request:
     types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
 
 jobs:
   greeting:
@@ -37,7 +36,6 @@ jobs:
             }
 
             return 'false';
-
       - name: greet first interactions
         if: steps.bot-author-check.outputs.result != 'true'
         uses: actions/first-interaction@v3

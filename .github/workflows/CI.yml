@@ -1,6 +1,5 @@
 ---
 name: CI
-
 on:
   pull_request:
     branches: [main]
@@ -88,13 +87,11 @@ jobs:
             echo "nox=${HASH_NOXFILE}-${uv}"
           } >> "$GITHUB_OUTPUT"
       - name: Cache .venv directory
-        id: cache-venv
         uses: actions/cache@v5
         with:
           path: .venv
           key: ${{ runner.os }}-venv-${{ steps.prepare-cache-keys.outputs.uv }}
       - name: Cache pre-commit hooks
-        id: cache-pre-commit
         uses: actions/cache@v5
         with:
           path: ~/.cache/pre-commit
