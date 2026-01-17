@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
 
-# Status checks must be enabled for the repository
+# A ruleset that requires status checks to pass must be configured for the repository.
 
 permissions:
   contents: write
