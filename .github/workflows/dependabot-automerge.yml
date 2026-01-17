@@ -22,6 +22,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           skip-commit-verification: true
+      - name: Checkout repository
+        uses: actions/checkout@v6
       - name: Approve a PR if not already approved
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
