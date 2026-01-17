@@ -1,5 +1,5 @@
 ---
-name: Template Setup CI
+name: template setup CI
 permissions:
   contents: read
 

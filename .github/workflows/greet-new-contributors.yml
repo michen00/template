@@ -1,5 +1,5 @@
 ---
-name: greet-new-contributors
+name: greet new contributors
 
 permissions:
   issues: write
