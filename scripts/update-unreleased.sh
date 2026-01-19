@@ -4,6 +4,7 @@ set -euo pipefail
 
 SCRIPT_NAME=$(basename "$0")
 COMMIT=""
+SHOULD_COMMIT=false
 CHANGELOG="CHANGELOG.md"
 CLIFF_ARGS=""
 
@@ -45,12 +46,14 @@ EOF
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -c | --commit)
-      if [[ $# -gt 1 ]] && [[ "${2:-}" != -* ]] && [[ -n "${2:-}" ]]; then
-        # Next arg exists, doesn't start with -, and is not empty
+      SHOULD_COMMIT=true
+      if [[ $# -gt 1 ]] && [[ -n "${2:-}" ]]; then
+        # Next arg exists and is not empty - capture it as commit args
+        # (even if it starts with -, as commit args like -m are valid)
         COMMIT="$2"
         shift 2
       else
-        # No arg or arg starts with - or is empty string: use defaults
+        # No arg or empty string: use defaults
         COMMIT=""
         shift
       fi
@@ -118,7 +121,9 @@ if [[ -n "$CLIFF_ARGS" ]]; then
   read -ra CLIFF_ARGS_ARRAY <<< "$CLIFF_ARGS"
 fi
 if [[ -n "$COMMIT" ]]; then
-  read -ra COMMIT_ARGS_ARRAY <<< "$COMMIT"
+  # Use eval to properly parse shell-quoted arguments
+  # This safely handles quoted strings like "-m 'Custom message'"
+  eval "COMMIT_ARGS_ARRAY=($COMMIT)"
 fi
 
 STASHED=false
@@ -161,7 +166,7 @@ CHANGELOG_ALREADY_STAGED=false
 OTHER_STAGED_FILES=""
 
 # If committing, check for conflicting staged changes
-if [[ -n "$COMMIT" ]]; then
+if [[ "$SHOULD_COMMIT" == true ]]; then
   # Check if CHANGELOG.md has staged changes
   if git diff --cached --name-only | grep -q "^${CHANGELOG}$"; then
     # CHANGELOG.md is staged - check if it matches what git cliff would generate
@@ -432,7 +437,7 @@ trap - EXIT
 echo "Successfully updated Unreleased section in $CHANGELOG"
 
 # Stage and commit if requested
-if [[ -n "$COMMIT" ]]; then
+if [[ "$SHOULD_COMMIT" == true ]]; then
   git add "$CHANGELOG"
 
   # Check if user provided -m or --message in commit args
@@ -473,7 +478,7 @@ if [[ $HAS_USER_EDITS == true ]] && [[ -n "$STASH_REF" ]]; then
     echo "Error: Your uncommitted changes conflict with the git cliff update." >&2
     # First, abort the failed stash apply (clear merge state)
     git reset --merge
-    if [[ -n "$COMMIT" ]]; then
+    if [[ "$SHOULD_COMMIT" == true ]]; then
       echo "Reverting the commit..." >&2
       git reset --soft HEAD~1
       git restore --staged "$CHANGELOG"
