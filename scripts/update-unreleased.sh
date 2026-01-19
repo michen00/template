@@ -47,11 +47,22 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     -c | --commit)
       SHOULD_COMMIT=true
+      # Only consume next arg if it's not a recognized option
+      # This allows --commit to work with other options in any order
       if [[ $# -gt 1 ]] && [[ -n "${2:-}" ]]; then
-        # Next arg exists and is not empty - capture it as commit args
-        # (even if it starts with -, as commit args like -m are valid)
-        COMMIT="$2"
-        shift 2
+        case "$2" in
+          -c | --commit | -l | --changelog | -C | --cliff-args | -h | --help)
+            # Next arg is an option, don't consume it
+            COMMIT=""
+            shift
+            ;;
+          *)
+            # Next arg is not an option - capture it as commit args
+            # (even if it starts with -, as commit args like -m are valid)
+            COMMIT="$2"
+            shift 2
+            ;;
+        esac
       else
         # No arg or empty string: use defaults
         COMMIT=""
@@ -114,6 +125,61 @@ if [[ $LAST_COMMIT_MSG == "$COMMIT_MSG" && $LAST_COMMIT_FILES == "$CHANGELOG" ]]
   exit 0
 fi
 
+# Parse shell-quoted arguments into null-delimited output
+# Safely handles single quotes, double quotes, and escaping without using eval
+parse_shell_args() {
+  local input="$1"
+  local arg=""
+  local in_single_quote=false
+  local in_double_quote=false
+  local escaped=false
+  local i=0
+  local char
+
+  while [[ $i -lt ${#input} ]]; do
+    char="${input:$i:1}"
+
+    if $escaped; then
+      # Previous char was backslash - add current char literally
+      arg+="$char"
+      escaped=false
+    elif [[ $char == $'\\' ]] && ! $in_single_quote; then
+      # Backslash outside single quotes - escape next char
+      escaped=true
+    elif [[ $char == "'" ]] && ! $in_double_quote; then
+      # Single quote (not inside double quotes)
+      if $in_single_quote; then
+        in_single_quote=false
+      else
+        in_single_quote=true
+      fi
+    elif [[ $char == '"' ]] && ! $in_single_quote; then
+      # Double quote (not inside single quotes)
+      if $in_double_quote; then
+        in_double_quote=false
+      else
+        in_double_quote=true
+      fi
+    elif [[ $char =~ [[:space:]] ]] && ! $in_single_quote && ! $in_double_quote; then
+      # Whitespace outside quotes - end current arg
+      if [[ -n $arg ]]; then
+        printf '%s\0' "$arg"
+        arg=""
+      fi
+    else
+      # Regular character - add to current arg
+      arg+="$char"
+    fi
+
+    i=$((i + 1))
+  done
+
+  # Output final arg if not empty
+  if [[ -n $arg ]]; then
+    printf '%s\0' "$arg"
+  fi
+}
+
 # Convert string arguments to arrays for safe expansion
 CLIFF_ARGS_ARRAY=()
 COMMIT_ARGS_ARRAY=()
@@ -121,16 +187,17 @@ if [[ -n "$CLIFF_ARGS" ]]; then
   read -ra CLIFF_ARGS_ARRAY <<< "$CLIFF_ARGS"
 fi
 if [[ -n "$COMMIT" ]]; then
-  # Use eval to properly parse shell-quoted arguments
-  # This safely handles quoted strings like "-m 'Custom message'"
-  eval "COMMIT_ARGS_ARRAY=($COMMIT)"
+  # Parse shell-quoted arguments safely without eval
+  # This handles quoted strings like "-m 'Custom message'" without code execution
+  readarray -d '' COMMIT_ARGS_ARRAY < <(parse_shell_args "$COMMIT")
 fi
 
 STASHED=false
 STASH_REF=""
 STASH_MSG="update-unreleased: auto-stash ${CHANGELOG}"
+STAGED_DIFFS_DIR=""
 
-# Helper to re-stage files, skipping any that no longer exist
+# Helper to re-stage files, preserving partial staging
 restage_other_files() {
   if [[ -z $OTHER_STAGED_FILES ]]; then
     return
@@ -138,11 +205,31 @@ restage_other_files() {
   echo "Re-staging other files..."
   while IFS= read -r file; do
     if [[ -e $file ]]; then
-      git add -- "$file"
+      # If we have a saved staged diff, apply it to preserve partial staging
+      if [[ -n "$STAGED_DIFFS_DIR" ]] && [[ -f "${STAGED_DIFFS_DIR}/${file//\//_}.patch" ]] && [[ -s "${STAGED_DIFFS_DIR}/${file//\//_}.patch" ]]; then
+        # Apply the saved staged diff to restore exact staging state
+        # Use --allow-empty to match previous behavior (though we check for empty above)
+        if git apply --cached --allow-empty "${STAGED_DIFFS_DIR}/${file//\//_}.patch" 2> /dev/null; then
+          # Successfully restored staged diff
+          continue
+        else
+          # Fallback: if patch doesn't apply (file changed), stage entire file
+          echo "Warning: Could not restore partial staging for '$file', staging entire file" >&2
+          git add -- "$file"
+        fi
+      else
+        # No saved diff or empty diff (shouldn't happen, but fallback to full staging)
+        git add -- "$file"
+      fi
     else
       echo "Warning: '$file' no longer exists (was it a new file?)" >&2
     fi
   done <<< "$OTHER_STAGED_FILES"
+  # Clean up temp directory after restaging
+  if [[ -n "$STAGED_DIFFS_DIR" ]] && [[ -d "$STAGED_DIFFS_DIR" ]]; then
+    rm -rf "$STAGED_DIFFS_DIR"
+    STAGED_DIFFS_DIR=""
+  fi
 }
 
 # Cleanup function to restore state on error
@@ -156,6 +243,10 @@ cleanup() {
     fi
   fi
   restage_other_files
+  # Clean up temp directory if it still exists
+  if [[ -n "$STAGED_DIFFS_DIR" ]] && [[ -d "$STAGED_DIFFS_DIR" ]]; then
+    rm -rf "$STAGED_DIFFS_DIR"
+  fi
   exit $exit_code
 }
 trap cleanup EXIT
@@ -178,7 +269,12 @@ if [[ "$SHOULD_COMMIT" == true ]]; then
   OTHER_STAGED_FILES=$(git diff --cached --name-only | grep -v "^${CHANGELOG}$" || true)
   if [[ -n $OTHER_STAGED_FILES ]]; then
     echo "Temporarily unstaging other files..."
+    # Create temp directory to store staged diffs for preserving partial staging
+    STAGED_DIFFS_DIR=$(mktemp -d)
     while IFS= read -r file; do
+      # Save the staged diff before unstaging to preserve partial hunks
+      # This works for both partially staged files and new files
+      git diff --cached -- "$file" > "${STAGED_DIFFS_DIR}/${file//\//_}.patch" 2> /dev/null || true
       git restore --staged -- "$file"
     done <<< "$OTHER_STAGED_FILES"
   fi
@@ -249,12 +345,12 @@ fi
 # 3. Keep everything from the next "## [" section onwards
 # 4. If no Unreleased section exists, add it after header lines but before first version
 
-awk -v new_content="$TEMP_FILE" '
-  BEGIN { in_unreleased = 0; printed_new = 0; found_unreleased = 0 }
+# Define the awk script for replacing Unreleased section (reused in two places)
+REPLACE_UNRELEASED_AWK_SCRIPT='
+  BEGIN { in_unreleased = 0; printed_new = 0 }
 
   # When we hit the Unreleased header, start skipping
   /^## \[Unreleased\]/ {
-    found_unreleased = 1
     in_unreleased = 1
     # Print the new content
     while ((getline line < new_content) > 0) {
@@ -303,7 +399,9 @@ awk -v new_content="$TEMP_FILE" '
       close(new_content)
     }
   }
-' "$CHANGELOG" > "${CHANGELOG}.new"
+'
+
+awk -v new_content="$TEMP_FILE" "$REPLACE_UNRELEASED_AWK_SCRIPT" "$CHANGELOG" > "${CHANGELOG}.new"
 
 # If CHANGELOG.md is already staged, verify it matches what we'd generate
 if [[ $CHANGELOG_ALREADY_STAGED == true ]]; then
@@ -313,42 +411,7 @@ if [[ $CHANGELOG_ALREADY_STAGED == true ]]; then
   git show "HEAD:${CHANGELOG}" > "$HEAD_CHANGELOG"
 
   # Apply git cliff's Unreleased section to HEAD version
-  awk -v new_content="$TEMP_FILE" '
-    BEGIN { in_unreleased = 0; printed_new = 0 }
-    /^## \[Unreleased\]/ {
-      in_unreleased = 1
-      while ((getline line < new_content) > 0)
-        print line
-      close(new_content)
-      printed_new = 1
-      next
-    }
-    in_unreleased && /^## \[/ && !/^## \[Unreleased\]/ {
-      in_unreleased = 0
-      print ""
-      print
-      next
-    }
-    in_unreleased { next }
-    !printed_new && /^## \[/ && !/^## \[Unreleased\]/ {
-      while ((getline line < new_content) > 0)
-        print line
-      close(new_content)
-      printed_new = 1
-      print ""
-      print
-      next
-    }
-    { print }
-    END {
-      if (!printed_new) {
-        if (NR > 0) print ""
-        while ((getline line < new_content) > 0)
-          print line
-        close(new_content)
-      }
-    }
-  ' "$HEAD_CHANGELOG" > "$EXPECTED_OUTPUT"
+  awk -v new_content="$TEMP_FILE" "$REPLACE_UNRELEASED_AWK_SCRIPT" "$HEAD_CHANGELOG" > "$EXPECTED_OUTPUT"
 
   # Get the staged version and compare
   STAGED_CONTENT=$(mktemp)
@@ -395,8 +458,9 @@ mv "${CHANGELOG}.new" "$CHANGELOG"
 rm -f "$TEMP_FILE" "$CLIFF_OUTPUT"
 
 # Check if git cliff produced any changes (comparing to HEAD)
-if git diff --quiet HEAD -- "$CHANGELOG" 2> /dev/null; then
-  # No changes from git cliff - already up-to-date
+# Only check if file exists in HEAD - untracked files should always be updated
+if git cat-file -e "HEAD:${CHANGELOG}" 2> /dev/null && git diff --quiet HEAD -- "$CHANGELOG" 2> /dev/null; then
+  # File exists in HEAD and matches - already up-to-date
   if [[ $STASHED == true ]] && [[ -n "$STASH_REF" ]]; then
     # Restore user's original uncommitted changes
     git stash pop --quiet "$STASH_REF" 2> /dev/null || git stash pop --quiet
