@@ -13,7 +13,7 @@ rules:
     ignore: |
       .github/workflows/dependabot-automerge.yml
       .github/workflows/greet-new-contributors.yml
-    max: 88
+    max: 100
     allow-non-breakable-words: true
     allow-non-breakable-inline-mappings: true
   truthy:
