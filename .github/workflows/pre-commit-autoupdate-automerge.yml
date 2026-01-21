@@ -13,7 +13,9 @@ permissions:
 jobs:
   pre-commit-automerge:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'github-actions[bot]' || github.actor == 'pre-commit-ci[bot]' }}
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.actor == 'github-actions[bot]' || github.actor == 'pre-commit-ci[bot]')
     timeout-minutes: 30
     env:
       PR_NUMBER: ${{ github.event.pull_request.number }}
