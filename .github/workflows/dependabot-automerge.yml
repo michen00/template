@@ -3,7 +3,7 @@ name: Dependabot auto-merge
 on:
   pull_request:
 
-# A ruleset that requires status checks to pass must be configured for the repository.
+# A ruleset that requires status checks to pass should be configured for the repository.
 
 permissions:
   contents: write
