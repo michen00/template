@@ -1,3 +1,7 @@
+---
+alwaysApply: false
+---
+
 # Claude Code Instructions for `template` Repository
 
 ## 1. Repository Identity & Purpose

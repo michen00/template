@@ -1,3 +1,7 @@
+---
+alwaysApply: false
+---
+
 # Agent Instructions for `template` Repository
 
 ## 1. Repository Identity & Purpose
