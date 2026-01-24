@@ -2,9 +2,9 @@
 extends: default
 
 yaml-files:
-  - ".yamllint"
-  - "*.yaml"
-  - "*.yml"
+  - .yamllint
+  - '*.yaml'
+  - '*.yml'
 
 rules:
   comments:

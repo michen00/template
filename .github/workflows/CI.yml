@@ -11,15 +11,15 @@ on:
       - .pylintrc
       - .python-version
       - .yamllint
-      - "**/*.lock"
-      - "**/*.md"
-      - "**/*.py"
-      - "**/*.sh"
-      - "**/*.toml"
-      - "**/*.yaml"
-      - "**/*.yml"
-      - "src/**"
-      - "tests/**"
+      - '**/*.lock'
+      - '**/*.md'
+      - '**/*.py'
+      - '**/*.sh'
+      - '**/*.toml'
+      - '**/*.yaml'
+      - '**/*.yml'
+      - src/**
+      - tests/**
   push:
     branches: [main]
   workflow_dispatch:
@@ -43,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.12"]
+        python-version: ['3.12']
     permissions:
       id-token: write
       contents: read
