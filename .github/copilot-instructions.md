@@ -30,7 +30,6 @@ Ping for clarifications or cases that deserve deeper treatment.
 ## Contribution Workflow
 
 - Recommended loop before commit/PR:
-
   - `make check` (or run `ruff` → `mypy` → `pytest` in that order)
   - Keep CHANGELOG via conventional commits; `cliff.toml` is included for changelog tooling if you choose to generate release notes.
 
