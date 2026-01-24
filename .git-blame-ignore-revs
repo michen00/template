@@ -9,3 +9,4 @@ fa26d1ec96934088a0ea8d6a7ce97cdfd76d6135  # style: shorten a line
 801a245459700e7a6f74d4d6df4ddba0e60c3abc  # style: prefer single quotes
 62f68aaf3936e9cc0b2554cae14cc82838d3de57  # style: add line break
 31587fbbeb94de4da874a5411a8444c31ddad86b  # style(.pre-commit-config.yaml): update quote usage
+851c0dd1ece970dc132868c95816b8550eb16f31  # style: remove extra whitespace
