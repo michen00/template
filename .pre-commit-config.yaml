@@ -53,7 +53,7 @@ repos:
     rev: v6.0.0
     hooks:
       - id: check-added-large-files
-        args: ["--maxkb=1024"]
+        args: [--maxkb=1024]
       - id: check-case-conflict
       - id: check-executables-have-shebangs
       - id: check-merge-conflict
@@ -89,7 +89,7 @@ repos:
     rev: v0.47.0
     hooks:
       - id: markdownlint
-        args: ["--fix"]
+        args: [--fix]
 
   # linting
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -122,7 +122,7 @@ repos:
     rev: v2.4.1
     hooks:
       - id: codespell
-        args: ["--skip", "*.ipynb"]
+        args: [--skip, '*.ipynb']
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.11.0.1
     hooks:
@@ -137,21 +137,21 @@ repos:
     rev: v1.19.1
     hooks:
       - id: mypy
-        args: ["--config-file=pyproject.toml", "--install-types", "--non-interactive"]
+        args: ['--config-file=pyproject.toml', '--install-types', '--non-interactive']
         additional_dependencies:
           - nox[uv]
           - pydantic[mypy]
           - pytest
           - types-pyyaml
           - typer
-        stages: ["pre-push"]
+        stages: [pre-push]
 
   # configuration validation
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.24.1
     hooks:
       - id: validate-pyproject
-        additional_dependencies: ["validate-pyproject-schema-store[all]"]
+        additional_dependencies: ['validate-pyproject-schema-store[all]']
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.36.0
     hooks:
