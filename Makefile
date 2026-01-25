@@ -211,7 +211,7 @@ format-unsafe: lint-unsafe .WAIT ruff-format ## Format the code with Ruff using 
 	@echo "$(BOLD)$(YELLOW)Linting complete!$(_COLOR)"
 
 .PHONY: enable-pre-commit
-enable-pre-commit: ## Enable pre-commit hooks (along with commit-msg and pre-push hooks)
+enable-pre-commit: ## Enable pre-commit hooks
 	@if command -v pre-commit >/dev/null 2>&1; then \
         $(UV) run pre-commit install; \
     else \
@@ -220,7 +220,7 @@ enable-pre-commit: ## Enable pre-commit hooks (along with commit-msg and pre-pus
     fi
 
 .PHONY: disable-pre-commit
-disable-pre-commit: ## Disable pre-commit hooks (removes commit-msg, pre-commit, pre-push, and prepare-commit-msg hooks)
+disable-pre-commit: ## Disable pre-commit hooks
 	@if command -v pre-commit >/dev/null 2>&1; then \
         $(UV) run pre-commit uninstall; \
         echo "$(BOLD)$(GREEN)Pre-commit hooks disabled.$(_COLOR)"; \
