@@ -13,7 +13,9 @@
 .github/scripts/archive-utils.sh
 .github/scripts/ci-ruff-args.sh
 .github/workflows/.cache-buster
+.github/workflows/bot-automerge.yml
 .github/workflows/CI.yml
+.github/workflows/delete-bot-branches-for-closed-prs.yml
 .github/workflows/greet-new-contributors.yml
 .github/workflows/lint-github-actions.yml
 .github/workflows/pre-commit-autoupdate.yml
@@ -21,6 +23,7 @@
 .gitlint
 .markdownlint.yml
 .pre-commit-config.yaml
+.prettierrc
 .pylintrc
 .python-version
 .README.md

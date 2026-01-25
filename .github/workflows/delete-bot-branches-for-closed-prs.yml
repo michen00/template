@@ -1,0 +1,40 @@
+---
+name: Delete branch on PR close (bots only)
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: delete-branch-${{ github.repository }}-${{ github.event.pull_request.head.ref }}
+  cancel-in-progress: true
+
+jobs:
+  delete-branch:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.merged == false
+    steps:
+      - uses: actions/checkout@v6
+      - name: detect bot author
+        id: bot-author-check
+        uses: ./.github/actions/detect-bot-author
+      - name: Delete PR head branch
+        if: steps.bot-author-check.outputs.is-bot == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+          REPO: ${{ github.repository }}
+        run: |
+          [[ "$BRANCH" == "$(gh api "repos/${REPO}" --jq .default_branch)" ]] && exit 0
+
+          # Exit if branch is protected
+          gh api "repos/${REPO}/branches/${BRANCH}" \
+            --jq '.protected' 2>/dev/null | grep -qx true && exit 0
+
+          # Delete ref if it still exists
+          gh api -X DELETE "repos/${REPO}/git/refs/heads/${BRANCH}" >/dev/null 2>&1 || true
