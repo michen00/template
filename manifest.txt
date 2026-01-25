@@ -9,6 +9,7 @@
 .github/.copilot-instructions.md
 .github/dependabot.yml
 .github/instructions/CI.instructions.md
+.github/release.yml
 .github/scripts/archive-utils.sh
 .github/scripts/ci-ruff-args.sh
 .github/workflows/.cache-buster
