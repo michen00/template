@@ -30,4 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Run setup.sh integration test
-        run: ./test_setup.sh
+        run: |
+          echo "::info::Running template setup integration test..."
+          ./test_setup.sh
+          echo "::info::Template setup test completed successfully"
