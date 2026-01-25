@@ -108,10 +108,12 @@ jobs:
         run: uv sync --no-editable --no-install-project
       - name: Run pytest
         run: |-
+          echo "::info::Running tests..."
           uv sync --only-group test
           uv run nox -s test
       - name: Lint code
         run: |-
+          echo "::info::Running linting checks..."
           uv sync --only-dev
           bash .github/scripts/ci-ruff-args.sh
           uv run nox -s precommit
