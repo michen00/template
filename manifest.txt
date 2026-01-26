@@ -7,6 +7,7 @@
 .gitattributes
 .gitconfigs/alias
 .github/.copilot-instructions.md
+.github/actions/detect-bot-author/action.yml
 .github/dependabot.yml
 .github/instructions/CI.instructions.md
 .github/release.yml
@@ -14,6 +15,7 @@
 .github/scripts/ci-ruff-args.sh
 .github/workflows/.cache-buster
 .github/workflows/bot-automerge.yml
+.github/workflows/changelog-autoupdate.yml
 .github/workflows/CI.yml
 .github/workflows/delete-bot-branches-for-closed-prs.yml
 .github/workflows/greet-new-contributors.yml
