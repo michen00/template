@@ -81,7 +81,7 @@ repos:
       - id: prettier
         types_or: [css, html, javascript, json, scss, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.14
+    rev: v0.15.0
     hooks:
       - id: ruff-check
         types_or: [jupyter, pyi, python, toml]
@@ -122,7 +122,7 @@ repos:
       - id: yamllint
         args: [--strict]
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.42.1
+    rev: v1.43.3
     hooks:
       - id: typos
   - repo: https://github.com/codespell-project/codespell
@@ -155,7 +155,7 @@ repos:
 
   # configuration validation
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.24.1
+    rev: v0.25
     hooks:
       - id: validate-pyproject
         additional_dependencies: ['validate-pyproject-schema-store[all]']
