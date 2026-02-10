@@ -85,5 +85,5 @@ testpaths = ["tests"]
 xfail_strict = true
 
 [build-system]
-requires      = ["uv_build>=0.8.17,<0.10.0"]
+requires      = ["uv_build>=0.8.17,<0.11.0"]
 build-backend = "uv_build"
