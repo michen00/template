@@ -12,3 +12,4 @@ fa26d1ec96934088a0ea8d6a7ce97cdfd76d6135  # style: shorten a line
 851c0dd1ece970dc132868c95816b8550eb16f31  # style: remove extra whitespace
 4514abd2e46f65285c4f86e34363853515a557c0  # style: normalize quote use in YAML files
 e309ce960fa22d234fc08a78bcdefe836265a404  # style(_typos.toml): prefer single quotes
+fe3bc64569659d8909703684414e4d3855729ab6  # style: prefer single quotes
