@@ -29,35 +29,35 @@ EOF
   exit "${1:-0}"
 }
 
-# Hardcoded URLs (used if no input is provided)
+# Hardcoded raw URLs (used if no input is provided)
 DEFAULT_URLS=(
   # Language / runtime / ecosystem
-  "https://github.com/github/gitignore/blob/main/community/Python/JupyterNotebooks.gitignore"
-  "https://github.com/github/gitignore/blob/main/Node.gitignore"
-  "https://github.com/github/gitignore/blob/main/Python.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/community/Python/JupyterNotebooks.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore"
 
   # IDEs / editors
-  "https://github.com/github/gitignore/blob/main/Global/Cloud9.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/Cursor.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/Eclipse.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/Emacs.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/SublimeText.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/Vim.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore"
-  "https://github.com/github/gitignore/blob/main/VisualStudio.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Cloud9.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Cursor.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Eclipse.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Emacs.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/JetBrains.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/SublimeText.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Vim.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/VisualStudioCode.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/VisualStudio.gitignore"
 
   # OS / platform
-  "https://github.com/github/gitignore/blob/main/Global/Linux.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/macOS.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/Windows.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Linux.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/macOS.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Windows.gitignore"
 
   # Tools / documents / misc artifacts
-  "https://github.com/github/gitignore/blob/main/Global/Archives.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/Backup.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/Diff.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/MicrosoftOffice.gitignore"
-  "https://github.com/github/gitignore/blob/main/Global/Patch.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Archives.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Backup.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Diff.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/MicrosoftOffice.gitignore"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Patch.gitignore"
 )
 
 # Default output file
@@ -133,9 +133,24 @@ HEADER=$(printf '#%.0s' $(seq 1 $HEADER_LENGTH))
 
 echo "Initialized output file with header: $OUTPUT_FILE"
 
+# Convert blob URL to raw URL if needed (user-supplied input may use blob format)
+to_raw_url() {
+  local u="$1"
+  if [[ "$u" == *"/blob/"* ]]; then
+    echo "$u" | sed 's|github.com|raw.githubusercontent.com|; s|/blob||'
+  else
+    echo "$u"
+  fi
+}
+
 # Loop through URLs
 for url in "${URLS[@]}"; do
   echo "Processing URL: $url"
+
+  RAW_URL=$(to_raw_url "$url")
+  if [[ "$url" != "$RAW_URL" ]]; then
+    echo "Converted to raw URL: $RAW_URL"
+  fi
 
   # Extract the filename (e.g., Python.gitignore)
   FILENAME=$(basename "$url")
@@ -152,23 +167,40 @@ for url in "${URLS[@]}"; do
     echo ""
   } >> "$OUTPUT_FILE"
 
-  # Convert GitHub URL to raw content URL
-  RAW_URL=$(echo "$url" | sed 's|github.com|raw.githubusercontent.com|; s|/blob||')
-  echo "Converted to raw URL: $RAW_URL"
-
-  # Fetch content
-  CONTENT=$(curl -s "$RAW_URL" | awk '{ gsub(/\r$/, ""); gsub(/[ \t]+$/, ""); print }')
-  if [[ -z $CONTENT ]]; then
-    echo "Failed to fetch content from: $RAW_URL"
-  else
-    echo "Appending content from: $RAW_URL"
-    echo "$CONTENT" >> "$OUTPUT_FILE"
-    echo -e "\n# End of $url\n" >> "$OUTPUT_FILE"
+  # Fetch content (curl -f: fail on HTTP 4xx/5xx)
+  TMP_CURL=$(mktemp)
+  if ! curl -f -s "$RAW_URL" -o "$TMP_CURL"; then
+    rm -f "$TMP_CURL"
+    echo "Failed to fetch: $RAW_URL" >&2
+    exit 1
   fi
+  CONTENT=$(awk '{ gsub(/\r$/, ""); gsub(/[ \t]+$/, ""); print }' "$TMP_CURL")
+  rm -f "$TMP_CURL"
+
+  if [[ -z "$CONTENT" ]]; then
+    echo "Empty content from: $RAW_URL" >&2
+    exit 1
+  fi
+
+  # Reject HTML (e.g. GitHub error page)
+  if [[ "$(echo "$CONTENT" | head -c 256)" =~ ^[[:space:]]*\<\![[:space:]]*[Dd][Oo][Cc][Tt][Yy][Pp][Ee] ]] ||
+    [[ "$(echo "$CONTENT" | head -c 256)" =~ ^[[:space:]]*\<[Hh][Tt][Mm][Ll] ]]; then
+    echo "Received HTML instead of gitignore content from: $RAW_URL" >&2
+    exit 1
+  fi
+
+  echo "Appending content from: $RAW_URL"
+  echo "$CONTENT" >> "$OUTPUT_FILE"
+  echo -e "\n# End of $url\n" >> "$OUTPUT_FILE"
 done
 
 # Normalize line endings in the final output file
-tr -d '\r' < "$OUTPUT_FILE" > .temp_file && mv .temp_file "$OUTPUT_FILE"
+NORMALIZE_TMP=$(mktemp)
+tr -d '\r' < "$OUTPUT_FILE" > "$NORMALIZE_TMP" || {
+  rm -f "$NORMALIZE_TMP"
+  exit 1
+}
+mv "$NORMALIZE_TMP" "$OUTPUT_FILE"
 
 # Ensure single trailing newline
 if [[ $OSTYPE == "linux-gnu"* ]]; then
@@ -182,8 +214,11 @@ fi
 # Add additional ignore patterns
 cat >> "$OUTPUT_FILE" << EOF
 
-# Cursor IDE-specific directory
-.cursor/
+# Speckit
+.claude/commands/speckit.*.md
+.cursor/commands/speckit.*.md
+.specify/
+!.specify/memory/
 
 # Directory for temporary files marked for deletion
 .delete-me/

@@ -1,26 +1,26 @@
-#############################################################################################
-# This .gitignore is composed of the following templates (retrieved 2026-01-12):
-# - https://github.com/github/gitignore/blob/main/community/Python/JupyterNotebooks.gitignore
-# - https://github.com/github/gitignore/blob/main/Node.gitignore
-# - https://github.com/github/gitignore/blob/main/Python.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/Cloud9.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/Cursor.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/Eclipse.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/Emacs.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/SublimeText.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/Vim.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-# - https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/Linux.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/Windows.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/Archives.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/Backup.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/Diff.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/MicrosoftOffice.gitignore
-# - https://github.com/github/gitignore/blob/main/Global/Patch.gitignore
-#############################################################################################
+#######################################################################################################
+# This .gitignore is composed of the following templates (retrieved 2026-02-11):
+# - https://raw.githubusercontent.com/github/gitignore/main/community/Python/JupyterNotebooks.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/Cloud9.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/Cursor.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/Eclipse.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/Emacs.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/JetBrains.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/SublimeText.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/Vim.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/VisualStudioCode.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/VisualStudio.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/Linux.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/macOS.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/Windows.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/Archives.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/Backup.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/Diff.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/MicrosoftOffice.gitignore
+# - https://raw.githubusercontent.com/github/gitignore/main/Global/Patch.gitignore
+#######################################################################################################
 
 ##############################
 # JupyterNotebooks.gitignore #
@@ -43,7 +43,7 @@ ipython_config.py
 # Remove previous ipynb_checkpoints
 #   git rm -r .ipynb_checkpoints/
 
-# End of https://github.com/github/gitignore/blob/main/community/Python/JupyterNotebooks.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/community/Python/JupyterNotebooks.gitignore
 
 ##################
 # Node.gitignore #
@@ -191,7 +191,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
-# End of https://github.com/github/gitignore/blob/main/Node.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 
 ####################
 # Python.gitignore #
@@ -414,7 +414,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# End of https://github.com/github/gitignore/blob/main/Python.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore
 
 ####################
 # Cloud9.gitignore #
@@ -424,7 +424,7 @@ __marimo__/
 .c9revisions
 .c9
 
-# End of https://github.com/github/gitignore/blob/main/Global/Cloud9.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/Cloud9.gitignore
 
 ####################
 # Cursor.gitignore #
@@ -433,7 +433,7 @@ __marimo__/
 .cursorignore
 .cursorindexingignore
 
-# End of https://github.com/github/gitignore/blob/main/Global/Cursor.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/Cursor.gitignore
 
 #####################
 # Eclipse.gitignore #
@@ -500,7 +500,7 @@ local.properties
 # Typically, this file would be tracked if it contains build/dependency configurations:
 #.project
 
-# End of https://github.com/github/gitignore/blob/main/Global/Eclipse.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/Eclipse.gitignore
 
 ###################
 # Emacs.gitignore #
@@ -558,7 +558,7 @@ flycheck_*.el
 # undo-tree
 *.~undo-tree~
 
-# End of https://github.com/github/gitignore/blob/main/Global/Emacs.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/Emacs.gitignore
 
 #######################
 # JetBrains.gitignore #
@@ -651,7 +651,7 @@ http-client.private.env.json
 # Github Copilot persisted session migrations, see: https://github.com/microsoft/copilot-intellij-feedback/issues/712#issuecomment-3322062215
 .idea/**/copilot.data.migration.*.xml
 
-# End of https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/JetBrains.gitignore
 
 #########################
 # SublimeText.gitignore #
@@ -689,7 +689,7 @@ bh_unicode_properties.cache
 # https://packagecontrol.io/packages/sublime-github
 GitHub.sublime-settings
 
-# End of https://github.com/github/gitignore/blob/main/Global/SublimeText.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/SublimeText.gitignore
 
 #################
 # Vim.gitignore #
@@ -716,7 +716,7 @@ tags
 # Persistent undo
 [._]*.un~
 
-# End of https://github.com/github/gitignore/blob/main/Global/Vim.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/Vim.gitignore
 
 ##############################
 # VisualStudioCode.gitignore #
@@ -733,7 +733,7 @@ tags
 # Built Visual Studio Code Extensions
 *.vsix
 
-# End of https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/VisualStudioCode.gitignore
 
 ##########################
 # VisualStudio.gitignore #
@@ -1168,7 +1168,7 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
-# End of https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/VisualStudio.gitignore
 
 ###################
 # Linux.gitignore #
@@ -1191,7 +1191,7 @@ FodyWeavers.xsd
 # Log files created by default by the nohup command
 nohup.out
 
-# End of https://github.com/github/gitignore/blob/main/Global/Linux.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/Linux.gitignore
 
 ###################
 # macOS.gitignore #
@@ -1223,7 +1223,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# End of https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/macOS.gitignore
 
 #####################
 # Windows.gitignore #
@@ -1254,7 +1254,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://github.com/github/gitignore/blob/main/Global/Windows.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/Windows.gitignore
 
 ######################
 # Archives.gitignore #
@@ -1295,7 +1295,7 @@ $RECYCLE.BIN/
 *.msp
 *.txz
 
-# End of https://github.com/github/gitignore/blob/main/Global/Archives.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/Archives.gitignore
 
 ####################
 # Backup.gitignore #
@@ -1307,7 +1307,7 @@ $RECYCLE.BIN/
 *.orig
 *.tmp
 
-# End of https://github.com/github/gitignore/blob/main/Global/Backup.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/Backup.gitignore
 
 ##################
 # Diff.gitignore #
@@ -1316,7 +1316,7 @@ $RECYCLE.BIN/
 *.patch
 *.diff
 
-# End of https://github.com/github/gitignore/blob/main/Global/Diff.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/Diff.gitignore
 
 #############################
 # MicrosoftOffice.gitignore #
@@ -1343,7 +1343,7 @@ Backup of *.doc*
 # Visio autosave temporary files
 *.~vsd*
 
-# End of https://github.com/github/gitignore/blob/main/Global/MicrosoftOffice.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/MicrosoftOffice.gitignore
 
 ###################
 # Patch.gitignore #
@@ -1352,10 +1352,13 @@ Backup of *.doc*
 *.orig
 *.rej
 
-# End of https://github.com/github/gitignore/blob/main/Global/Patch.gitignore
+# End of https://raw.githubusercontent.com/github/gitignore/main/Global/Patch.gitignore
 
-# Cursor IDE-specific directory
-.cursor/
+# Speckit
+.claude/commands/speckit.*.md
+.cursor/commands/speckit.*.md
+.specify/
+!.specify/memory/
 
 # Directory for temporary files marked for deletion
 .delete-me/
