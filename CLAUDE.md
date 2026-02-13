@@ -176,8 +176,8 @@ The template includes a script at `.github/scripts/concat_gitignores.sh` that ge
 
 ### Updating Instructions for AI Assistants
 
-- **For this template:** Edit `AGENTS.md`, `CLAUDE.md`, `.github/.copilot-instructions.md`
-- **For derived projects:** Edit `.AGENTS.md`, `.CLAUDE.md`, `.github/copilot-instructions.md`
+- **For this template:** Edit `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`
+- **For derived projects:** Edit `.AGENTS.md`, `.CLAUDE.md`, `.github/.copilot-instructions.md`
 - Keep these files in sync with actual repository structure and workflows.
 
 ## 7. Working with Claude Code
