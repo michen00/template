@@ -4,7 +4,8 @@ description: >-
   Analyzes current unstaged and staged work, groups changes
   by logical concern, plans a dependency-aware commit sequence,
   writes gitlint-compliant messages, and executes atomic commits
-  that each leave the codebase in a good state.
+  that each leave the codebase in a good state. Signs commits by
+  default and verifies signatures after each commit.
 ---
 
 # Atomic Commits
@@ -59,6 +60,18 @@ configuration:
 | Presence    | Optional (body-is-missing is ignored) |
 | Line length | 72 characters max per line            |
 | Min length  | Ignored                               |
+
+### Signed and Verified Commits (Default)
+
+- **Signing:** Always use `git commit -S` (or `-S=keyid` for a
+  specific key). If `commit.gpgsign` is already `true` in the config,
+  this is redundant but harmless.
+- **Verification:** After each commit, run
+  `git log --show-signature -1` (or `git verify-commit HEAD`) to
+  confirm the commit is signed and trusted. If verification fails,
+  advise the user to check GPG/SSH key setup.
+- **Opt-out:** If the user explicitly asks for unsigned commits, use
+  `git commit --no-gpg-sign` instead.
 
 ### Exemptions
 
@@ -181,7 +194,9 @@ For each commit in the planned sequence:
      accompany — do not attempt interactive staging (agents cannot
      use `git add -p`).
 2. Verify staging is correct (`git diff --cached --stat`)
-3. Commit with the prepared message
+3. Commit with the prepared message using `git commit -S`
+   (or `-S=keyid`) to sign — or `--no-gpg-sign` if the user
+   explicitly opts out
 4. Verify the commit succeeded (`git log --oneline -1`)
 
 **Use specific file paths** — never `git add -A` or
@@ -208,6 +223,8 @@ root cause instead.
 
 After each commit, run relevant verification if applicable:
 
+- **Signature:** Run `git log --show-signature -1` or
+  `git verify-commit HEAD` to confirm the commit is signed and trusted
 - **Code/config changes:** Run `make test` (not `make check` —
   `make check` runs formatting which can modify files mid-sequence)
 - **Script changes:** Run the affected script
@@ -350,3 +367,5 @@ After executing:
 - [ ] `git log --oneline` shows clean, readable history
 - [ ] Each commit message accurately describes its changes
 - [ ] Verification passed for commits touching scripts/builds
+- [ ] `git log --show-signature` shows valid signatures for each
+  new commit
