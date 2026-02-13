@@ -1,18 +1,18 @@
 ---
-name: concat gitignores CI
+name: update unreleased CI
 on:
   pull_request:
     branches: [main]
     paths:
-      - .github/workflows/test-concat-gitignores.yml
-      - scripts/concat-gitignores.sh
-      - scripts/tests/test-concat-gitignores.sh
+      - .github/workflows/test-update-unreleased.yml
+      - scripts/update-unreleased.sh
+      - scripts/tests/test-update-unreleased.sh
   push:
     branches: [main]
     paths:
-      - .github/workflows/test-concat-gitignores.yml
-      - scripts/concat-gitignores.sh
-      - scripts/tests/test-concat-gitignores.sh
+      - .github/workflows/test-update-unreleased.yml
+      - scripts/update-unreleased.sh
+      - scripts/tests/test-update-unreleased.sh
   workflow_dispatch:
 
 permissions:
@@ -23,12 +23,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-concat-gitignores:
+  test-update-unreleased:
     if: >-
       github.event_name != 'pull_request' ||
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Run concat-gitignores tests
-        run: ./scripts/tests/test-concat-gitignores.sh
+      - name: Run update-unreleased tests
+        run: ./scripts/tests/test-update-unreleased.sh

@@ -230,17 +230,12 @@ tests=(
   test_preserves_section_labels_and_input_order
 )
 
-pass_count=0
-fail_count=0
-
 for test_name in "${tests[@]}"; do
-  if ("$test_name"); then
-    printf '[PASS] %s\n' "$test_name"
-    pass_count=$((pass_count + 1))
-  else
-    fail_count=$((fail_count + 1))
+  if ! ("$test_name"); then
+    printf '[FAIL] %s (test runner halted)\n' "$test_name" >&2
+    exit 1
   fi
+  printf '[PASS] %s\n' "$test_name"
 done
 
-printf '\nResult: %d passed, %d failed\n' "$pass_count" "$fail_count"
-[[ "$fail_count" -eq 0 ]]
+printf '\nAll %d tests passed.\n' "${#tests[@]}"
