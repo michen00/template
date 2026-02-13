@@ -73,7 +73,7 @@ The `Makefile` is the primary entry point for development tasks.
 
 Follow **Conventional Commits** format: `<type>(<scope>): <subject>`
 
-- **Types:** `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`
+- **Types:** `feat`, `fix`, `docs`, `style`, `test`, `build`, `ci`, `refactor`, `perf`, `chore`, `revert`
 - **Imperative Mood:** Write subjects as commands (e.g., "add feature" not "added feature")
 - **Lowercase Start:** The first word after the colon should be lowercase (unless it's a proper noun, acronym, etc.)
 - **Summary Length:** Keep the subject line under 51 characters (≤50)
