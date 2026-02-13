@@ -1,8 +1,10 @@
 #######################################################################################################
-# This .gitignore is composed of the following templates (retrieved 2026-02-11):
+# This .gitignore is composed of the following templates (retrieved 2026-02-12):
+# Language / runtime / ecosystem
 # - https://raw.githubusercontent.com/github/gitignore/main/community/Python/JupyterNotebooks.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore
+# IDEs / editors
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/Cloud9.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/Cursor.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/Eclipse.gitignore
@@ -12,9 +14,11 @@
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/Vim.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/VisualStudioCode.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/VisualStudio.gitignore
+# OS / platform
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/Linux.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/macOS.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/Windows.gitignore
+# Tools / documents / misc artifacts
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/Archives.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/Backup.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/Diff.gitignore
@@ -176,6 +180,9 @@ dist
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+
+# pnpm
+.pnpm-store
 
 # yarn v3
 .pnp.*

@@ -14,6 +14,7 @@ template URLs from stdin, a file, or built-in defaults.
 Inputs:
   stdin            Read URLs from standard input when piped.
   <input_file>     Optional file containing one URL per line.
+                   Supports section headers with lines starting "## ".
 
 Options:
   --output <file>  Destination file name. Defaults to .gitignore.
@@ -29,14 +30,14 @@ EOF
   exit "${1:-0}"
 }
 
-# Hardcoded raw URLs (used if no input is provided)
-DEFAULT_URLS=(
-  # Language / runtime / ecosystem
+# Hardcoded default entries (used if no input is provided)
+DEFAULT_ENTRIES=(
+  "## Language / runtime / ecosystem"
   "https://raw.githubusercontent.com/github/gitignore/main/community/Python/JupyterNotebooks.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore"
 
-  # IDEs / editors
+  "## IDEs / editors"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Cloud9.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Cursor.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Eclipse.gitignore"
@@ -47,12 +48,12 @@ DEFAULT_URLS=(
   "https://raw.githubusercontent.com/github/gitignore/main/Global/VisualStudioCode.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/VisualStudio.gitignore"
 
-  # OS / platform
+  "## OS / platform"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Linux.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/macOS.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Windows.gitignore"
 
-  # Tools / documents / misc artifacts
+  "## Tools / documents / misc artifacts"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Archives.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Backup.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Diff.gitignore"
@@ -65,7 +66,36 @@ OUTPUT_FILE=".gitignore"
 
 # Variables
 INPUT_FILE=""
+ENTRIES=()
 URLS=()
+
+add_entry() {
+  local line="$1"
+  local trimmed="$line"
+  # Trim leading whitespace
+  trimmed="${trimmed#"${trimmed%%[![:space:]]*}"}"
+  # Trim trailing whitespace
+  trimmed="${trimmed%"${trimmed##*[![:space:]]}"}"
+
+  [[ -z "$trimmed" ]] && return 0
+
+  if [[ "$trimmed" == "## "* ]]; then
+    ENTRIES+=("$trimmed")
+  elif [[ "$trimmed" == \#* ]]; then
+    # Single-hash comments are ignored in user input files.
+    return 0
+  else
+    ENTRIES+=("$trimmed")
+    URLS+=("$trimmed")
+  fi
+}
+
+parse_input_stream() {
+  local line
+  while IFS= read -r line; do
+    add_entry "$line"
+  done
+}
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -99,33 +129,56 @@ done
 
 # Determine the source of URLs
 if [[ -n $INPUT_FILE && -f $INPUT_FILE ]]; then
-  # Read URLs from the provided file
-  mapfile -t URLS < "$INPUT_FILE"
+  # Read entries from the provided file
+  parse_input_stream < "$INPUT_FILE"
 elif ! [ -t 0 ]; then
-  # Read URLs from stdin if piped
-  mapfile -t URLS
+  if [[ -p /dev/stdin ]]; then
+    # Read entries from stdin when data is piped.
+    parse_input_stream
+  else
+    # Non-interactive shells may report stdin as non-tty even without piped data.
+    for entry in "${DEFAULT_ENTRIES[@]}"; do
+      add_entry "$entry"
+    done
+  fi
 else
-  # Use hardcoded URLs as default
-  URLS=("${DEFAULT_URLS[@]}")
+  # Use hardcoded entries as default
+  for entry in "${DEFAULT_ENTRIES[@]}"; do
+    add_entry "$entry"
+  done
 fi
 
-# Calculate the length of the longest URL
-MAX_URL_LENGTH=0
-for url in "${URLS[@]}"; do
-  if [[ ${#url} -gt $MAX_URL_LENGTH ]]; then
-    MAX_URL_LENGTH=${#url}
+if [[ ${#URLS[@]} -eq 0 ]]; then
+  echo "No template URLs provided." >&2
+  exit 1
+fi
+
+# Calculate the length of the longest header line
+MAX_HEADER_LINE_LENGTH=0
+for entry in "${ENTRIES[@]}"; do
+  if [[ "$entry" == "## "* ]]; then
+    HEADER_LINE="# ${entry#\#\# }"
+  else
+    HEADER_LINE="# - $entry"
+  fi
+  if [[ ${#HEADER_LINE} -gt $MAX_HEADER_LINE_LENGTH ]]; then
+    MAX_HEADER_LINE_LENGTH=${#HEADER_LINE}
   fi
 done
 
 # Create the comment header
-HEADER_LENGTH=$((MAX_URL_LENGTH + 4))
-HEADER=$(printf '#%.0s' $(seq 1 $HEADER_LENGTH))
+HEADER_LENGTH=$MAX_HEADER_LINE_LENGTH
+HEADER=$(printf '#%.0s' $(seq 1 "$HEADER_LENGTH"))
 
 {
   echo "$HEADER"
   echo "# This .gitignore is composed of the following templates (retrieved $(date +%Y-%m-%d)):"
-  for url in "${URLS[@]}"; do
-    echo "# - $url"
+  for entry in "${ENTRIES[@]}"; do
+    if [[ "$entry" == "## "* ]]; then
+      echo "# ${entry#\#\# }"
+    else
+      echo "# - $entry"
+    fi
   done
   echo "$HEADER"
   echo ""
