@@ -271,7 +271,7 @@ cat >> "$OUTPUT_FILE" << EOF
 .claude/commands/speckit.*.md
 .cursor/commands/speckit.*.md
 .specify/
-!.specify/memory/
+!.specify/memory/constitution.md
 
 # Directory for temporary files marked for deletion
 .delete-me/
