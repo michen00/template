@@ -77,7 +77,7 @@ project/
 - **Testing:** `pyproject.toml` (pytest config), `.coveragerc` (coverage config)
 - **Editor:** `.editorconfig`, `.vscode/settings.json`, `.vscode/extensions.json`
 - **Git:** `.gitignore`, `.gitattributes`, `.git-blame-ignore-revs`
-- **Documentation:** `cliff.toml` (changelog), `.readthedocs.yaml`
+- **Documentation:** `cliff.toml` (changelog)
 
 ## 4. Coding Guidelines
 

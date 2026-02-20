@@ -30,7 +30,6 @@
 .pylintrc
 .python-version
 .README.md
-.readthedocs.yaml
 .ruff.toml
 .vscode/extensions.json
 .vscode/settings.json
@@ -40,7 +39,6 @@ cliff.toml
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 data/.gitignore
-docs/__init__.py
 LICENSE
 Makefile
 notebooks/.gitkeep
