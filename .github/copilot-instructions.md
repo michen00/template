@@ -4,8 +4,9 @@
 
 - **Mission:** Preserve a turnkey template that downstream projects can scaffold with `setup.sh`; every modification ships to every generated workspace.
 - **Source of Truth:** All setup behavior lives in `setup.sh` and the allowlist in `manifest.txt`. When you add, rename, or remove files, update both so the script copies the right assets.
-- **String Replacement Contract:** The setup flow renames `src/template` to `src/$PROJECTNAME`, replaces the literal `template` across text files (skips `.gitignore`), and then removes `setup.sh`, `manifest.txt`, and `.README.md`. Keep identifiers substitution-safe—avoid clever uses of the word `template` that would break after replacement.
+- **String Replacement Contract:** The setup flow renames `src/template` to `src/$PROJECTNAME`, replaces the literal `template` across text files (skips `.gitignore`), replaces `michen00/$PROJECTNAME` with `$OWNER/$PROJECTNAME` in repository URLs, removes the personal email postprocessor from `cliff.toml`, and updates author metadata. Keep identifiers substitution-safe—avoid clever uses of the word `template` that would break after replacement.
 - **Dual Setup Paths:** Option 1 mutates the current directory by deleting anything not listed in the manifest; option 2 creates a clean sibling directory. Exercise both paths whenever you touch the manifest or the destructive logic.
+- **CLI Flags:** `setup.sh` accepts `--profile=public|private` and `--owner=<name>` to skip interactive prompts. The private profile excludes `.github/workflows/greet-new-contributors.yml` and the DeepWiki badge from README.
 - **File Renames:** After copying, the script performs several renames: `.github/.copilot-instructions.md` → `.github/copilot-instructions.md`, `.AGENTS.md` → `AGENTS.md`, `.CLAUDE.md` → `CLAUDE.md`, and `.README.md` → `README.md`. Ensure these source files exist in this repo so the renames work correctly.
 - **Directory Highlights:**
   - `src/template/` ships the package skeleton and CLI stub (`bin/example_script.py` → `example-script`).

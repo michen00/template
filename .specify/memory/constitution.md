@@ -134,7 +134,7 @@ Any change to `setup.sh`, `manifest.txt`, or files included in the manifest
 SHOULD be validated by running:
 
 ```bash
-bash setup.sh my-test-project  # in a temporary directory
+echo -e "2\nmy-test-project" | bash setup.sh --profile=public --owner=testowner
 cd my-test-project
 make check
 ```
@@ -156,4 +156,4 @@ agreements, and conflicting documentation.
   `CLAUDE.md` (Claude Code), `AGENTS.md` (general agents), and
   `.github/copilot-instructions.md` (GitHub Copilot).
 
-**Version**: 1.0.0 | **Ratified**: 2026-02-17 | **Last Amended**: 2026-02-17
+**Version**: 1.0.1 | **Ratified**: 2026-02-17 | **Last Amended**: 2026-02-19

@@ -70,7 +70,7 @@ The `Makefile` is the primary entry point for development tasks:
 
   ```bash
   # In a temporary directory
-  bash /path/to/template/setup.sh my-test-project
+  echo -e "2\nmy-test-project" | bash /path/to/template/setup.sh --profile=public --owner=testowner
   cd my-test-project
   make check
   ```
@@ -206,3 +206,12 @@ The template includes a script at `.github/scripts/concat_gitignores.sh` that ge
 - Keep instruction files in sync: `AGENTS.md`, `CLAUDE.md`, `.AGENTS.md`, `.CLAUDE.md`, `.github/.copilot-instructions.md`, `.github/copilot-instructions.md`, `.github/instructions/CI.instructions.md`, and `README.md`.
 - Test changes by instantiating a new project with `setup.sh`.
 - Hidden dotfiles are for derived projects, not this template.
+
+## Active Technologies
+
+- Bash (POSIX-compatible shell script) + sed, find, grep (standard POSIX utilities) (001-setup-profiles)
+- N/A (file generation, no persistence) (001-setup-profiles)
+
+## Recent Changes
+
+- 001-setup-profiles: Added Bash (POSIX-compatible shell script) + sed, find, grep (standard POSIX utilities)

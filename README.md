@@ -95,11 +95,20 @@ This template helps you set up:
 
    - Choose whether to set up in the current directory or create a new one
    - Enter your project name
+   - Enter your GitHub owner (username or organization)
+   - Select a profile: **Public** (all community features) or **Private** (excludes contributor greeter, DeepWiki badge)
    - The script will automatically:
-     - Copy all template files
+     - Copy all template files (filtered by profile)
      - Rename placeholders to your project name
+     - Replace owner in repository URLs
      - Set up the project structure
      - Generate a fresh `.gitignore` from GitHub templates
+
+   You can also skip interactive prompts with CLI flags:
+
+   ```bash
+   bash setup.sh --profile=private --owner=acme-corp
+   ```
 
 4. **Start developing:**
 
