@@ -1,12 +1,27 @@
 ---
+# GitHub auto-generated release notes: exclude these authors
+# https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes
 changelog:
   exclude:
     authors:
+      - allcontributors[bot]
+      - claude-for-github[bot]
+      - claude[bot]
+      - codecov[bot]
+      - Codacy
+      - codacy-production[bot]
       - Copilot
       - copilot-swe-agent[bot]
+      - cursorbot
+      - deepsource[bot]
       - dependabot[bot]
+      - dependabot-preview[bot]
       - gemini-code-assist[bot]
       - github-actions[bot]
+      - imgbot
+      - mergify[bot]
       - pre-commit-ci[bot]
       - renovate[bot]
+      - sourcery-bot
       - snyk-bot
+      - stale[bot]
