@@ -21,7 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
-      (github.actor == 'dependabot[bot]' || github.actor == 'pre-commit-ci[bot]')
+      (github.actor == 'dependabot[bot]' || github.actor == 'pre-commit-ci[bot]' ||
+      github.actor == 'renovate[bot]')
     timeout-minutes: 30
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,7 +40,11 @@ jobs:
         env:
           ACTOR: ${{ github.actor }}
           UPDATE_TYPE: ${{ steps.dependabot.outputs.update-type }}
-          HAS_DO_NOT_MERGE: ${{contains(github.event.pull_request.labels.*.name, 'do not auto-merge') }} # yamllint disable-line rule:line-length
+          HAS_DO_NOT_MERGE: ${{ contains(github.event.pull_request.labels.*.name, 'do not auto-merge') }} # yamllint disable-line rule:line-length
+          HAS_MAJOR: ${{ contains(github.event.pull_request.labels.*.name, 'major') }}
+          HAS_MINOR: ${{ contains(github.event.pull_request.labels.*.name, 'minor') }}
+          HAS_PATCH: ${{ contains(github.event.pull_request.labels.*.name, 'patch') }}
+          HAS_DEPS: ${{ contains(github.event.pull_request.labels.*.name, 'dependencies') }}
         run: |
           if [ "$HAS_DO_NOT_MERGE" = "true" ]; then
             echo "::warning::PR has 'do not auto-merge' label, skipping"
@@ -54,6 +59,19 @@ jobs:
               echo "should_merge=true" >> "$GITHUB_OUTPUT"
             else
               echo "::warning::Dependabot major update, skipping auto-merge"
+              echo "should_merge=false" >> "$GITHUB_OUTPUT"
+            fi
+          elif [ "$ACTOR" = "renovate[bot]" ]; then
+            # Renovate: only auto-merge when patch/minor/dependencies (no major label)
+            if [ "$HAS_MAJOR" = "true" ]; then
+              echo "::warning::Renovate major update, skipping auto-merge"
+              echo "should_merge=false" >> "$GITHUB_OUTPUT"
+            elif [ "$HAS_PATCH" = "true" ] || [ "$HAS_MINOR" = "true" ] \
+                 || [ "$HAS_DEPS" = "true" ]; then
+              echo "::info::Renovate patch/minor/deps update, eligible for auto-merge"
+              echo "should_merge=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "::warning::Renovate PR has no patch/minor/deps label, skipping auto-merge"
               echo "should_merge=false" >> "$GITHUB_OUTPUT"
             fi
           elif [ "$ACTOR" = "pre-commit-ci[bot]" ]; then
