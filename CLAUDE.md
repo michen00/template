@@ -70,7 +70,7 @@ The `Makefile` is the primary entry point for development tasks:
 
   ```bash
   # In a temporary directory
-  echo -e "2\nmy-test-project" | bash /path/to/template/setup.sh --profile=public --owner=testowner
+  echo -e "2\nmy-test-project" | ./setup.sh --profile=public --owner=testowner
   cd my-test-project
   make check
   ```

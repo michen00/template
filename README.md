@@ -88,7 +88,7 @@ This template helps you set up:
 2. **Run the setup script:**
 
    ```bash
-   bash setup.sh
+   ./setup.sh
    ```
 
 3. **Follow the prompts:**
@@ -107,7 +107,7 @@ This template helps you set up:
    You can also skip interactive prompts with CLI flags:
 
    ```bash
-   bash setup.sh --profile=private --owner=acme-corp
+   ./setup.sh --profile=private --owner=acme-corp
    ```
 
 4. **Start developing:**
