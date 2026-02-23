@@ -15,6 +15,29 @@ self-consistent commits. Each commit addresses exactly one
 logical concern and passes verification, so the history reads
 as a clean narrative.
 
+**Focus only on the rules and steps below** when performing
+this task. Ignore unrelated context.
+
+## Critical Constraints (Always Enforce)
+
+Before and after executing commits, ensure:
+
+1. **No bulk stage:** Use specific file paths only — never
+   `git add -A` or `git add .` during atomic commits.
+2. **No hook bypass:** Never use `--no-verify`; fix the root
+   cause of any failing hook.
+3. **Generated with source:** Generated or derived files
+   (e.g. `.gitignore` from a script) are committed in the
+   **same** commit as the change that produced them — never
+   in a separate commit.
+4. **One concern per commit:** Each commit must address
+   exactly one logical concern and leave the codebase
+   buildable and consistent.
+
+If the change set is ambiguous, contradictory, or cannot be
+grouped without leaving the codebase broken, **state that and
+ask the user** instead of forcing a commit plan.
+
 ## When to Use
 
 - Multiple unrelated changes accumulated in the working tree
@@ -24,19 +47,22 @@ as a clean narrative.
   conflate them
 - You want a reviewable, bisectable history
 
-## When to Keep It Simple
+## When to Keep It Simple (Task Branch)
 
-The full analysis/planning workflow is designed for
-multi-concern situations. You can skip Steps 1–2 and just
-commit directly (still following the message format) when:
+**If** one of the following is true:
 
-- Only one logical change exists
+- Only one logical change exists, or
 - All changes are part of the same atomic concern
-  (e.g., one bug fix touching three files)
+  (e.g. one bug fix touching three files),
 
-The gitlint rules, message format, and verification steps
-in this skill still apply — just skip the grouping and
-sequencing overhead.
+**then** do **not** run the full analysis/planning workflow.
+Skip Steps 1–2 and go directly to writing one commit message
+and executing one commit. The gitlint rules, message format,
+and verification steps below still apply.
+
+**Otherwise** (multiple concerns or mixed concerns), follow
+the full workflow. Do not assume the same approach applies
+to every run — decide each time from the current change set.
 
 ## Gitlint Rules (Source of Truth)
 
@@ -86,6 +112,8 @@ configuration:
 ### Step 1: Analyze Current Work
 
 Inventory all changes and group them by logical concern.
+**Complete this step before Step 2;** the grouping produced
+here is the input to planning.
 
 **Commands to run:**
 
@@ -96,24 +124,24 @@ git diff --cached     # Staged changes
 git log --oneline -5  # Recent commits for style reference
 ```
 
-**Grouping criteria:**
+**Grouping criteria:** Consider every change before deciding
+groups. Do not let the order of files in `git status` or
+`git diff` dictate grouping — evaluate by concern, coupling,
+and derivation:
 
 - **By concern:** Feature code, bug fix, configuration,
   documentation, generated output, test
 - **By coupling:** Files that must change together to keep the
   codebase consistent
 - **By derivation:** Source files and their generated/derived
-  outputs belong together
-
-**Key rule:** Generated or derived files
-(e.g., `.gitignore` from
-`scripts/concat-gitignores.sh`) must be committed alongside
-the source change that produced them — never in a separate
-commit.
+  outputs belong together (same commit as the change that
+  produced them — see Critical Constraints).
 
 ### Step 2: Plan Commit Sequence
 
-Order commits so every intermediate state is self-consistent.
+**Input:** Use the grouping from Step 1. **Output:** An ordered
+list of commits such that every intermediate state is
+self-consistent. Do not plan until Step 1 is done.
 
 **Sequencing rules:**
 
@@ -123,13 +151,18 @@ Order commits so every intermediate state is self-consistent.
    (library code, scripts, processing pipelines)
 3. Features and fixes that depend on core changes
 4. Generated/derived output alongside its source change
-   (same commit)
+   (same commit — see Critical Constraints)
 5. Documentation and standalone cleanups last
 
-**Dependency check:** For each planned commit, ask:
-"If I checked out this commit alone, would the codebase build
-and behave correctly?" If not, merge it with its dependency
-or reorder.
+**Dependency check:** For each planned commit, ask: "If I
+checked out this commit alone, would the codebase build and
+behave correctly?" If not, merge it with its dependency or
+reorder.
+
+**After drafting the plan:** Verify each proposed commit
+against (a) the grouping criteria from Step 1 and (b) the
+dependency rules above. If any commit violates them, adjust
+the plan before presenting it.
 
 **Present the plan to the user before executing.** List each
 planned commit with:
@@ -140,7 +173,9 @@ planned commit with:
 
 ### Step 3: Write Commit Messages
 
-Follow gitlint rules exactly.
+Use the **planned commit sequence from Step 2** (or the single
+commit when using "When to Keep It Simple"). Follow gitlint
+rules exactly.
 
 **Title formula:**
 
@@ -183,7 +218,8 @@ Scope is optional; include it when it improves clarity.
 
 ### Step 4: Execute Commits
 
-For each commit in the planned sequence:
+For each commit in the **planned sequence from Step 2** (or
+the single commit when simplified):
 
 1. Stage only the changes for this commit
    - **Whole files:** `git add <file1> <file2> ...`
@@ -237,7 +273,9 @@ complete; commit any resulting formatting fixes as a separate
 `style:` commit.
 
 If verification fails, offer to restructure: unstage, regroup
-files, and re-commit.
+files, and re-commit. After the full sequence, verify that
+each commit matches the plan and that all verifications
+passed — if not, correct before considering the task complete.
 
 ## Commit Message Examples
 
@@ -348,6 +386,14 @@ If work is incomplete and you still need to commit:
   branch with `chore(wip): checkpoint <description>`
 - Never mix complete and incomplete work in one commit
 
+## Before You Finish
+
+Re-check the **Critical Constraints** at the top: (1) no
+`git add -A` or `git add .`, (2) no `--no-verify`, (3)
+generated files with their source in the same commit, (4) one
+concern per commit. Ensure your final history is consistent
+with the plan and that verification passed where applicable.
+
 ## Quality Checklist
 
 Before executing the commit sequence:
@@ -368,4 +414,4 @@ After executing:
 - [ ] Each commit message accurately describes its changes
 - [ ] Verification passed for commits touching scripts/builds
 - [ ] `git log --show-signature` shows valid signatures for each
-  new commit
+      new commit
