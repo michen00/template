@@ -81,7 +81,7 @@ repos:
       - id: prettier
         types_or: [css, html, javascript, json, scss, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.1
+    rev: v0.15.2
     hooks:
       - id: ruff-check
         types_or: [jupyter, pyi, python, toml]
@@ -122,7 +122,7 @@ repos:
       - id: yamllint
         args: [--strict]
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.43.4
+    rev: v1.43.5
     hooks:
       - id: typos
   - repo: https://github.com/codespell-project/codespell
