@@ -1,10 +1,37 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # TODO: refactor
 
 TEMPLATE="$(pwd)"
 MANIFEST="$TEMPLATE/manifest.txt"
 QUIET="${SETUP_SH_QUIET:-0}"
+SCRIPT_NAME=$(basename "$0")
+
+usage() {
+  local exit_code=${1:-0}
+  cat << EOF
+Usage: $SCRIPT_NAME [OPTIONS]
+
+Scaffold a new Python project from this template.
+
+Interactively prompts for a project name, GitHub owner, setup location
+(current directory or new sibling directory), and profile. Options
+provided via flags skip their corresponding prompts.
+
+Options:
+  -h, --help              Show this help message and exit.
+  --owner=<name>          GitHub owner (user or org) for repository URLs.
+  --profile=<public|private>
+                          Project profile. "public" includes all community
+                          features; "private" excludes the contributor
+                          greeter workflow and the DeepWiki badge.
+
+Examples:
+  $SCRIPT_NAME
+  $SCRIPT_NAME --profile=private --owner=acme-corp
+EOF
+  exit "$exit_code"
+}
 
 quiet_echo() {
   if [ "$QUIET" != "1" ]; then
@@ -264,6 +291,9 @@ profile=""
 
 while (($#)); do
   case "$1" in
+    -h | --help)
+      usage 0
+      ;;
     --owner=*)
       owner="${1#--owner=}"
       if ! validate_owner "$owner" 2> /dev/null; then
@@ -277,7 +307,8 @@ while (($#)); do
       fi
       ;;
     *)
-      break
+      echo "Error: Unknown option '$1'" >&2
+      usage 1
       ;;
   esac
   shift

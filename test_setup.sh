@@ -537,11 +537,35 @@ scenario_5() {
   verify_private_assertions "$project_dir"
 }
 
+# --- Scenario 6: --help prints usage and exits 0 ---
+scenario_6() {
+  local template_dir="$WORK_ROOT/s6-template"
+  copy_template "$template_dir"
+  pushd "$template_dir" > /dev/null
+
+  local output
+  output=$(./setup.sh --help 2>&1)
+  local rc=$?
+
+  popd > /dev/null
+
+  if [[ $rc -ne 0 ]]; then
+    printf '%s[ERROR]%s --help exited with code %s (expected 0).\n' "$RED" "$RESET" "$rc" >&2
+    return 1
+  fi
+
+  if [[ $output != *"Usage:"* ]]; then
+    printf '%s[ERROR]%s --help output does not contain "Usage:".\n' "$RED" "$RESET" >&2
+    return 1
+  fi
+}
+
 run_scenario 1 "new-dir, public, flags" scenario_1
 run_scenario 2 "new-dir, private, flags" scenario_2
 run_scenario 3 "in-place, public, interactive" scenario_3
 run_scenario 4 "in-place, private, interactive" scenario_4
 run_scenario 5 "new-dir, private, partial-flag" scenario_5
+run_scenario 6 "--help prints usage" scenario_6
 
 printf '\n%s==>%s setup.sh integration smoke test: ' "$CYAN" "$RESET"
 if [[ $FAIL_COUNT -eq 0 ]]; then
