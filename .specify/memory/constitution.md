@@ -1,24 +1,3 @@
-<!--
-Sync Impact Report
-===================
-Version change: N/A → 1.0.0 (initial creation)
-Modified principles: N/A (all new)
-Added sections:
-  - Core Principles (5 principles)
-  - Technology Stack & Constraints
-  - Development Workflow & Quality Gates
-  - Governance
-Removed sections: None
-Templates requiring updates:
-  - .specify/templates/plan-template.md ✅ no changes needed (Constitution Check
-    section is generic and will be filled per-feature)
-  - .specify/templates/spec-template.md ✅ no changes needed (requirements and
-    success criteria align with principles)
-  - .specify/templates/tasks-template.md ✅ no changes needed (phase structure
-    and parallel markers align with principles)
-Follow-up TODOs: None
--->
-
 # Template Constitution
 
 ## Core Principles
