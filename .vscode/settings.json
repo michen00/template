@@ -23,7 +23,6 @@
   "[yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "chat.agent.enabled": true,
   "diffEditor.ignoreTrimWhitespace": false,
   "evenBetterToml.schema.enabled": true,
   "evenBetterToml.formatter.alignComments": true,
