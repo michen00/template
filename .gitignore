@@ -1,5 +1,5 @@
 #######################################################################################################
-# This .gitignore is composed of the following templates (retrieved 2026-02-12):
+# This .gitignore is composed of the following templates (retrieved 2026-02-26):
 # Language / runtime / ecosystem
 # - https://raw.githubusercontent.com/github/gitignore/main/community/Python/JupyterNotebooks.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
@@ -1361,11 +1361,20 @@ Backup of *.doc*
 
 # End of https://raw.githubusercontent.com/github/gitignore/main/Global/Patch.gitignore
 
-# Speckit
-.claude/commands/speckit.*.md
+# Claude user-specific settings
+.claude/commands
+.claude/settings.local.json
+.claude/skills/openspec-**/SKILL.md
+
+# Cursor rules
+.cursor/commands/opsx-*.md
 .cursor/commands/speckit.*.md
-.specify/
-!.specify/memory/constitution.md
+.cursor/rules/
+.cursor/skills/openspec-**/SKILL.md
+
+# spec-kit scaffolding
+.specify/scripts/bash/*.sh
+.specify/templates/*.md
 
 # Directory for temporary files marked for deletion
 .delete-me/

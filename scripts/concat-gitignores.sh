@@ -13,8 +13,11 @@ template URLs from stdin, a file, or built-in defaults.
 
 Inputs:
   stdin            Read URLs from standard input when piped.
-  <input_file>     Optional file containing one URL per line.
-                   Supports section headers with lines starting "## ".
+  <input_file>     Optional file containing one URL per line. Supports
+                    section headers with lines starting "## ". A single
+                    argument ending with /.gitignore (e.g. my-project/.gitignore)
+                    is treated as the output path (relative to repo root) and
+                    default URLs are used.
 
 Options:
   --output <file>  Destination file name. Defaults to .gitignore.
@@ -26,11 +29,13 @@ Examples:
   $SCRIPT_NAME
   $SCRIPT_NAME urls.txt
   $SCRIPT_NAME urls.txt --output custom.output.gitignore
+  $SCRIPT_NAME my-project/.gitignore
 EOF
   exit "${1:-0}"
 }
 
-# Hardcoded default entries (used if no input is provided)
+# Hardcoded default entries (used if no input is provided). Section headers
+# (## Title) appear in the generated .gitignore header; URLs are fetched.
 DEFAULT_ENTRIES=(
   "## Language / runtime / ecosystem"
   "https://raw.githubusercontent.com/github/gitignore/main/community/Python/JupyterNotebooks.gitignore"
@@ -72,17 +77,12 @@ URLS=()
 add_entry() {
   local line="$1"
   local trimmed="$line"
-  # Trim leading whitespace
   trimmed="${trimmed#"${trimmed%%[![:space:]]*}"}"
-  # Trim trailing whitespace
   trimmed="${trimmed%"${trimmed##*[![:space:]]}"}"
-
   [[ -z "$trimmed" ]] && return 0
-
   if [[ "$trimmed" == "## "* ]]; then
     ENTRIES+=("$trimmed")
   elif [[ "$trimmed" == \#* ]]; then
-    # Single-hash comments are ignored in user input files.
     return 0
   else
     ENTRIES+=("$trimmed")
@@ -127,22 +127,28 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# If the only positional argument looks like an output path (e.g. my-project/.gitignore),
+# treat it as --output and use default URLs. Resolve relative to repo root (parent of
+# script dir) so the same path is used regardless of current working directory.
+if [[ -n $INPUT_FILE && $INPUT_FILE == */.gitignore ]]; then
+  SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+  REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
+  OUTPUT_FILE="$REPO_ROOT/$INPUT_FILE"
+  INPUT_FILE=""
+fi
+
 # Determine the source of URLs
 if [[ -n $INPUT_FILE && -f $INPUT_FILE ]]; then
-  # Read entries from the provided file
   parse_input_stream < "$INPUT_FILE"
 elif ! [ -t 0 ]; then
   if [[ -p /dev/stdin ]]; then
-    # Read entries from stdin when data is piped.
     parse_input_stream
   else
-    # Non-interactive shells may report stdin as non-tty even without piped data.
     for entry in "${DEFAULT_ENTRIES[@]}"; do
       add_entry "$entry"
     done
   fi
 else
-  # Use hardcoded entries as default
   for entry in "${DEFAULT_ENTRIES[@]}"; do
     add_entry "$entry"
   done
@@ -153,7 +159,7 @@ if [[ ${#URLS[@]} -eq 0 ]]; then
   exit 1
 fi
 
-# Calculate the length of the longest header line
+# Calculate the length of the longest header line (for ruler)
 MAX_HEADER_LINE_LENGTH=0
 for entry in "${ENTRIES[@]}"; do
   if [[ "$entry" == "## "* ]]; then
@@ -267,11 +273,20 @@ fi
 # Add additional ignore patterns
 cat >> "$OUTPUT_FILE" << EOF
 
-# Speckit
-.claude/commands/speckit.*.md
+# Claude user-specific settings
+.claude/commands
+.claude/settings.local.json
+.claude/skills/openspec-**/SKILL.md
+
+# Cursor rules
+.cursor/commands/opsx-*.md
 .cursor/commands/speckit.*.md
-.specify/
-!.specify/memory/constitution.md
+.cursor/rules/
+.cursor/skills/openspec-**/SKILL.md
+
+# spec-kit scaffolding
+.specify/scripts/bash/*.sh
+.specify/templates/*.md
 
 # Directory for temporary files marked for deletion
 .delete-me/
