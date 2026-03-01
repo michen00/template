@@ -12,7 +12,7 @@ Concatenate multiple .gitignore templates into a single file by fetching
 template URLs from stdin, a file, or built-in defaults.
 
 Inputs:
-  stdin            Read URLs from standard input when piped.
+  stdin            Read URLs from standard input when piped or redirected.
   <input_file>     Optional file containing one URL per line. Supports
                     section headers with lines starting "## ". A single
                     argument ending with /.gitignore (e.g. my-project/.gitignore)
@@ -137,17 +137,17 @@ if [[ -n $INPUT_FILE && $INPUT_FILE == */.gitignore ]]; then
   INPUT_FILE=""
 fi
 
-# Determine the source of URLs
-if [[ -n $INPUT_FILE && -f $INPUT_FILE ]]; then
-  parse_input_stream < "$INPUT_FILE"
-elif ! [ -t 0 ]; then
-  if [[ -p /dev/stdin ]]; then
-    parse_input_stream
+# Determine the source of URLs.
+# Priority: explicit input file > stdin (pipe or redirection) > defaults.
+if [[ -n $INPUT_FILE ]]; then
+  if [[ -f $INPUT_FILE ]]; then
+    parse_input_stream < "$INPUT_FILE"
   else
-    for entry in "${DEFAULT_ENTRIES[@]}"; do
-      add_entry "$entry"
-    done
+    echo "Input file not found: $INPUT_FILE" >&2
+    exit 1
   fi
+elif ! [ -t 0 ]; then
+  parse_input_stream
 else
   for entry in "${DEFAULT_ENTRIES[@]}"; do
     add_entry "$entry"
