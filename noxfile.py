@@ -35,6 +35,10 @@ def precommit(session: nox.Session) -> None:
     """Run pre-commit hooks."""
     session.install('-r', _export_requirements(groups=('dev',)))
     session.run('pre-commit', 'run', '--all-files')
+    session.run('pre-commit', 'run', '--all-files', '--hook-stage', 'pre-push', 'mypy')
+    session.run(
+        'pre-commit', 'run', '--all-files', '--hook-stage', 'pre-push', 'talisman-push'
+    )
 
 
 @nox.session
