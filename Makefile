@@ -213,7 +213,7 @@ format-unsafe: lint-unsafe .WAIT ruff-format ## Format the code with Ruff using 
 .PHONY: enable-pre-commit
 enable-pre-commit: ## Enable pre-commit hooks
 	@if command -v pre-commit >/dev/null 2>&1; then \
-        $(UV) run pre-commit install; \
+        $(UV) run pre-commit install --hook-type commit-msg --hook-type pre-commit --hook-type pre-push --hook-type prepare-commit-msg; \
     else \
         echo "$(YELLOW)Warning: pre-commit is not installed. Skipping hook installation.$(_COLOR)"; \
         echo "Install it with: pip install pre-commit (or brew install pre-commit on macOS)"; \
