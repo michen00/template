@@ -4,16 +4,20 @@ from __future__ import annotations
 
 __all__ = ()
 
-
 import subprocess
 import tempfile
+import typing
 
 import nox
+
+if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
+
 
 nox.options.default_venv_backend = 'uv|venv'
 
 
-def _export_requirements(groups: list[str] | None = None) -> str:
+def _export_requirements(groups: Sequence[str] | None = None) -> str:
     """Return a path to a temporary requirements.txt exported from uv.lock."""
     args = ['uv', 'export', '--format', 'requirements-txt', '--no-hashes']
     if groups:
