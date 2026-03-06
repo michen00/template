@@ -1,4 +1,4 @@
-VERSION ?= $(shell grep -E '^version[[:space:]]*=' pyproject.toml | sed 's/.*=[[:space:]]*"\(.*\)"/\1/')
+VERSION ?= $(shell sed -En "s/^version[[:space:]]*=[[:space:]]*['\"]([^'\"]+)['\"].*/\1/p" pyproject.toml)
 VENV = .venv
 
 .ONESHELL:
