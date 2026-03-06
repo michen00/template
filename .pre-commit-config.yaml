@@ -144,6 +144,7 @@ repos:
     rev: v1.19.1
     hooks:
       - id: mypy
+        exclude: '.ipynb$'
         args: ['--config-file=pyproject.toml', '--install-types', '--non-interactive']
         additional_dependencies:
           - nox[uv]
