@@ -33,14 +33,12 @@ def _export_requirements(groups: Sequence[str] | None = None) -> str:
 @nox.session
 def precommit(session: nox.Session) -> None:
     """Run pre-commit hooks."""
-    req = _export_requirements(groups=['dev'])
-    session.install('-r', req)
+    session.install('-r', _export_requirements(groups=('dev',)))
     session.run('pre-commit', 'run', '--all-files')
 
 
 @nox.session
 def test(session: nox.Session) -> None:
     """Run pytest."""
-    req = _export_requirements(groups=['test'])
-    session.install('-r', req)
+    session.install('-r', _export_requirements(groups=('test',)))
     session.run('pytest', '-n', 'auto')
