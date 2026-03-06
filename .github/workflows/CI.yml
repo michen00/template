@@ -106,9 +106,9 @@ jobs:
           echo "::info::Running tests..."
           uv sync --only-group test
           uv run nox -s test
-      - name: Lint code
+      - name: Run pre-commit hooks
         run: |-
-          echo "::info::Running linting checks..."
+          echo "::info::Running pre-commit hooks..."
           uv sync --only-dev
           bash .github/scripts/ci-ruff-args.sh
           uv run nox -s precommit
