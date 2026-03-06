@@ -48,7 +48,7 @@ jobs:
       matrix:
         python-version: ['3.12']
     permissions:
-      id-token: write
+      id-token: write # for trufflehog
       contents: read
     steps:
       - uses: actions/checkout@v6
