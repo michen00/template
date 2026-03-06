@@ -78,10 +78,8 @@ jobs:
           HASH_NOXFILE: ${{ hashFiles('noxfile.py') }}
         run: |-
           STAMP="$(date +'%Y%m%d')-${CACHE_NUMBER}"
-          py="${HASH_PYPROJECT}-${STAMP}"
-          uv="${HASH_UV}-${py}"
+          uv="${HASH_UV}-${HASH_PYPROJECT}-${STAMP}"
           {
-            echo "py=${py}"
             echo "uv=${uv}"
             echo "pc=${HASH_PRECOMMIT}-${STAMP}"
             echo "nox=${HASH_NOXFILE}-${uv}"
