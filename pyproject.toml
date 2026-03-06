@@ -42,24 +42,20 @@ package        = true
 members = ['template']
 
 [tool.mypy]
-allow_redefinition = true
-disable_error_code = ['import-untyped']
+allow_redefinition       = true
+disable_error_code       = ['import-untyped']
 disallow_subclassing_any = false
-enable_error_code = ['ignore-without-code', 'redundant-expr', 'truthy-bool']
-exclude = '''(?x)(
-    notebooks/     # exclude all files in the notebooks directory
-    | tests/       # tests are runtime-checked via pytest; skip mypy here
-    | \.ipynb$     # or files ending with ".ipynb"
-)'''
-local_partial_types = true
-mypy_path = 'src'
-plugins = ['pydantic.mypy']
-pretty = true
-show_column_numbers = true
-show_error_code_links = true
-strict = true
-warn_return_any = true
-warn_unreachable = true
+enable_error_code        = ['ignore-without-code', 'redundant-expr', 'truthy-bool']
+exclude                  = '.ipynb$'
+local_partial_types      = true
+mypy_path                = 'src'
+plugins                  = ['pydantic.mypy']
+pretty                   = true
+show_column_numbers      = true
+show_error_code_links    = true
+strict                   = true
+warn_return_any          = true
+warn_unreachable         = true
 
 [[tool.uv.index]]
 name        = 'testpypi'
