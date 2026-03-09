@@ -22,7 +22,7 @@ else
     RM_FLAGS := -rf
 endif
 
-PYTEST := python -m pytest $(PYTEST_FLAGS)
+PYTEST := pytest $(PYTEST_FLAGS)
 RM := rm $(RM_FLAGS)
 UV := uv $(UV_FLAGS)
 
