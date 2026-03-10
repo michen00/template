@@ -92,7 +92,7 @@ add_entry() {
 
 parse_input_stream() {
   local line
-  while IFS= read -r line; do
+  while IFS= read -r line || [[ -n "$line" ]]; do
     add_entry "$line"
   done
 }
