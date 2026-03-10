@@ -276,15 +276,22 @@ cat >> "$OUTPUT_FILE" << EOF
 # Claude user-specific settings
 .claude/commands
 .claude/settings.local.json
-.claude/skills/openspec-**/SKILL.md
+.claude/skills/openspec-*/SKILL.md
 
 # Cursor rules
-.cursor/commands/opsx-*.md
-.cursor/commands/speckit.*.md
 .cursor/rules/
-.cursor/skills/openspec-**/SKILL.md
+
+# OpenSpec scaffolding
+.codex/skills/openspec-*/SKILL.md
+.cursor/commands/opsx-*.md
+.cursor/skills/openspec-*/SKILL.md
+.github/prompts/opsx-*.prompt.md
+.github/skills/openspec-*/SKILL.md
 
 # spec-kit scaffolding
+.cursor/commands/speckit.*.md
+.github/agents/speckit.*.agent.md
+.github/prompts/speckit.*.prompt.md
 .specify/scripts/bash/*.sh
 .specify/templates/*.md
 
