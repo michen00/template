@@ -14,10 +14,10 @@ template URLs from stdin, a file, or built-in defaults.
 Inputs:
   stdin            Read URLs from standard input when piped or redirected.
   <input_file>     Optional file containing one URL per line. Supports
-                    section headers with lines starting "## ". A single
-                    argument ending with /.gitignore (e.g. my-project/.gitignore)
-                    is treated as the output path (relative to repo root) and
-                    default URLs are used.
+                   section headers with lines starting "## ". A single
+                   argument ending with /.gitignore (e.g. my-project/.gitignore)
+                   is treated as the output path (relative to repo root) and
+                   default URLs are used.
 
 Options:
   --output <file>  Destination file name. Defaults to .gitignore.
