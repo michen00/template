@@ -15,3 +15,4 @@ e309ce960fa22d234fc08a78bcdefe836265a404  # style(_typos.toml): prefer single qu
 fe3bc64569659d8909703684414e4d3855729ab6  # style: prefer single quotes
 cbb4f61e8e0af839ccfbb4d17ba52157092e244a  # style(pyproject.toml): prefer single quotes
 2c71a9c19f6c58b1c634db3407c6fc3d0e4ff3de  # style: adjust help text spacing
+3ee51bad668263e42aa7a17f42e51c347b79ea5d  # style(.ruff.toml): prefer single quotes
