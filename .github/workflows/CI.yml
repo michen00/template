@@ -48,7 +48,7 @@ jobs:
       matrix:
         python-version: ['3.12']
     permissions:
-      id-token: write
+      id-token: write # for trufflehog
       contents: read
     steps:
       - uses: actions/checkout@v6
@@ -75,16 +75,12 @@ jobs:
           HASH_UV: ${{ hashFiles('uv.lock') }}
           HASH_PYPROJECT: ${{ hashFiles('pyproject.toml') }}
           HASH_PRECOMMIT: ${{ hashFiles('.pre-commit-config.yaml') }}
-          HASH_NOXFILE: ${{ hashFiles('noxfile.py') }}
         run: |-
           STAMP="$(date +'%Y%m%d')-${CACHE_NUMBER}"
-          py="${HASH_PYPROJECT}-${STAMP}"
-          uv="${HASH_UV}-${py}"
+          uv="${HASH_UV}-${HASH_PYPROJECT}-${STAMP}"
           {
-            echo "py=${py}"
             echo "uv=${uv}"
             echo "pc=${HASH_PRECOMMIT}-${STAMP}"
-            echo "nox=${HASH_NOXFILE}-${uv}"
           } >> "$GITHUB_OUTPUT"
       - name: Cache .venv directory
         uses: actions/cache@v5
@@ -96,21 +92,16 @@ jobs:
         with:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-precommit-${{ steps.prepare-cache-keys.outputs.pc }}
-      - name: Cache nox environments
-        uses: actions/cache@v5
-        with:
-          path: .nox
-          key: ${{ runner.os }}-nox-${{ steps.prepare-cache-keys.outputs.nox }}
       - name: Install dependencies
         run: uv sync --no-editable --no-install-project
       - name: Run pytest
         run: |-
           echo "::info::Running tests..."
-          uv sync --only-group test
+          uv sync --inexact --only-group test
           uv run nox -s test
-      - name: Lint code
+      - name: Run pre-commit hooks
         run: |-
-          echo "::info::Running linting checks..."
-          uv sync --only-dev
+          echo "::info::Running pre-commit hooks..."
+          uv sync --inexact --only-dev
           bash .github/scripts/ci-ruff-args.sh
           uv run nox -s precommit

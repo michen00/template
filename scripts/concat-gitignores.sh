@@ -14,10 +14,10 @@ template URLs from stdin, a file, or built-in defaults.
 Inputs:
   stdin            Read URLs from standard input when piped or redirected.
   <input_file>     Optional file containing one URL per line. Supports
-                    section headers with lines starting "## ". A single
-                    argument ending with /.gitignore (e.g. my-project/.gitignore)
-                    is treated as the output path (relative to repo root) and
-                    default URLs are used.
+                   section headers with lines starting "## ". A single
+                   argument ending with /.gitignore (e.g. my-project/.gitignore)
+                   is treated as the output path (relative to repo root) and
+                   default URLs are used.
 
 Options:
   --output <file>  Destination file name. Defaults to .gitignore.
@@ -92,7 +92,7 @@ add_entry() {
 
 parse_input_stream() {
   local line
-  while IFS= read -r line; do
+  while IFS= read -r line || [[ -n "$line" ]]; do
     add_entry "$line"
   done
 }
@@ -276,15 +276,22 @@ cat >> "$OUTPUT_FILE" << EOF
 # Claude user-specific settings
 .claude/commands
 .claude/settings.local.json
-.claude/skills/openspec-**/SKILL.md
+.claude/skills/openspec-*/SKILL.md
 
 # Cursor rules
-.cursor/commands/opsx-*.md
-.cursor/commands/speckit.*.md
 .cursor/rules/
-.cursor/skills/openspec-**/SKILL.md
+
+# OpenSpec scaffolding
+.codex/skills/openspec-*/SKILL.md
+.cursor/commands/opsx-*.md
+.cursor/skills/openspec-*/SKILL.md
+.github/prompts/opsx-*.prompt.md
+.github/skills/openspec-*/SKILL.md
 
 # spec-kit scaffolding
+.cursor/commands/speckit.*.md
+.github/agents/speckit.*.agent.md
+.github/prompts/speckit.*.prompt.md
 .specify/scripts/bash/*.sh
 .specify/templates/*.md
 

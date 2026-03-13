@@ -1,14 +1,18 @@
-VERSION ?= $(shell grep -E '^version[[:space:]]*=' pyproject.toml | sed 's/.*=[[:space:]]*"\(.*\)"/\1/')
 VENV = .venv
 
-.ONESHELL:
-.WAIT:
+SHELL := /bin/bash
+.SHELLFLAGS := -o pipefail -c
 
 DEBUG    ?= false
 VERBOSE  ?= false
 
 UV_FLAGS = -v
 RM_FLAGS := -rfv
+CHECK_UV_CMD = command -v uv >/dev/null 2>&1 || { \
+    echo "$(BOLD)$(RED)uv is required but not installed.$(_COLOR)"; \
+    echo "Install uv: https://docs.astral.sh/uv/getting-started/installation/"; \
+    exit 1; \
+}
 
 ifeq ($(DEBUG),true)
     MAKEFLAGS += --debug=v
@@ -62,12 +66,13 @@ help: ## Show this help message
 	@echo "  $(YELLOW)VERBOSE$(_COLOR) = true|false  Set to true to enable verbose output (default: false)"
 
 .PHONY: install
-install: build/install-python-versions ## Install the project
+install: check-install-uv build/install-python-versions ## Install the project
 	$(UV) sync
 
 .PHONY: develop
 WITH_HOOKS ?= true
-develop: build/install-dev ## Install the project for development (WITH_HOOKS={true|false}, default=true)
+WITH_SYNC_MAIN ?= false
+develop: check-install-uv build/install-dev ## Install the project for development (WITH_HOOKS={true|false}, default=true)
 	@echo "Installing missing type stubs..." && \
         $(UV) run mypy --install-types --non-interactive --follow-imports=silent > /dev/null 2>&1 || true
 	@if ! git config --local --get-all include.path | grep -q ".gitconfigs/alias"; then \
@@ -77,7 +82,117 @@ develop: build/install-dev ## Install the project for development (WITH_HOOKS={t
 	@set -e; \
     if command -v git-lfs >/dev/null 2>&1; then \
         git lfs install --local --skip-repo || true; \
-    fi; \
+    fi
+	@if [ "$(WITH_SYNC_MAIN)" = "true" ]; then \
+        $(MAKE) sync-main; \
+    fi
+	@if [ "$(WITH_HOOKS)" = "true" ]; then \
+        $(MAKE) enable-pre-commit; \
+    fi
+
+.PHONY: test
+PARALLEL ?= false
+test: check-install-uv build/install-test ## Run all tests with coverage (PARALLEL={true|false}, default=false)
+	@PYTEST_CMD="$(PYTEST)"; [ "$(PARALLEL)" = "true" ] && PYTEST_CMD="$$PYTEST_CMD -n auto"; \
+    $(UV) run $$PYTEST_CMD
+
+.PHONY: check
+check: format-all test ## Run all code quality checks and tests
+
+################################
+## (post-|un|re)?installation ##
+################################
+
+.PHONY: uninstall
+uninstall: check-install-uv ## Uninstall the project
+	@echo "Uninstalling project..."
+	$(UV) pip uninstall .
+
+.PHONY: reinstall
+reinstall: uninstall install ## Reinstall the project
+
+.PHONY: reinstall-dev
+reinstall-dev: uninstall develop ## Reinstall the project for development (WITH_HOOKS={true|false}, default=true)
+
+.PHONY: clean
+TO_REMOVE := \
+    $(VENV) \
+    *.egg-info \
+    */.venv \
+    .coverage \
+    .eggs \
+    .git/hooks/commit-msg \
+    .git/hooks/pre-commit \
+    .git/hooks/pre-push \
+    .ipynb_checkpoints \
+    .mypy_cache \
+    .pytest_cache \
+    .ruff_cache \
+    __pycache__ \
+    build \
+    dist \
+    htmlcov \
+    node_modules
+clean: ## Remove build artifacts, caches, and temporary files
+	@echo "Cleaning up project directories..."
+	@echo $(TO_REMOVE) | xargs -n 1 -P 4 $(RM); \
+    find . -type d -name "__pycache__" -exec $(RM) {} +
+	@echo "Cleaned up project directories."
+
+.PHONY: clean-uninstall
+clean-uninstall: clean uninstall ## Clean up project artifacts and uninstall the package
+
+.PHONY: clean-reinstall
+clean-reinstall: clean-uninstall ## Clean up project artifacts and reinstall the package
+	@$(MAKE) install
+
+.PHONY: clean-reinstall-dev
+clean-reinstall-dev: clean-uninstall ## Clean up project artifacts and reinstall the package for development (WITH_HOOKS={true|false}, default=true)
+	@$(MAKE) develop
+
+##################
+## code quality ##
+##################
+
+.PHONY: format-markdown
+format-markdown: ## Run Prettier on all markdown files in the project
+	npx --yes prettier --write '**/*.md'
+
+.PHONY: format-all
+format-all: ## Run code-quality checks and format the code
+	-$(MAKE) run-pre-commit
+	@$(MAKE) format-unsafe
+
+.PHONY: ruff-format
+ruff-format: check-install-uv build/install-dev ## Format the code with Ruff
+	$(UV) run ruff format
+	@echo "$(BOLD)$(GREEN)Code formatting complete!$(_COLOR)"
+
+.PHONY: lint
+lint: check-install-uv build/install-dev ## Lint the code with Ruff, fixing issues where possible
+	$(UV) run ruff check --fix
+	@$(MAKE) .display-lint-complete
+
+.PHONY: lint-unsafe
+lint-unsafe: check-install-uv build/install-dev ## Lint the code with Ruff, fixing issues where possible with --unsafe-fixes
+	$(UV) run ruff check --fix --unsafe-fixes --exit-zero
+	@$(MAKE) .display-lint-complete
+
+.PHONY: format
+format: lint ## Format the code with Ruff
+	@$(MAKE) ruff-format
+
+.PHONY: format-unsafe
+format-unsafe: lint-unsafe ## Format the code with Ruff using --unsafe-fixes
+	@$(MAKE) ruff-format
+
+.PHONY: .display-lint-complete
+.display-lint-complete:
+	@echo "$(BOLD)$(YELLOW)Linting complete!$(_COLOR)"
+
+.PHONY: sync-main
+sync-main: ## Sync local branch with latest main
+	@set -e; \
     current_branch=$$(git branch --show-current); \
     stash_was_needed=0; \
     cleanup() { \
@@ -113,124 +228,30 @@ develop: build/install-dev ## Install the project for development (WITH_HOOKS={t
         fi; \
     fi; \
     trap - EXIT
-	@if [ "$(WITH_HOOKS)" = "true" ]; then \
-        $(MAKE) enable-pre-commit; \
-    fi
-
-.PHONY: test
-PARALLEL ?= false
-test: build/install-test ## Run all tests with coverage (PARALLEL={true|false}, default=false)
-	@PYTEST_CMD="$(PYTEST)"; [ "$(PARALLEL)" = "true" ] && PYTEST_CMD="$$PYTEST_CMD -n auto"; \
-    $(UV) run $$PYTEST_CMD --cov=src --cov-report=term-missing
-
-.PHONY: check
-check: format-all test ## Run all code quality checks and tests
-
-################################
-## (post-|un|re)?installation ##
-################################
-
-.PHONY: uninstall
-uninstall: check-install-uv ## Uninstall the project
-	@echo "Uninstalling project..."
-	$(UV) pip uninstall .
-
-.PHONY: reinstall
-reinstall: uninstall install ## Reinstall the project
-
-.PHONY: reinstall-dev
-reinstall-dev: uninstall develop ## Reinstall the project for development (WITH_HOOKS={true|false}, default=true)
-
-.PHONY: clean
-TO_REMOVE := \
-    *.egg-info \
-    */.venv \
-    .coverage \
-    .eggs \
-    .git/hooks/commit-msg \
-    .git/hooks/pre-commit \
-    .git/hooks/pre-push \
-    .ipynb_checkpoints \
-    .mypy_cache \
-    .pytest_cache \
-    .ruff_cache \
-    __pycache__ \
-    build \
-    dist \
-    htmlcov \
-    node_modules
-clean: ## Remove build artifacts, caches, and temporary files
-	@echo "Cleaning up project directories..."
-	@if [ -n "$$VIRTUAL_ENV" ]; then deactivate; fi; \
-    echo $(TO_REMOVE) | xargs -n 1 -P 4 $(RM); \
-    find . -type d -name "__pycache__" -exec $(RM) {} +
-	@echo "Cleaned up project directories."
-	@$(RM) $(VENV)
-
-.PHONY: clean-uninstall
-clean-uninstall: clean uninstall ## Clean up project artifacts and uninstall the package
-
-.PHONY: clean-reinstall
-clean-reinstall: clean-uninstall .WAIT install ## Clean up project artifacts and reinstall the package
-
-.PHONY: clean-reinstall-dev
-clean-reinstall-dev: clean-uninstall .WAIT develop ## Clean up project artifacts and reinstall the package for development (WITH_HOOKS={true|false}, default=true)
-
-##################
-## code quality ##
-##################
-
-.PHONY: format-all
-format-all: ## Run code-quality checks and format the code
-	-$(MAKE) run-pre-commit
-	@$(MAKE) format-unsafe
-
-.PHONY: ruff-format
-ruff-format: build/install-dev ## Format the code with Ruff
-	$(UV) run ruff format
-	@echo "$(BOLD)$(GREEN)Code formatting complete!$(_COLOR)"
-
-.PHONY: lint
-lint: build/install-dev ## Lint the code with Ruff, fixing issues where possible
-	$(UV) run ruff check --fix
-	@$(MAKE) .display-lint-complete
-
-.PHONY: lint-unsafe
-lint-unsafe: build/install-dev ## Lint the code with Ruff, fixing issues where possible with --unsafe-fixes
-	$(UV) run ruff check --fix --unsafe-fixes --exit-zero
-	@$(MAKE) .display-lint-complete
-
-.PHONY: format
-format: lint .WAIT ruff-format ## Format the code with Ruff
-
-.PHONY: format-unsafe
-format-unsafe: lint-unsafe .WAIT ruff-format ## Format the code with Ruff using --unsafe-fixes
-
-.PHONY: .display-lint-complete
-.display-lint-complete: ## Display a message when linting is complete
-	@echo "$(BOLD)$(YELLOW)Linting complete!$(_COLOR)"
 
 .PHONY: enable-pre-commit
-enable-pre-commit: ## Enable pre-commit hooks
-	@if command -v pre-commit >/dev/null 2>&1; then \
-        $(UV) run pre-commit install; \
+enable-pre-commit: check-install-uv ## Enable pre-commit hooks
+	@if $(UV) run pre-commit --version >/dev/null 2>&1; then \
+        $(UV) run pre-commit install --hook-type commit-msg --hook-type pre-commit --hook-type pre-push --hook-type prepare-commit-msg; \
     else \
         echo "$(YELLOW)Warning: pre-commit is not installed. Skipping hook installation.$(_COLOR)"; \
-        echo "Install it with: pip install pre-commit (or brew install pre-commit on macOS)"; \
+        echo "Install it with: uv sync (or make develop)"; \
     fi
 
 .PHONY: disable-pre-commit
-disable-pre-commit: ## Disable pre-commit hooks
-	@if command -v pre-commit >/dev/null 2>&1; then \
+disable-pre-commit: check-install-uv ## Disable pre-commit hooks
+	@if $(UV) run pre-commit --version >/dev/null 2>&1; then \
         $(UV) run pre-commit uninstall; \
         echo "$(BOLD)$(GREEN)Pre-commit hooks disabled.$(_COLOR)"; \
     else \
         echo "$(YELLOW)Warning: pre-commit is not installed. Nothing to disable.$(_COLOR)"; \
+        echo "Install it with: uv sync (or make develop)"; \
     fi
 
 .PHONY: run-pre-commit
-run-pre-commit: build/install-dev ## Run the pre-commit checks
-	$(UV) run $(PRECOMMIT) run --all-files
+HOOK_STAGE ?= pre-commit
+run-pre-commit: check-install-uv build/install-dev ## Run the pre-commit checks (HOOK_STAGE=pre-commit|pre-push|commit-msg|... to run only that stage)
+	$(UV) run $(PRECOMMIT) run --all-files $(if $(HOOK_STAGE),--hook-stage $(HOOK_STAGE),)
 
 ###########################
 ## development shortcuts ##
@@ -238,11 +259,7 @@ run-pre-commit: build/install-dev ## Run the pre-commit checks
 
 .PHONY: check-install-uv
 check-install-uv: ## Check if uv is installed
-	@set -e; \
-    command -v uv >/dev/null 2>&1 || { \
-        echo "$(BOLD)$(RED)installing uv$(_COLOR)"; \
-        curl -LsSf https://astral.sh/uv/install.sh | sh; \
-    }
+	@set -e; $(CHECK_UV_CMD)
 
 .PHONY: bust-ci-cache
 bust-ci-cache: ## Bust the CI cache
@@ -265,32 +282,31 @@ push-prod: build ## Publish the package to PyPI using uv
 
 .PHONY: build
 CACHE ?= true
-build: check-install-uv clean ## Build the package using uv (CACHE={true|false}, default=true)
+build: check-install-uv ## Build the package using uv (CACHE={true|false}, default=true)
 	$(UV) build $(if $(filter false,$(CACHE)),--no-cache,) && echo "Package built successfully!"
 
-MARKER_FILE = build/$(VERSION).marker
+.PHONY: rebuild
+rebuild: clean ## Clean up artifacts and build the package from scratch
+	@$(MAKE) build
 
-$(MARKER_FILE):
-	@echo "$(BOLD)$(YELLOW)You are on new prerequisites $(VERSION)! Removing build markers before rebuilding$(_COLOR)"
-	@$(RM) build
-	@$(MAKE) MARKER_FILE= > /dev/null
-	@mkdir -p $(@D)
-	@touch $@
+SYNC_INPUTS = pyproject.toml .python-version $(wildcard uv.lock)
+VENV_MARKER = $(VENV)/pyvenv.cfg
 
-include $(MARKER_FILE)
+$(VENV_MARKER): .python-version
+	@set -e; $(CHECK_UV_CMD); $(UV) venv --python $(shell cat .python-version) $(VENV)
 
 build/install-dev: build/install-deps
-	$(UV) sync --only-dev
-	touch $@
-
-build/install-test: build/install-deps
-	$(UV) sync --only-group test
-	touch $@
-
-build/install-deps: build/install-python-versions
-	$(UV) sync --no-editable --no-install-project
+	$(UV) sync --inexact --only-dev
 	mkdir -p $(dir $@) && touch $@
 
-.PHONY: build/install-python-versions
-build/install-python-versions: check-install-uv
-	$(UV) python install $(shell cat .python-version)
+build/install-test: build/install-deps
+	$(UV) sync --inexact --only-group test
+	mkdir -p $(dir $@) && touch $@
+
+build/install-deps: build/install-python-versions $(VENV_MARKER) $(SYNC_INPUTS)
+	@set -e; $(CHECK_UV_CMD); $(UV) sync --no-editable --no-install-project
+	mkdir -p $(dir $@) && touch $@
+
+build/install-python-versions: .python-version
+	@set -e; $(CHECK_UV_CMD); $(UV) python install $(shell cat .python-version)
+	mkdir -p $(dir $@) && touch $@

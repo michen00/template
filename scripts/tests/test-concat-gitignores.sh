@@ -146,7 +146,7 @@ test_output_contains_speckit_block() {
   to_file_url "$fixture" > "$url_file"
   "$SUT" "$url_file" --output "$output_file" > /dev/null
 
-  assert_file_contains "$output_file" "# Speckit"
+  assert_file_contains "$output_file" "# spec-kit scaffolding"
   assert_file_contains "$output_file" ".specify/"
 }
 
@@ -216,6 +216,25 @@ for arg in "$@"; do
   esac
 done
 
+test_handles_no_trailing_newline() {
+  local fixture_one fixture_two url_file output_file
+  fixture_one="$(new_fixture "fixture-noeol-one.gitignore" $'# fixture noeol one\nmarker-noeol-one')"
+  fixture_two="$(new_fixture "fixture-noeol-two.gitignore" $'# fixture noeol two\nmarker-noeol-two')"
+  url_file="$TEST_ROOT/urls-noeol.txt"
+  output_file="$TEST_ROOT/out-noeol.gitignore"
+
+  # Write two URLs; use printf without trailing \n on the last line
+  local url_one url_two
+  url_one="$(to_file_url "$fixture_one")"
+  url_two="$(to_file_url "$fixture_two")"
+  printf '%s\n%s' "$url_one" "$url_two" > "$url_file"
+
+  "$SUT" "$url_file" --output "$output_file" > /dev/null
+
+  assert_file_contains "$output_file" "marker-noeol-one"
+  assert_file_contains "$output_file" "marker-noeol-two"
+}
+
 tests=(
   test_help_exits_zero
   test_help_prints_usage
@@ -228,6 +247,7 @@ tests=(
   test_multiple_urls_in_file
   test_ignores_single_hash_comments_in_input
   test_preserves_section_labels_and_input_order
+  test_handles_no_trailing_newline
 )
 
 for test_name in "${tests[@]}"; do

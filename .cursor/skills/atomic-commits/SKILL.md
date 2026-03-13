@@ -1,77 +1,72 @@
 ---
 name: atomic-commits
 description: >-
-  Analyzes current unstaged and staged work, groups changes
-  by logical concern, plans a dependency-aware commit sequence,
-  writes gitlint-compliant messages, and executes atomic commits
-  that each leave the codebase in a good state. Signs commits by
-  default and verifies signatures after each commit.
+  Analyzes current unstaged and staged work, groups changes by logical
+  concern, plans a dependency-aware commit sequence, writes
+  gitlint-compliant messages, and executes atomic commits that each
+  leave the codebase in a good state.
 ---
+
+<!-- This file uses manual wrapping at 72 characters; never split
+formatting markup (e.g. keep `**bold**` or `_italic_` on one line). -->
 
 # Atomic Commits
 
-Bundle working-tree changes into a series of atomic,
-self-consistent commits. Each commit addresses exactly one
-logical concern and passes verification, so the history reads
-as a clean narrative.
+Bundle working-tree changes into a series of atomic, self-consistent
+commits. Each commit addresses exactly one logical concern and passes
+verification, so the history reads as a clean narrative.
+
+**Critical rules:** (1) Generated or derived files (e.g.
+`requirements-viewer.html`) must be committed in the _same_ commit as
+the source that produced them — never separately. (2) Present the
+planned commit sequence to the user before executing. (3) Use specific
+file paths for `git add` — never `git add -A` or `git add .`. (4)
+Every commit must be signed; do not use `--no-gpg-sign`. (5) If
+grouping is ambiguous or multiple concerns are intertwined, ask the
+user rather than guessing.
 
 ## When to Use
 
-- Multiple unrelated changes accumulated in the working tree
-  (feature + fix + docs, etc.)
+- Multiple unrelated changes accumulated in the working tree (feature +
+  fix + docs, etc.)
 - Generated/derived files changed alongside their source files
-- Work spans several concerns and a single commit would
-  conflate them
+- Work spans several concerns and a single commit would conflate them
 - You want a reviewable, bisectable history
 
-## When to Keep It Simple
+## When NOT to Use
 
-The full analysis/planning workflow is designed for
-multi-concern situations. You can skip Steps 1–2 and just
-commit directly (still following the message format) when:
-
-- Only one logical change exists
-- All changes are part of the same atomic concern
-  (e.g., one bug fix touching three files)
-
-The gitlint rules, message format, and verification steps
-in this skill still apply — just skip the grouping and
-sequencing overhead.
+- Only one logical change exists — use a simple single commit instead
+- All changes are part of the same atomic concern (e.g., one bug fix
+  touching three files)
+- Work is incomplete and you just need a WIP save — commit with
+  `chore: wip` on a feature branch instead
 
 ## Gitlint Rules (Source of Truth)
 
-All commits must satisfy the project's `.gitlint`
-configuration:
+All commits must satisfy the project's `.gitlint` configuration.
+
+**Commit signing (required):** Every commit must be signed (GPG or SSH).
+The remote rejects unsigned commits. Never use `--no-gpg-sign` or
+disable `commit.gpgsign`. When running `git commit`, do not add flags or
+config that skip signing. See repo root [AGENTS.md](../../../AGENTS.md).
 
 ### Title Rules
 
-| Rule          | Constraint                                    |
-| ------------- | --------------------------------------------- |
-| Format        | `<type>(<scope>): <subject>` (scope optional) |
-| Length        | 5–50 characters (entire title line)           |
-| Mood          | Imperative ("add", "fix" — not past tense)    |
-| Allowed types | `feat`, `fix`, `chore`, `docs`, `style`, `ci` |
-|               | `refactor`, `test`, `build`, `perf`, `revert` |
+| Rule          | Constraint                                     |
+| ------------- | ---------------------------------------------- |
+| Format        | `<type>: <subject>` (Conventional Commits)     |
+| Length        | 5–50 characters (entire title line)            |
+| Mood          | Imperative ("add", "fix" — not past tense)     |
+| Allowed types | `feat`, `chore`, `docs`, `refactor`, `style`,  |
+|               | `fix`, `build`, `test`, `ci`, `perf`, `revert` |
 
 ### Body Rules
 
-| Rule        | Constraint                            |
-| ----------- | ------------------------------------- |
-| Presence    | Optional (body-is-missing is ignored) |
-| Line length | 72 characters max per line            |
-| Min length  | Ignored                               |
-
-### Signed and Verified Commits (Default)
-
-- **Signing:** Always use `git commit -S` (or `-S=keyid` for a
-  specific key). If `commit.gpgsign` is already `true` in the config,
-  this is redundant but harmless.
-- **Verification:** After each commit, run
-  `git log --show-signature -1` (or `git verify-commit HEAD`) to
-  confirm the commit is signed and trusted. If verification fails,
-  advise the user to check GPG/SSH key setup.
-- **Opt-out:** If the user explicitly asks for unsigned commits, use
-  `git commit --no-gpg-sign` instead.
+| Rule        | Constraint                                            |
+| ----------- | ----------------------------------------------------- |
+| Presence    | Optional (body-is-missing is ignored)                 |
+| Line length | 72 characters max per line (commit message body only) |
+| Min length  | Ignored                                               |
 
 ### Exemptions
 
@@ -98,18 +93,17 @@ git log --oneline -5  # Recent commits for style reference
 
 **Grouping criteria:**
 
-- **By concern:** Feature code, bug fix, configuration,
-  documentation, generated output, test
-- **By coupling:** Files that must change together to keep the
-  codebase consistent
-- **By derivation:** Source files and their generated/derived
-  outputs belong together
+- **By concern:** Feature code, bug fix, configuration, documentation,
+  generated output, test
+- **By coupling:** Files that must change together to keep the codebase
+  consistent
+- **By derivation:** Source files and their generated/derived outputs
+  belong together
 
-**Key rule:** Generated or derived files
-(e.g., `.gitignore` from
-`scripts/concat-gitignores.sh`) must be committed alongside
-the source change that produced them — never in a separate
-commit.
+**Key rule:** Generated or derived files (e.g.,
+`requirements-viewer.html` from `build-requirements-viewer.js`) must be
+committed alongside the source change that produced them — never in a
+separate commit.
 
 ### Step 2: Plan Commit Sequence
 
@@ -117,22 +111,19 @@ Order commits so every intermediate state is self-consistent.
 
 **Sequencing rules:**
 
-1. Infrastructure/config changes first
-   (build tools, linter config, dependencies)
-2. Core logic changes next
-   (library code, scripts, processing pipelines)
+1. Infrastructure/config changes first (build tools, linter config,
+   dependencies)
+2. Core logic changes next (library code, scripts, processing pipelines)
 3. Features and fixes that depend on core changes
-4. Generated/derived output alongside its source change
-   (same commit)
+4. Generated/derived output alongside its source change (same commit)
 5. Documentation and standalone cleanups last
 
-**Dependency check:** For each planned commit, ask:
-"If I checked out this commit alone, would the codebase build
-and behave correctly?" If not, merge it with its dependency
-or reorder.
+**Dependency check:** For each planned commit, ask: "If I checked out
+this commit alone, would the codebase build and behave correctly?" If
+not, merge it with its dependency or reorder.
 
-**Present the plan to the user before executing.** List each
-planned commit with:
+**Present the plan to the user before executing.** List each planned
+commit with:
 
 - Proposed type and title
 - Files included
@@ -145,24 +136,27 @@ Follow gitlint rules exactly.
 **Title formula:**
 
 ```text
-<type>(<scope>): <subject>
+<type>: <imperative-verb> <concise-object>
 ```
-
-Scope is optional. Subject should use imperative mood and
-concise language.
 
 **Constraints checklist:**
 
 - Total title length: 5–50 characters
-- Imperative mood: "add", "fix", "update", "remove",
-  "refactor" (not "added", "fixes")
+- Imperative mood: "add", "fix", "update", "remove", "refactor" (not
+  "added", "fixes")
 - No trailing period
 - Lowercase after the colon
+- **Single concern:** A title that reads as "do X and do Y" (e.g. "align
+  X, clarify Y") is a smell for a non-atomic commit. Prefer splitting
+  into two commits, or use one overarching verb and object (e.g. "update
+  decisions log and D7/D31/D35 notes") only when the change is truly
+  one logical unit.
 
 **Body guidelines:**
 
 - Explain _why_, not _what_ (the diff shows what)
-- Wrap at 72 characters
+- Wrap commit message body at 72 characters; never split formatting
+  markup (e.g. keep `**bold**` or `_italic_` on one line)
 - Separate from title with a blank line
 - Optional — omit for self-explanatory changes
 
@@ -174,12 +168,10 @@ concise language.
 **Message template:**
 
 ```text
-<type>(<scope>): <subject>
+<type>: <subject>
 
 <optional body explaining why>
 ```
-
-Scope is optional; include it when it improves clarity.
 
 ### Step 4: Execute Commits
 
@@ -187,82 +179,70 @@ For each commit in the planned sequence:
 
 1. Stage only the changes for this commit
    - **Whole files:** `git add <file1> <file2> ...`
-   - **Mixed-concern files:** Prefer staging whole files when all
-     hunks serve the same commit; otherwise defer the file to a
-     later commit. If splitting is unavoidable, explain the
-     conflict to the user and ask which concern the file should
-     accompany — do not attempt interactive staging (agents cannot
-     use `git add -p`).
+   - **Partial files:** `git add -p <file>` to stage individual hunks
+     when a single file contains changes belonging to different logical
+     concerns
 2. Verify staging is correct (`git diff --cached --stat`)
-3. Commit with the prepared message using `git commit -S`
-   (or `-S=keyid`) to sign — or `--no-gpg-sign` if the user
-   explicitly opts out
+3. Commit with the prepared message (ensure signing is enabled — no
+   `--no-gpg-sign`)
 4. Verify the commit succeeded (`git log --oneline -1`)
 
-**Use specific file paths** — never `git add -A` or
-`git add .` during atomic commits, as this defeats the
-purpose of selective grouping.
+**Use specific file paths** — never `git add -A` or `git add .` during
+atomic commits, as this defeats the purpose of selective grouping.
 
-**Never use `--no-verify`** to bypass failing hooks. Fix the
-root cause instead.
+**When to stage hunks (`git add -p`):**
 
-**Handling files with mixed concerns:**
+- A file has changes for two or more unrelated concerns (e.g., a typo
+  fix near a logic change)
+- Config files where independent settings were changed together (e.g.,
+  `.editorconfig` glob fix + new section)
+- Documentation files with edits to multiple unrelated sections
 
-- When all hunks in a file serve the same commit, stage the
-  whole file.
-- When a file mixes unrelated concerns (e.g., typo fix +
-  logic change), prefer committing one concern first and
-  deferring the file until its other concern is ready, or
-  explain the conflict to the user and ask which concern
-  the file should accompany.
-- When hunks are interleaved so tightly that splitting would
-  leave an inconsistent intermediate state, commit the file
-  as one unit under the dominant concern.
+**When NOT to bother with partial staging:**
+
+- All changes in the file serve the same concern
+- Hunks are interleaved so tightly that splitting them would leave an
+  inconsistent intermediate state
 
 ### Step 5: Verify Each Commit
 
 After each commit, run relevant verification if applicable:
 
-- **Signature:** Run `git log --show-signature -1` or
-  `git verify-commit HEAD` to confirm the commit is signed and trusted
-- **Code/config changes:** Run `make test` (not `make check` —
-  `make check` runs formatting which can modify files mid-sequence)
-- **Script changes:** Run the affected script
-  to confirm it works
-- **Commit-message linting:** `gitlint` runs via pre-commit
-  on commit; run `gitlint` manually when needed
+- **Script changes:** Run the script to confirm it works
+- **Build changes:** Run `node scripts/build-requirements-viewer.js` if
+  viewer-related
+- **Transcript processing:** Run `python3 scripts/clean_transcripts.py`
+  if transcript-related
+- **Verification scripts:** Run `make verify` if requirements changed
+- **Linter config:** Run `gitlint` on the commit message
 
-Run `make check` only after the entire commit sequence is
-complete; commit any resulting formatting fixes as a separate
-`style:` commit.
-
-If verification fails, offer to restructure: unstage, regroup
-files, and re-commit.
+If verification fails, offer to restructure: unstage, regroup files,
+and re-commit.
 
 ## Commit Message Examples
 
 ### Feature with generated output
 
 ```text
-feat: regenerate consolidated gitignore
+feat: add phase filter to viewer
 
-Upstream GitHub templates added new Python
-and macOS patterns.
+Files: `scripts/build-requirements-viewer.js`,
+`product-docs/requirements-viewer.html`
 ```
 
 ### Bug fix
 
 ```text
-fix: correct glob pattern in script
+fix: correct phase range expansion
 
-The old pattern skipped nested matches in
-some directories.
+Phases like "1-3" were not expanding to individual phase numbers during
+filtering.
 ```
 
 ### Documentation only
 
 ```text
-docs: update README installation section
+docs: update summary report findings
 ```
 
 ### Configuration change
@@ -274,98 +254,104 @@ chore: add gitlint config
 ### Refactoring
 
 ```text
-refactor: simplify config parsing
+refactor: simplify transcript cleanup
 ```
 
 ### Build/tooling
 
 ```text
-build: add nox session for coverage
-```
-
-### Scoped title example
-
-```text
-ci(lint): add workflow for code quality checks
+build: add requirements viewer script
 ```
 
 ## Common Patterns
 
 ### Pattern: Script change + regenerated output
 
-**Commits:** 1 commit containing both the script and its
-output.
+**Commits:** 1 commit containing both the script and its output.
 
 ```text
-feat: regenerate consolidated gitignore
+feat: add expandPhases for phase ranges
 ```
 
-Files: `scripts/concat-gitignores.sh`,
-`.gitignore`
+Files: `scripts/build-requirements-viewer.js`,
+`product-docs/requirements-viewer.html`
 
 ### Pattern: Feature + related documentation
 
 **Commits:** 2 commits — feature first, then docs.
 
-1. `feat: add retry logic to core module` — code files
-2. `docs: document retry configuration` — markdown files
+1. `feat: add lease abstraction export` — code files
+2. `docs: document lease export workflow` — markdown files
 
 ### Pattern: Bug fix + verification script
 
-**Commits:** 1 commit if the script is needed to verify the
-fix; 2 if the script is independently useful.
+**Commits:** 1 commit if the script is needed to verify the fix; 2 if
+the script is independently useful.
 
 ### Pattern: Config + code that uses it
 
-**Commits:** 1 commit — config and code together so neither
-commit is broken in isolation.
+**Commits:** 1 commit — config and code together so neither commit is
+broken in isolation.
 
 ### Pattern: Multiple independent fixes
 
-**Commits:** 1 commit per fix, ordered by dependency
-(or alphabetically if independent).
+**Commits:** 1 commit per fix, ordered by dependency (or alphabetically
+if independent).
 
 ### Pattern: One file, multiple concerns
 
-**Commits:** Stage whole files when hunks share a concern;
-otherwise commit one concern first and defer the file, or ask
-the user which concern the file should accompany.
+**Commits:** Use `git add -p` to stage hunks separately.
 
-Example: `CLAUDE.md` has both a prefix list update and
-a new guide reference added — two unrelated concerns.
+Example: `CLAUDE.md` has both a prefix list update and a new guide
+reference added — two unrelated concerns.
 
-1. `build: bump hook versions` — if the version-bump hunks
-   can be isolated, stage that file and commit; else ask user
-2. `ci: add yaml lint hook` — remaining changes in a
-   follow-up commit
+1. `fix: synchronize requirement ID prefix list` — stage only the
+   prefix-list hunk
+2. `docs: add disfluency annotation guide ref` — stage only the
+   guide-list hunk
 
 ### Pattern: Partially complete work
 
 If work is incomplete and you still need to commit:
 
 - Commit the complete portions as proper atomic commits
-- Leave incomplete work uncommitted, or commit on a feature
-  branch with `chore(wip): checkpoint <description>`
+- Leave incomplete work uncommitted, or commit on a feature branch with
+  `chore: wip <description>`
 - Never mix complete and incomplete work in one commit
+
+## Workflow Order
+
+Complete in order: Step 1 (Analyze) → Step 2 (Plan; present plan to
+user) → Step 3 (Write messages) → Step 4 (Execute) → Step 5
+(Verify each commit). Do not execute commits before the user has seen
+the plan.
 
 ## Quality Checklist
 
 Before executing the commit sequence:
 
 - [ ] Each commit addresses exactly one logical concern
+- [ ] No title is "do X and do Y" unless it's one logical unit (if so,
+      consider splitting or use one overarching verb)
 - [ ] Generated files are paired with their source changes
 - [ ] No commit leaves the codebase in a broken state
 - [ ] Commit sequence respects dependency order
 - [ ] All titles are 5–50 characters, imperative mood
-- [ ] All titles follow `<type>(<scope>): <subject>` format (scope optional)
-- [ ] Body lines wrap at 72 characters (if body present)
+- [ ] All titles follow `<type>: <subject>` format
+- [ ] Commit message body lines wrap at 72 characters; markup like
+      `**` or `_` not split across lines (if body present)
 - [ ] No sensitive files (.env, credentials) are staged
 - [ ] `git add` uses specific file paths, not `-A` or `.`
+- [ ] Commits will be signed (no `--no-gpg-sign`; signing must remain
+      enabled)
 
 After executing:
 
 - [ ] `git log --oneline` shows clean, readable history
 - [ ] Each commit message accurately describes its changes
 - [ ] Verification passed for commits touching scripts/builds
-- [ ] `git log --show-signature` shows valid signatures for each
-  new commit
+- [ ] All commits are signed (remote rejects unsigned commits)
+
+**Before you finish:** Reconfirm that generated files were committed
+with their source (same commit), and that you did not use `git add -A`
+or `git add .` for atomic grouping.
