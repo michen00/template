@@ -229,8 +229,9 @@ disable-pre-commit: ## Disable pre-commit hooks
     fi
 
 .PHONY: run-pre-commit
-run-pre-commit: build/install-dev ## Run the pre-commit checks
-	$(UV) run $(PRECOMMIT) run --all-files
+HOOK_STAGE ?= pre-commit
+run-pre-commit: build/install-dev ## Run the pre-commit checks (HOOK_STAGE=pre-commit|pre-push|commit-msg|... to run only that stage)
+	$(UV) run $(PRECOMMIT) run --all-files $(if $(HOOK_STAGE),--hook-stage $(HOOK_STAGE),)
 
 ###########################
 ## development shortcuts ##
