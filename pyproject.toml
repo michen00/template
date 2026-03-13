@@ -64,13 +64,7 @@ publish-url = 'https://test.pypi.org/legacy/'
 explicit    = true
 
 [tool.pytest.ini_options]
-addopts = [
-    '-ra',
-    '--strict-config',
-    '--strict-markers',
-    '--cov=template',
-    '--cov-report=term-missing',
-]
+addopts = ['-ra', '--strict-config', '--strict-markers', '--cov']
 filterwarnings = ['error', 'ignore::DeprecationWarning']
 log_cli_level = 'INFO'
 markers = [

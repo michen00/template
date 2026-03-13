@@ -45,6 +45,4 @@ def precommit(session: nox.Session) -> None:
 def test(session: nox.Session) -> None:
     """Run pytest with coverage."""
     session.install('-r', _export_requirements(groups=('test',)))
-    session.run(
-        'pytest', '-n', 'auto', '--cov=src', '--cov-report=term-missing:skip-covered'
-    )
+    session.run('pytest', '-n', 'auto', '-vv', '--tb=short', '-l', '--durations=10')
