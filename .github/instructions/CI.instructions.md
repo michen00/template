@@ -1,5 +1,5 @@
 ---
-applyTo: ".github/workflows/*.yml"
+applyTo: '.github/workflows/*.yml'
 ---
 
 # Workflow Notes for AI Agents

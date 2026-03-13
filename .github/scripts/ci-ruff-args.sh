@@ -80,16 +80,45 @@ for transform in "${TRANSFORMATIONS[@]}"; do
   # Replace or insert args using line-by-line processing (NOT slurp mode)
   # This ensures we only modify args within the correct hook context
   perl -i -pe "
-    BEGIN { \$in_hook = 0; \$done = 0; \$new_args = qq($replacement_args); }
+    BEGIN {
+      \$in_hook = 0;
+      \$done = 0;
+      \$new_args = qq($replacement_args);
+      \$skip_args_block = 0;
+      \$args_indent = 0;
+    }
+
+    # If we replaced an args line, skip old multiline args payload lines.
+    if (\$skip_args_block) {
+      if (/^\\s*\$/) {
+        \$_ = q();
+      }
+      elsif (/^(\\s*)\\S/) {
+        if (length(\$1) > \$args_indent) {
+          \$_ = q();
+        }
+        else {
+          \$skip_args_block = 0;
+        }
+      }
+      else {
+        \$_ = q();
+      }
+    }
+
     # Enter hook context when we find the target hook id
     if (/^\\s+-\\s+id:\\s+$hook_id\\s*\$/) {
       \$in_hook = 1;
       \$done = 0;
     }
-    # Replace existing args line if in correct hook context
-    elsif (\$in_hook && !\$done && /^\\s+args:\\s*\\[.*\\]\\s*\$/) {
+    # Replace existing args block if in correct hook context
+    elsif (\$in_hook && !\$done && /^\\s+args:\\s*(?:\\[.*\\])?\\s*\$/) {
+      if (/^(\\s*)args:/) {
+        \$args_indent = length(\$1);
+      }
       \$_ = \"\$new_args\\n\";
       \$done = 1;
+      \$skip_args_block = 1;
     }
     # Exit hook context and insert args if we hit next hook/repo without finding args
     elsif (\$in_hook && !\$done && (/^\\s+-\\s+id:/ || /^\\s+-\\s+repo:/)) {
@@ -105,21 +134,5 @@ for transform in "${TRANSFORMATIONS[@]}"; do
 
   echo "  $hook_id: $old_args → $new_args_single_line"
 done
-
-# Remove stages: ["pre-push"] from mypy hook to run it in CI
-echo "Removing mypy pre-push stage restriction..."
-perl -i -pe '
-  BEGIN { $in_mypy = 0; }
-  if (/id:\s+mypy\s*$/) {
-    $in_mypy = 1;
-  }
-  if ($in_mypy && /^\s+stages:\s*\[.*\]\s*$/) {
-    $_ = "";
-    $in_mypy = 0;
-  }
-  if (/^  - repo:/ || (/id:\s+\S+\s*$/ && !/id:\s+mypy\s*$/)) {
-    $in_mypy = 0;
-  }
-' "$CONFIG_FILE"
 
 echo "✓ Pre-commit config updated for CI"

@@ -92,7 +92,6 @@ This template helps you set up:
    ```
 
 3. **Follow the prompts:**
-
    - Choose whether to set up in the current directory or create a new one
    - Enter your project name
    - The script will automatically:

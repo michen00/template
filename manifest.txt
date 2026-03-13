@@ -2,6 +2,7 @@
 .CLAUDE.md
 .codespellrc
 .coveragerc
+.cursor/skills/atomic-commits/SKILL.md
 .editorconfig
 .git-blame-ignore-revs
 .gitattributes
