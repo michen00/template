@@ -97,11 +97,11 @@ jobs:
       - name: Run pytest
         run: |-
           echo "::info::Running tests..."
-          uv sync --only-group test
+          uv sync --inexact --only-group test
           uv run nox -s test
       - name: Run pre-commit hooks
         run: |-
           echo "::info::Running pre-commit hooks..."
-          uv sync --only-dev
+          uv sync --inexact --only-dev
           bash .github/scripts/ci-ruff-args.sh
           uv run nox -s precommit
