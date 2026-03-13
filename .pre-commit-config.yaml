@@ -79,7 +79,7 @@ repos:
     rev: v3.8.1
     hooks:
       - id: prettier
-        types_or: [css, html, javascript, json, scss, yaml]
+        types_or: [css, html, javascript, json, markdown, scss, ts, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.5
     hooks:
