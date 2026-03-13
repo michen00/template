@@ -100,14 +100,14 @@ regenerate_gitignore() {
   # Try to regenerate .gitignore using the concat script
   quiet_echo "Attempting to generate fresh .gitignore from GitHub templates..."
 
-  if [ -f "$project_dir/.github/scripts/concat_gitignores.sh" ]; then
-    if (cd "$project_dir" && bash .github/scripts/concat_gitignores.sh > /dev/null 2>&1); then
+  if [ -f "$project_dir/scripts/concat-gitignores.sh" ]; then
+    if (cd "$project_dir" && bash scripts/concat-gitignores.sh > /dev/null 2>&1); then
       quiet_echo "✓ Generated fresh .gitignore from upstream templates"
     else
       quiet_echo "⚠ Failed to fetch templates (network issue?). Using static .gitignore as fallback."
     fi
   else
-    quiet_echo "⚠ concat_gitignores.sh script not found. Using static .gitignore."
+    quiet_echo "⚠ concat-gitignores.sh script not found. Using static .gitignore."
   fi
 
   # Always return success so setup continues regardless
