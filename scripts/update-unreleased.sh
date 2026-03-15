@@ -350,20 +350,34 @@ commit_changelog() {
 # Cleanup function to restore state on error
 cleanup() {
   local exit_code=$?
-  rm -f "$TEMP_FILE" "$CLIFF_OUTPUT" "$HEAD_CHANGELOG" "$EXPECTED_OUTPUT" "$STAGED_CONTENT"
+
+  # Temporarily disable errexit so cleanup steps don't abort the trap
+  set +e
+
+  # Clean up temporary files, guarding against empty variables
+  local temp_files=("$TEMP_FILE" "$CLIFF_OUTPUT" "$HEAD_CHANGELOG" "$EXPECTED_OUTPUT" "$STAGED_CONTENT")
+  for file in "${temp_files[@]}"; do
+    if [[ -n "$file" ]] && [[ -e "$file" ]]; then
+      rm -f "$file"
+    fi
+  done
+
   if [[ $STASHED == true ]] && [[ -n "$STASH_REF" ]]; then
     # Check if stash still exists before trying to pop
     if git stash list | grep -q "^${STASH_REF}"; then
       echo "Restoring stashed changes to ${CHANGELOG}..." >&2
-      git stash pop --quiet "$STASH_REF" 2> /dev/null
+      git stash pop --quiet "$STASH_REF" 2> /dev/null || true
     fi
   fi
-  restage_other_files
+
+  restage_other_files || true
+
   # Clean up temp directory if it still exists
   if [[ -n "$STAGED_DIFFS_DIR" ]] && [[ -d "$STAGED_DIFFS_DIR" ]]; then
-    rm -rf "$STAGED_DIFFS_DIR"
+    rm -rf "$STAGED_DIFFS_DIR" || true
   fi
-  exit $exit_code
+
+  exit "$exit_code"
 }
 
 # Initialize vars used by cleanup before installing the EXIT trap.
