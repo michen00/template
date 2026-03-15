@@ -54,10 +54,13 @@ All commits MUST follow the Conventional Commits specification:
 - `git-cliff` generates the changelog from these commits; manual edits to
   `CHANGELOG.md` are prohibited.
 
-### V. Simplicity & YAGNI
+### V. Design Philosophy
 
 Start simple. Reject speculative complexity.
 
+- Complexity is acceptable; complication is not. Readability comes first.
+- Delay irreversible architectural decisions until enough information is
+  available.
 - Do not add features, abstractions, or configurability beyond what is
   currently required.
 - Three similar lines of code are preferable to a premature abstraction.
@@ -65,6 +68,15 @@ Start simple. Reject speculative complexity.
   (user input, external APIs), not for impossible internal states.
 - If a simpler alternative exists, it MUST be chosen unless a concrete,
   documented justification is provided.
+
+### VI. Code Quality and Structure
+
+- Use clear module boundaries; avoid god modules.
+- Favor small, composable functions with explicit inputs and outputs.
+- Prefer well-understood patterns over cleverness unless measurable benefits
+  are demonstrated.
+- Keep core logic side-effect-free where practical; isolate I/O at boundaries.
+- Make refactors safe through strong automated test coverage.
 
 ## Technology Stack & Constraints
 
@@ -86,6 +98,33 @@ Start simple. Reject speculative complexity.
 Adding or removing a dependency requires updating `pyproject.toml`, running
 `uv lock`, and verifying with `make check`.
 
+## Python Standards
+
+### Type Hints
+
+- Use modern Python 3.12+ style: built-in generics (`list[str]`, `dict[str, int]`),
+  union syntax (`X | Y`), and abstract types from `collections.abc`.
+- All function and method signatures MUST be fully annotated.
+- Accept the broadest reasonable input types and return the narrowest
+  practical types.
+
+### Docstrings (Google Style)
+
+- Modules, classes, functions, and methods MUST include docstrings.
+- Docstrings MUST begin immediately after opening quotes with a capital letter
+  and end with a period.
+- Class docstrings SHOULD be noun phrases. Function and method docstrings
+  SHOULD be imperative-mood verb phrases.
+- Docstrings MUST NOT duplicate parameter types from annotations.
+- `Returns:` is required for non-`None` returns. `Raises:` is required for
+  intentionally raised exceptions. `Args:` is optional when signatures are
+  self-explanatory.
+
+### Style
+
+- Be Pythonic. Prefer standard library solutions when they satisfy requirements.
+- Raise specific exceptions and avoid silently swallowing errors in core logic.
+
 ## Development Workflow & Quality Gates
 
 ### Local Development
@@ -95,9 +134,14 @@ Adding or removing a dependency requires updating `pyproject.toml`, running
 2. Contributors work in feature branches and open pull requests.
 3. Before committing, contributors MUST run `make check` locally.
 
-### Instruction File Synchronization
+### Documentation Hygiene
 
-When making significant changes, the following files MUST be kept in sync:
+Documentation decays with code. Any behavior-affecting change MUST update
+affected docstrings, READMEs, and related documentation in the same commit.
+A documentation gap is a bug.
+
+When making significant template changes, the following files MUST be kept in
+sync:
 
 - `AGENTS.md` and `.AGENTS.md`
 - `CLAUDE.md` and `.CLAUDE.md`
@@ -125,7 +169,8 @@ practices in this repository. It supersedes ad-hoc conventions, verbal
 agreements, and conflicting documentation.
 
 - **Amendments**: Any change to this constitution MUST be documented with a
-  version bump, rationale, and updated `LAST_AMENDED_DATE`.
+  version bump, rationale, updated `Last Amended` date, and a Sync Impact
+  Report in the HTML comment at the top of this file.
 - **Versioning**: Follows semantic versioning. MAJOR for principle removals
   or incompatible redefinitions; MINOR for new principles or material
   expansions; PATCH for wording clarifications and typo fixes.
@@ -135,4 +180,6 @@ agreements, and conflicting documentation.
   `CLAUDE.md` (Claude Code), `AGENTS.md` (general agents), and
   `.github/copilot-instructions.md` (GitHub Copilot).
 
-**Version**: 1.0.0 | **Ratified**: 2026-02-17 | **Last Amended**: 2026-02-17
+_When in doubt, choose the approach that is simplest to test._
+
+**Version**: 1.0.0 | **Ratified**: 2026-03-15
