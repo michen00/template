@@ -299,7 +299,7 @@ restage_other_files() {
     # If we have a saved staged diff, apply it to preserve partial staging
     if [[ -n "$STAGED_DIFFS_DIR" ]] && [[ -f "$patch_file" ]] && [[ -s "$patch_file" ]]; then
       # Apply the saved staged diff to restore exact staging state
-      if ! git apply --cached --allow-empty "$patch_file" 2> /dev/null; then
+      if ! git apply --cached "$patch_file" 2> /dev/null; then
         # Fallback: if patch doesn't apply, try to be smarter about re-staging.
         echo "Warning: Could not restore partial staging for '$file', attempting to stage based on patch type." >&2
         if grep -q '^deleted file mode' "$patch_file"; then
