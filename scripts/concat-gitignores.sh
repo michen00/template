@@ -8,8 +8,8 @@ usage() {
   cat << EOF
 Usage: $SCRIPT_NAME [--output <output_file>] [<input_file>]
 
-Concatenate multiple .gitignore templates into a single file by fetching
-template URLs from stdin, a file, or built-in defaults.
+Concatenate multiple .gitignore templates into a single file by fetching URLs from
+stdin, a file, or built-in defaults.
 
 Inputs:
   stdin            Read URLs from standard input when piped or redirected.
@@ -155,7 +155,7 @@ else
 fi
 
 if [[ ${#URLS[@]} -eq 0 ]]; then
-  echo "No template URLs provided." >&2
+  echo "No URLs provided." >&2
   exit 1
 fi
 
@@ -218,7 +218,7 @@ for url in "${URLS[@]}"; do
   PREFACE_LENGTH=$((${#FILENAME} + 4)) # Length of " # FILENAME # "
   PREFACE=$(printf '#%.0s' $(seq 1 $PREFACE_LENGTH))
 
-  # Preface block for this template
+  # Preface block
   {
     echo "$PREFACE"
     echo "# $FILENAME #"
