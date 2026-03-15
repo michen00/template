@@ -165,7 +165,7 @@ GitHub Actions workflows are pre-configured to:
 
 ## Requirements
 
-- Python >= 3.11
+- Python 3.13+
 - [`uv`](https://docs.astral.sh/uv/getting-started/installation/)
 - Git
 

@@ -49,7 +49,7 @@ alwaysApply: false
 ### Environment Setup
 
 - The project uses `uv` for dependency management.
-- Python version: >=3.11 (defined in `.python-version` and `pyproject.toml`).
+- Python version: defined in `.python-version` and `pyproject.toml`)
 - Virtual environment: `.venv` (automatically managed by `uv`).
 
 ### Common Commands (Makefile)

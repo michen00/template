@@ -68,8 +68,8 @@ Start simple. Reject speculative complexity.
 
 ## Technology Stack & Constraints
 
-- **Language**: Python >=3.11 (defined in `.python-version` and
-  `pyproject.toml`).
+- **Language**: defined in `.python-version` and
+  `pyproject.toml`.
 - **Package Manager**: `uv` for dependency management, virtual environments,
   and lock files.
 - **Linting/Formatting**: `ruff` (replaces black, isort, flake8, autoflake).
