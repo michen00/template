@@ -256,8 +256,8 @@ for url in "${URLS[@]}"; do
   fi
 
   echo "Appending content from: $RAW_URL"
-  echo "$CONTENT" >> "$OUTPUT_FILE"
-  echo -e "\n# End of $url\n" >> "$OUTPUT_FILE"
+  printf '%s\n' "$CONTENT" >> "$OUTPUT_FILE"
+  printf '\n# End of %s\n\n' "$url" >> "$OUTPUT_FILE"
 done
 
 # Normalize line endings in the final output file
