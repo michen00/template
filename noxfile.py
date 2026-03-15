@@ -53,4 +53,5 @@ def test(session: nox.Session) -> None:
     """Run pytest with coverage."""
     with _export_requirements(groups=('test',)) as reqs:
         session.install('-r', reqs)
+    session.install('.')
     session.run('pytest', '-n', 'auto', '-vv', '--tb=short', '-l', '--durations=10')
