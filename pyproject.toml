@@ -6,8 +6,7 @@ readme = 'README.md'
 authors = [{ name = 'Michael I Chen', email = 'michael.chen.0@gmail.com' }]
 requires-python = '>=3.13'
 dependencies = [
-    'nox[uv]>=2025.10.14',
-    'numpy>=2.3.4',
+    "loguru>=0.7.3",
     'pandera[polars]>=0.25.0',
     'plotly>=6.3.1',
     'polars>=1.32.2',
@@ -15,7 +14,6 @@ dependencies = [
     'pydantic>=2.12.2',
     'pyyaml>=6.0.2',
     'rich-argparse>=1.7.1',
-    'structlog>=25.4.0',
     'typer>=0.16.0',
     'yapic-json>=1.9.5',
 ]
@@ -26,6 +24,7 @@ example-script = 'template.example_script:main'
 [dependency-groups]
 dev = [
     'mypy>=1.18.2',
+    'nox[uv]>=2025.10.14',
     'pip>=25.2',
     'pre-commit>=4.3.0',
     'prek>=0.2.8',
