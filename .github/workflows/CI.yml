@@ -72,34 +72,16 @@ jobs:
       - name: Prepare cache keys
         id: prepare-cache-keys
         env:
-          HASH_UV: ${{ hashFiles('uv.lock') }}
-          HASH_PYPROJECT: ${{ hashFiles('pyproject.toml') }}
           HASH_PRECOMMIT: ${{ hashFiles('.pre-commit-config.yaml') }}
         run: |-
           STAMP="$(date +'%Y%m%d')-${CACHE_NUMBER}"
-          uv="${HASH_UV}-${HASH_PYPROJECT}-${STAMP}"
-          {
-            echo "uv=${uv}"
-            echo "pc=${HASH_PRECOMMIT}-${STAMP}"
-          } >> "$GITHUB_OUTPUT"
-      - name: Cache .venv directory
-        uses: actions/cache@v5
-        with:
-          path: .venv
-          key: ${{ runner.os }}-venv-${{ steps.prepare-cache-keys.outputs.uv }}
+          echo "pc=${HASH_PRECOMMIT}-${STAMP}" >> "$GITHUB_OUTPUT"
       - name: Cache pre-commit hooks
         uses: actions/cache@v5
         with:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-precommit-${{ steps.prepare-cache-keys.outputs.pc }}
-      - name: Install dependencies
-        run: uv sync --no-editable --no-install-project --inexact --only-group dev --only-group test
-      - name: Run pytest
+      - name: Run CI
         run: |-
-          echo "::info::Running tests..."
-          uv run nox -s test
-      - name: Run pre-commit hooks
-        run: |-
-          echo "::info::Running pre-commit hooks..."
           bash .github/scripts/ci-ruff-args.sh
-          uv run nox -s precommit
+          uvx nox -s test -s precommit
