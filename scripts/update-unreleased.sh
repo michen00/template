@@ -9,6 +9,14 @@
 
 set -euo pipefail
 
+# readarray requires Bash 4+; macOS /bin/bash is 3.2
+if [[ ${BASH_VERSINFO[0]:-0} -lt 4 ]]; then
+  echo "Error: This script requires Bash 4 or later (readarray)." >&2
+  echo "Current: $BASH_VERSION" >&2
+  echo "On macOS: brew install bash" >&2
+  exit 1
+fi
+
 SCRIPT_NAME=$(basename "$0")
 COMMIT=""
 SHOULD_COMMIT=false

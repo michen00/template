@@ -93,15 +93,13 @@ jobs:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-precommit-${{ steps.prepare-cache-keys.outputs.pc }}
       - name: Install dependencies
-        run: uv sync --no-editable --no-install-project
+        run: uv sync --no-editable --no-install-project --inexact --only-group dev --only-group test
       - name: Run pytest
         run: |-
           echo "::info::Running tests..."
-          uv sync --inexact --only-group test
           uv run nox -s test
       - name: Run pre-commit hooks
         run: |-
           echo "::info::Running pre-commit hooks..."
-          uv sync --inexact --only-dev
           bash .github/scripts/ci-ruff-args.sh
           uv run nox -s precommit
