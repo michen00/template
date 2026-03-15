@@ -36,7 +36,7 @@ alwaysApply: false
 - This script handles the renaming and copying process when creating new projects.
 - **Caution:** Be extremely careful when modifying this script. It performs destructive actions (renaming, deleting, moving files).
 - Test any changes to `setup.sh` thoroughly in a disposable directory.
-- The script attempts to generate a fresh `.gitignore` from GitHub templates during setup using `.github/scripts/concat_gitignores.sh`. If this fails (no internet, GitHub down, etc.), it falls back to using the static `.gitignore` from the manifest.
+- The script attempts to generate a fresh `.gitignore` from GitHub templates during setup using `scripts/concat-gitignores.sh`. If this fails (no internet, GitHub down, etc.), it falls back to using the static `.gitignore` from the manifest.
 
 ### D. Hidden Files (`.AGENTS.md`, `.CLAUDE.md`, etc.)
 
@@ -69,9 +69,10 @@ The `Makefile` is the primary entry point for development tasks:
 - Consider testing the instantiation process:
 
   ```bash
-  # In a temporary directory
-  bash /path/to/template/setup.sh my-test-project
-  cd my-test-project
+  # In the template directory (or a copy of it)
+  bash setup.sh
+  # Follow the interactive prompts to choose setup mode and project name
+  cd your-project-name
   make check
   ```
 
@@ -156,10 +157,10 @@ When making significant changes to the template, update these files to keep them
 
 ### Updating the `.gitignore`
 
-The template includes a script at `.github/scripts/concat_gitignores.sh` that generates `.gitignore` files from GitHub's official templates.
+The template includes a script at `scripts/concat-gitignores.sh` that generates `.gitignore` files from GitHub's official templates.
 
 - **During setup:** The script automatically tries to generate a fresh `.gitignore` from upstream templates. If it fails, the static `.gitignore` is used.
-- **Manual update:** Run `bash .github/scripts/concat_gitignores.sh` from the template root to regenerate `.gitignore` with the latest templates.
+- **Manual update:** Run `bash scripts/concat-gitignores.sh` from the template root to regenerate `.gitignore` with the latest templates.
 
 ### Adding a Dependency
 

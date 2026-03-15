@@ -113,8 +113,8 @@ Any change to `setup.sh`, `manifest.txt`, or files included in the manifest
 SHOULD be validated by running:
 
 ```bash
-bash setup.sh my-test-project  # in a temporary directory
-cd my-test-project
+bash setup.sh  # interactive; prompts for setup mode and project name
+cd your-project-name
 make check
 ```
 

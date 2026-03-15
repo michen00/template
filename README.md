@@ -54,7 +54,7 @@ This template helps you set up:
 
 - **Makefile** with common tasks (`make develop`, `make check`, `make test`, etc.)
 - **VS Code configuration** with recommended extensions and settings
-- **Git hooks** automatically configured on setup
+- **Git hooks** configured via `make develop`
 - **Git LFS** support for large files
 - **Blame ignore** for formatting commits
 
@@ -72,9 +72,10 @@ This template helps you set up:
 - [git-cliff](https://git-cliff.org/) for automated changelog generation
 - Contributing guidelines and code of conduct
 - **AI assistant instructions** to help AI tools understand your project:
-  - `AGENTS.md` - Instructions for AI agents working on the template
+  - `AGENTS.md` - Instructions for AI agents
   - `CLAUDE.md` - Claude Code-specific instructions
   - `.github/copilot-instructions.md` - GitHub Copilot instructions
+  - `.github/instructions/CI.instructions.md` - CI workflow instructions for AI agents
 
 ## Quick Start
 
@@ -113,7 +114,7 @@ This template helps you set up:
 After running `setup.sh`, you'll have a fully configured Python project with:
 
 - ✅ All dependencies configured in `pyproject.toml`
-- ✅ Pre-commit hooks ready to use
+- ✅ Pre-commit hook configuration (run `make develop` to install)
 - ✅ Custom linter configurations (ruff, pylint, mypy, codespell, etc.)
 - ✅ GitHub Actions workflows for CI/CD
 - ✅ VS Code settings for consistent development
@@ -158,14 +159,14 @@ GitHub Actions workflows are pre-configured to:
 
 - Simple `make` commands for common tasks
 - Pre-configured editor settings
-- Git hooks that run automatically
+- Git hooks managed via pre-commit
 - Clear project structure
 - Comprehensive documentation
 
 ## Requirements
 
 - Python >= 3.11
-- `uv` (will be installed automatically if missing via `make develop`)
+- [`uv`](https://docs.astral.sh/uv/getting-started/installation/)
 - Git
 
 ## Common Tasks

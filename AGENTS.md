@@ -45,10 +45,10 @@ alwaysApply: false
 The `Makefile` is the primary entry point for development tasks.
 
 - **Install Dependencies:** `make develop` (installs dev deps and git hooks)
-- **Run All Checks (CI):** `make check` (runs ruff, mypy, tests)
+- **Run All Checks:** `make check` (runs format-all and test)
 - **Run Tests:** `make test` or `nox -s test`
-- **Linting:** `make lint` (ruff, pylint)
-- **Formatting:** `make format` (ruff)
+- **Linting:** `make lint` (ruff check --fix)
+- **Formatting:** `make format` (lint + ruff format) or `make format-all` (pre-commit + format-unsafe)
 - **Clean:** `make clean`
 
 ### Testing
