@@ -232,7 +232,7 @@ sync-main: ## Sync local branch with latest main
 .PHONY: enable-pre-commit
 enable-pre-commit: check-install-uv ## Enable pre-commit hooks
 	@if $(UV) run pre-commit --version >/dev/null 2>&1; then \
-        $(UV) run pre-commit install --hook-type commit-msg --hook-type pre-commit --hook-type pre-push --hook-type prepare-commit-msg; \
+        $(UV) run pre-commit install; \
     else \
         echo "$(YELLOW)Warning: pre-commit is not installed. Skipping hook installation.$(_COLOR)"; \
         echo "Install it with: uv sync (or make develop)"; \
