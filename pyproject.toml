@@ -38,9 +38,6 @@ test = ['pytest>=8.4.0', 'pytest-cov>=6.2.1', 'pytest-xdist>=3.8.0']
 default-groups = []
 package        = true
 
-[tool.uv.workspace]
-members = ['template']
-
 [tool.mypy]
 allow_redefinition       = true
 disable_error_code       = ['import-untyped']
