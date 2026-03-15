@@ -365,12 +365,14 @@ cleanup() {
   fi
   exit $exit_code
 }
+
+# Initialize vars used by cleanup before installing the EXIT trap.
+OTHER_STAGED_FILES=""
+
 trap cleanup EXIT
 
 # Track if CHANGELOG.md is already staged with correct content
 CHANGELOG_ALREADY_STAGED=false
-# Track other staged files we temporarily unstage
-OTHER_STAGED_FILES=""
 
 # If committing, check for conflicting staged changes
 if [[ "$SHOULD_COMMIT" == true ]]; then

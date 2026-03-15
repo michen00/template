@@ -251,6 +251,10 @@ test_missing_cliff_fails() {
   [[ "$out" == *"git-cliff is not installed"* ]] || fail "Expected missing git-cliff message"
 }
 
+test_initializes_cleanup_state_before_trap() {
+  assert_line_order "$SUT" 'OTHER_STAGED_FILES=""' "trap cleanup EXIT"
+}
+
 test_replaces_existing_unreleased_section() {
   local repo bin_dir
   repo="$(setup_test_repo "replace-unreleased")"
@@ -567,6 +571,7 @@ tests=(
   test_not_in_git_repo_fails
   test_missing_changelog_fails
   test_missing_cliff_fails
+  test_initializes_cleanup_state_before_trap
   test_replaces_existing_unreleased_section
   test_preserves_content_before_unreleased
   test_preserves_version_sections_after_unreleased
