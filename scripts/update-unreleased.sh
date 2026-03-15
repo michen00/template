@@ -367,14 +367,14 @@ OTHER_STAGED_FILES=""
 # If committing, check for conflicting staged changes
 if [[ "$SHOULD_COMMIT" == true ]]; then
   # Check if CHANGELOG.md has staged changes
-  if git diff --cached --name-only | grep -q "^${CHANGELOG}$"; then
+  if git diff --cached --name-only | grep -qFx "$CHANGELOG"; then
     # CHANGELOG.md is staged - check if it matches what git cliff would generate
     # We'll verify this after generating the expected content
     CHANGELOG_ALREADY_STAGED=true
   fi
 
   # Temporarily unstage other files so they don't get included in our commit
-  OTHER_STAGED_FILES=$(git diff --cached --name-only | grep -v "^${CHANGELOG}$" || true)
+  OTHER_STAGED_FILES=$(git diff --cached --name-only | grep -Fvx "$CHANGELOG" || true)
   if [[ -n $OTHER_STAGED_FILES ]]; then
     echo "Temporarily unstaging other files..."
     # Create temp directory to store staged diffs for preserving partial staging
