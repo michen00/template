@@ -222,7 +222,7 @@ test_not_in_git_repo_fails() {
   if out="$(cd "$dir" && "$SUT" 2>&1)"; then
     fail "Expected non-git directory to fail"
   fi
-  [[ "$out" == *"Must be run from the root of a git repository"* ]] || fail "Expected git repository error"
+  [[ "$out" == *"Must be run from inside a git repository"* ]] || fail "Expected git repository error"
 }
 
 test_missing_changelog_fails() {
@@ -244,10 +244,11 @@ test_missing_cliff_fails() {
   mkdir -p "$tool_path"
   ln -s "$(command -v bash)" "$tool_path/bash"
   ln -s "$(command -v basename)" "$tool_path/basename"
+  ln -s "$(command -v git)" "$tool_path/git"
   if out="$(cd "$repo" && PATH="$tool_path" "$SUT" 2>&1)"; then
     fail "Expected missing git cliff to fail"
   fi
-  [[ "$out" == *"git cliff is not installed"* ]] || fail "Expected missing git cliff message"
+  [[ "$out" == *"git-cliff is not installed"* ]] || fail "Expected missing git-cliff message"
 }
 
 test_replaces_existing_unreleased_section() {

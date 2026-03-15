@@ -161,15 +161,30 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Check we're in a git repository
-if [ ! -d .git ]; then
-  echo "Error: Must be run from the root of a git repository." >&2
+# Check we're inside a git work tree (works in worktrees/submodules and subdirectories)
+if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+  echo "Error: Must be run from inside a git repository." >&2
   exit 1
 fi
 
-# Check git cliff is installed
-if ! command -v git-cliff > /dev/null 2>&1 && ! command -v git cliff > /dev/null 2>&1; then
-  echo "Error: git cliff is not installed or not available in PATH" >&2
+# Resolve CHANGELOG to a physical absolute path before changing to repo root
+# (pwd -P resolves symlinks, avoiding /tmp vs /private/tmp mismatches on macOS)
+if [[ "$CHANGELOG" != /* ]]; then
+  CHANGELOG="$(pwd -P)/$CHANGELOG"
+fi
+
+# Move to the repository root so git operations behave consistently
+cd "$(git rev-parse --show-toplevel)"
+REPO_ROOT="$(pwd -P)"
+
+# Convert absolute CHANGELOG back to a repo-relative path for clean messages
+case "$CHANGELOG" in
+  "$REPO_ROOT"/*) CHANGELOG="${CHANGELOG#"$REPO_ROOT/"}" ;;
+esac
+
+# Check git-cliff is installed
+if ! command -v git-cliff > /dev/null 2>&1; then
+  echo "Error: git-cliff is not installed or not available in PATH" >&2
   echo "Install it with: cargo install git-cliff" >&2
   exit 1
 fi
