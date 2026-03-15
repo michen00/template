@@ -11,7 +11,7 @@ indent_style = space
 space_redirects = true
 switch_case_indent = true
 
-[*.json,xml]
+[*.{json,xml}]
 indent_size = 2
 indent_style = space
 
