@@ -89,7 +89,6 @@ The `Makefile` is the primary entry point for development tasks.
   - `.git-blame-ignore-revs`: Revisions to ignore in blame.
 - **Documentation & Release:**
   - `cliff.toml`: Configuration for `git cliff` (changelog generation).
-  - `.readthedocs.yaml`: Read the Docs configuration.
 
 ## 4. Contribution Guidelines
 

@@ -32,7 +32,6 @@ _typos.toml
 .pylintrc
 .python-version
 .README.md
-.readthedocs.yaml
 .ruff.toml
 .vscode/extensions.json
 .vscode/settings.json
