@@ -36,7 +36,8 @@ repos:
   - repo: https://github.com/thoughtworks/talisman
     rev: v1.37.0
     hooks:
-      - id: talisman-push # pre-push
+      - id: talisman-push
+        stages: [pre-push]
         fail_fast: true
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -48,12 +49,15 @@ repos:
   - repo: https://github.com/michen00/custom-commit-hooks
     rev: v0.0.4
     hooks:
-      - id: enhance-scope # commit-msg
-      - id: conventional-merge-commit # prepare-commit-msg
+      - id: enhance-scope
+        stages: [commit-msg]
+      - id: conventional-merge-commit
+        stages: [prepare-commit-msg]
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1
     hooks:
       - id: gitlint
+        stages: [commit-msg]
 
   # hygiene (cheap, non-formatting)
   - repo: https://github.com/pre-commit/pre-commit-hooks
