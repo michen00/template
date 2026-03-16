@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e # Exit on errors
+set -euo pipefail # Exit on errors, unbound vars, and failed pipelines
 
 SCRIPT_NAME=$(basename "$0")
 
@@ -90,7 +90,7 @@ add_entry() {
 }
 
 parse_input_stream() {
-  local line
+  local line=""
   while IFS= read -r line || [[ -n "$line" ]]; do
     add_entry "$line"
   done
@@ -249,8 +249,9 @@ for url in "${URLS[@]}"; do
   fi
 
   # Reject HTML (e.g. GitHub error page)
-  if [[ "$(echo "$CONTENT" | head -c 256)" =~ ^[[:space:]]*\<\![[:space:]]*[Dd][Oo][Cc][Tt][Yy][Pp][Ee] ]] ||
-    [[ "$(echo "$CONTENT" | head -c 256)" =~ ^[[:space:]]*\<[Hh][Tt][Mm][Ll] ]]; then
+  content_prefix="${CONTENT:0:256}"
+  if [[ "$content_prefix" =~ ^[[:space:]]*\<\![[:space:]]*[Dd][Oo][Cc][Tt][Yy][Pp][Ee] ]] ||
+    [[ "$content_prefix" =~ ^[[:space:]]*\<[Hh][Tt][Mm][Ll] ]]; then
     echo "Received HTML instead of gitignore content from: $RAW_URL" >&2
     exit 1
   fi
