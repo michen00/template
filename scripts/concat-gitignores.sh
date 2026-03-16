@@ -176,7 +176,7 @@ HEADER_LENGTH=$MAX_HEADER_LINE_LENGTH
 HEADER=$(printf '#%.0s' $(seq 1 "$HEADER_LENGTH"))
 
 OUTPUT_DIR=$(dirname "$OUTPUT_FILE")
-if [[ ! -d $OUTPUT_DIR ]]; then
+if [[ ! -d "$OUTPUT_DIR" ]]; then
   mkdir -p "$OUTPUT_DIR" || {
     echo "Error: cannot create directory '$OUTPUT_DIR' for output file." >&2
     exit 1
