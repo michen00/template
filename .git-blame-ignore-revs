@@ -18,3 +18,4 @@ cbb4f61e8e0af839ccfbb4d17ba52157092e244a  # style(pyproject.toml): prefer single
 3ee51bad668263e42aa7a17f42e51c347b79ea5d  # style(.ruff.toml): prefer single quotes
 8adb072fd17b63f35f08c8feb850fa4a80767921  # style: remove some whitespace
 1350b593778bf971d08b702df4becb22344fe805  # style: adjust line breaks
+c32dcf13c3e32eea7702d5f9a41d82d86c9f195e  # style: remove manual line breaks
