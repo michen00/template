@@ -133,7 +133,11 @@ This includes login, logout, and token refresh endpoints.
 ### Changelog
 
 - Managed automatically via `git cliff` based on conventional commits.
-- Do not manually edit `CHANGELOG.md`.
+- Use conventional commits as the source of truth for changelog entries.
+- Do not hand-maintain `## [Unreleased]`; regenerate it with
+  `git cliff --unreleased` or `scripts/update-unreleased.sh`.
+- Limit manual edits to released changelog sections for light curation,
+  factual corrections, or formatting cleanup.
 
 ### Documentation Sync
 

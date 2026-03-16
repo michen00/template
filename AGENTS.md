@@ -92,7 +92,11 @@ This includes login, logout, and token refresh endpoints.
 ### Code Style & Changelog
 
 - **Code Style:** Enforced by `ruff` and `mypy`.
-- **Changelog:** Managed via `git cliff`.
+- **Changelog:** Managed via `git cliff`; use commits as the source of truth.
+  Do not hand-maintain `## [Unreleased]` (regenerate with
+  `git cliff --unreleased` or `scripts/update-unreleased.sh`). Reserve manual
+  edits for released sections and limit them to light curation, factual
+  corrections, or formatting cleanup.
 
 ## 6. Specific Task Instructions
 
