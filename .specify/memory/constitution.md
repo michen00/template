@@ -10,9 +10,10 @@ Contributors MUST treat modifications as high-impact decisions.
 - All file additions, removals, or renames MUST be tested by running
   `setup.sh` in a disposable directory and verifying the derived project
   passes `make check`.
-- Hidden dotfiles (`.AGENTS.md`, `.CLAUDE.md`, `.github/.copilot-instructions.md`)
-  are instructions for derived projects. Non-hidden counterparts are for this
-  template. Contributors MUST NOT confuse the two scopes.
+- Hidden dotfiles (`.AGENTS.md`, `.CLAUDE.md`, `.github/.copilot-instructions.md`,
+  `.specify/memory/.constitution.md`) are instructions for derived projects.
+  Non-hidden counterparts are for this template. Contributors MUST NOT confuse
+  the two scopes.
 - The `src/template/` directory name is a placeholder. It MUST NOT be renamed
   except within `setup.sh` logic.
 
@@ -147,6 +148,7 @@ sync:
 - `CLAUDE.md` and `.CLAUDE.md`
 - `.github/copilot-instructions.md` and `.github/.copilot-instructions.md`
 - `.github/instructions/CI.instructions.md`
+- `.specify/memory/constitution.md` and `.specify/memory/.constitution.md`
 - `README.md`
 
 Failing to synchronize these files is a constitution violation.

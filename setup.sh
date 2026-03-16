@@ -123,6 +123,7 @@ finalize_setup() {
     mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
     mv .AGENTS.md AGENTS.md &&
     mv .CLAUDE.md CLAUDE.md &&
+    mv .specify/memory/.constitution.md .specify/memory/constitution.md &&
     mv src/template "src/$project_name" &&
     replace_template_tokens "$project_dir" "$project_name" &&
     disable_example_script "$project_dir" &&

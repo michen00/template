@@ -121,6 +121,7 @@ After running `setup.sh`, you'll have a fully configured Python project with:
 - ✅ Testing framework with coverage
 - ✅ Type checking configured with strict mypy settings
 - ✅ AI assistant instructions (AGENTS.md, CLAUDE.md, Copilot instructions)
+- ✅ Project constitution (`.specify/memory/constitution.md`) with design principles and coding standards
 - ✅ Documentation templates
 - ✅ Example CLI script to get you started
 

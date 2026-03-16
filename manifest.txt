@@ -33,6 +33,7 @@ _typos.toml
 .python-version
 .README.md
 .ruff.toml
+.specify/memory/.constitution.md
 .vscode/extensions.json
 .vscode/settings.json
 .yamllint

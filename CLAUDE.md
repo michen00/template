@@ -38,10 +38,11 @@ alwaysApply: false
 - Test any changes to `setup.sh` thoroughly in a disposable directory.
 - The script attempts to generate a fresh `.gitignore` from GitHub templates during setup using `scripts/concat-gitignores.sh`. If this fails (no internet, GitHub down, etc.), it falls back to using the static `.gitignore` from the manifest.
 
-### D. Hidden Files (`.AGENTS.md`, `.CLAUDE.md`, etc.)
+### D. Hidden Files (`.AGENTS.md`, `.CLAUDE.md`, `.specify/memory/.constitution.md`, etc.)
 
 - Hidden dotfiles (starting with `.`) are instructions for projects **derived from** this template.
 - Non-hidden files (`AGENTS.md`, `CLAUDE.md`) are instructions for working **on the template itself**.
+- `.specify/memory/.constitution.md` is the derived-project constitution; `setup.sh` renames it to `.specify/memory/constitution.md` during instantiation.
 - When editing hidden instruction files, remember you're writing instructions for future projects, not this template.
 
 ## 3. Development Workflow
@@ -92,6 +93,9 @@ template/
 ├── pyproject.toml          # Project configuration
 ├── uv.lock                 # Locked dependencies
 ├── Makefile                # Task runner
+├── .specify/memory/
+│   ├── constitution.md     # Constitution (this template)
+│   └── .constitution.md    # Constitution (derived projects)
 ├── AGENTS.md               # Instructions for AI agents (this template)
 ├── .AGENTS.md              # Instructions for AI agents (derived projects)
 ├── CLAUDE.md               # Instructions for Claude (this template)
@@ -139,6 +143,7 @@ When making significant changes to the template, update these files to keep them
 - `CLAUDE.md` and `.CLAUDE.md`
 - `.github/copilot-instructions.md` and `.github/.copilot-instructions.md`
 - `.github/instructions/CI.instructions.md`
+- `.specify/memory/constitution.md` and `.specify/memory/.constitution.md`
 - `README.md`
 
 ## 6. Specific Task Instructions

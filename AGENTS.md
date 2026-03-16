@@ -114,4 +114,5 @@ This includes login, logout, and token refresh endpoints.
   - `CLAUDE.md` and `.CLAUDE.md` (Claude Code instructions)
   - `.github/.copilot-instructions.md` and `.github/copilot-instructions.md` (GitHub Copilot instructions)
   - `.github/instructions/CI.instructions.md` (CI workflow instructions)
+  - `.specify/memory/constitution.md` and `.specify/memory/.constitution.md` (project constitution)
   - `README.md` (general documentation)

@@ -226,6 +226,16 @@ verify_new_directory_project() {
     exit 1
   fi
 
+  if [[ ! -f "$project_dir/.specify/memory/constitution.md" ]]; then
+    printf '%s[ERROR]%s missing .specify/memory/constitution.md in %s.\n' "$RED" "$RESET" "$project_dir" >&2
+    exit 1
+  fi
+
+  if [[ -f "$project_dir/.specify/memory/.constitution.md" ]]; then
+    printf '%s[ERROR]%s found hidden .specify/memory/.constitution.md in %s (should have been renamed).\n' "$RED" "$RESET" "$project_dir" >&2
+    exit 1
+  fi
+
   if ! grep -q "$project_name" "$project_dir/pyproject.toml"; then
     printf '%s[ERROR]%s pyproject.toml does not contain the project name %s.\n' "$RED" "$RESET" "$project_name" >&2
     exit 1
@@ -318,6 +328,16 @@ verify_inplace_project() {
 
   if [[ -f "$project_root/.CLAUDE.md" ]]; then
     printf '%s[ERROR]%s found hidden .CLAUDE.md in %s (should have been renamed).\n' "$RED" "$RESET" "$project_root" >&2
+    exit 1
+  fi
+
+  if [[ ! -f "$project_root/.specify/memory/constitution.md" ]]; then
+    printf '%s[ERROR]%s missing .specify/memory/constitution.md in %s.\n' "$RED" "$RESET" "$project_root" >&2
+    exit 1
+  fi
+
+  if [[ -f "$project_root/.specify/memory/.constitution.md" ]]; then
+    printf '%s[ERROR]%s found hidden .specify/memory/.constitution.md in %s (should have been renamed).\n' "$RED" "$RESET" "$project_root" >&2
     exit 1
   fi
 
