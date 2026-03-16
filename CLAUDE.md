@@ -139,16 +139,23 @@ This includes login, logout, and token refresh endpoints.
 - Limit manual edits to released changelog sections for light curation,
   factual corrections, or formatting cleanup.
 
-### Documentation Sync
+### Documentation Consistency
 
-When making significant changes to the template, update these files to keep them in sync:
+When making significant changes to the template, keep template-scope guidance
+consistent across:
 
-- `AGENTS.md` and `.AGENTS.md`
-- `CLAUDE.md` and `.CLAUDE.md`
-- `.github/copilot-instructions.md` and `.github/.copilot-instructions.md`
+- `AGENTS.md`
+- `CLAUDE.md`
+- `.github/copilot-instructions.md`
 - `.github/instructions/CI.instructions.md`
-- `.specify/memory/constitution.md` and `.specify/memory/.constitution.md`
+- `.specify/memory/constitution.md`
 - `README.md`
+
+When a change affects shared tooling or workflows (for example, CI, Makefile
+targets, or coding standards), review the derived-project instruction files
+(`.AGENTS.md`, `.CLAUDE.md`, `.github/.copilot-instructions.md`,
+`.specify/memory/.constitution.md`) and update them if needed. They are related
+but may intentionally differ from template-scope files.
 
 ## 6. Specific Task Instructions
 
@@ -188,7 +195,8 @@ The template includes a script at `scripts/concat-gitignores.sh` that generates 
 
 - **For this template:** Edit `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`
 - **For derived projects:** Edit `.AGENTS.md`, `.CLAUDE.md`, `.github/.copilot-instructions.md`
-- Keep these files in sync with actual repository structure and workflows.
+- Keep each scope internally consistent with actual repository structure and workflows.
+- When shared infrastructure changes, review the other scope and update only where behavior truly overlaps.
 
 ## 7. Working with Claude Code
 
@@ -213,6 +221,7 @@ The template includes a script at `scripts/concat-gitignores.sh` that generates 
 
 - This is a template - changes affect all future projects.
 - Always update `manifest.txt` when adding/removing files.
-- Keep instruction files in sync: `AGENTS.md`, `CLAUDE.md`, `.AGENTS.md`, `.CLAUDE.md`, `.github/.copilot-instructions.md`, `.github/copilot-instructions.md`, `.github/instructions/CI.instructions.md`, and `README.md`.
+- Keep template-scope guidance (`AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, `.github/instructions/CI.instructions.md`, `.specify/memory/constitution.md`, `README.md`) internally consistent.
+- Review derived-project guidance (`.AGENTS.md`, `.CLAUDE.md`, `.github/.copilot-instructions.md`, `.specify/memory/.constitution.md`) when shared behavior changes; intentional divergence is allowed.
 - Test changes by instantiating a new project with `setup.sh`.
 - Hidden dotfiles are for derived projects, not this template.

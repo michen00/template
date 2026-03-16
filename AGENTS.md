@@ -113,10 +113,16 @@ This includes login, logout, and token refresh endpoints.
 
 ### Updating Instructions
 
-- When making significant changes to the template, update these files to keep them in sync:
-  - `AGENTS.md` and `.AGENTS.md` (AI agent instructions)
-  - `CLAUDE.md` and `.CLAUDE.md` (Claude Code instructions)
-  - `.github/.copilot-instructions.md` and `.github/copilot-instructions.md` (GitHub Copilot instructions)
+- When making significant changes to the template, keep template-scope guidance
+  internally consistent:
+  - `AGENTS.md` (AI agent instructions)
+  - `CLAUDE.md` (Claude Code instructions)
+  - `.github/copilot-instructions.md` (GitHub Copilot instructions)
   - `.github/instructions/CI.instructions.md` (CI workflow instructions)
-  - `.specify/memory/constitution.md` and `.specify/memory/.constitution.md` (project constitution)
+  - `.specify/memory/constitution.md` (template constitution)
   - `README.md` (general documentation)
+- When shared behavior changes (CI, Makefile targets, coding standards, setup
+  expectations), review derived-project counterparts (`.AGENTS.md`,
+  `.CLAUDE.md`, `.github/.copilot-instructions.md`,
+  `.specify/memory/.constitution.md`) and update as needed. These files may
+  intentionally diverge from template-scope guidance.

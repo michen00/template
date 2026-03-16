@@ -114,16 +114,22 @@ Documentation decays with code. Any behavior-affecting change MUST update affect
 
 A documentation gap is a bug.
 
-When making significant template changes, the following files MUST be kept in sync:
+When making significant template changes, template-scope guidance MUST remain
+internally consistent across:
 
-- `AGENTS.md` and `.AGENTS.md`
-- `CLAUDE.md` and `.CLAUDE.md`
-- `.github/copilot-instructions.md` and `.github/.copilot-instructions.md`
+- `AGENTS.md`
+- `CLAUDE.md`
+- `.github/copilot-instructions.md`
 - `.github/instructions/CI.instructions.md`
-- `.specify/memory/constitution.md` and `.specify/memory/.constitution.md`
+- `.specify/memory/constitution.md`
 - `README.md`
 
-Failing to synchronize these files is a constitution violation.
+When changes affect shared infrastructure or workflows (for example CI,
+Makefile targets, coding standards, or setup expectations), contributors MUST
+review derived-project counterparts (`.AGENTS.md`, `.CLAUDE.md`,
+`.github/.copilot-instructions.md`, `.specify/memory/.constitution.md`) and
+update them when behavior overlaps. Cross-scope documents may intentionally
+diverge where project needs differ.
 
 ### Template Instantiation Testing
 
