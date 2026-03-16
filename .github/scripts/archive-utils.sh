@@ -16,8 +16,7 @@ archive_branch() {
 
 restore_archive() {
   local input="$1"
-  local ref
-  local branch
+  local ref branch latest
 
   if [[ $input == refs/archive/* ]]; then
     ref="$input"
