@@ -235,7 +235,7 @@ test_handles_no_trailing_newline() {
   assert_file_contains "$output_file" "marker-noeol-two"
 }
 
-test_preserves_literal_content_bytes() {
+test_preserves_literal_backslashes_and_escape_sequences() {
   local fixture url_file output_file
   fixture="$(new_fixture "fixture-literal.gitignore" $'# fixture literal\nliteral-backslash-n: \\n\n-n should stay literal\npath\\with\\slashes')"
   url_file="$TEST_ROOT/urls-literal.txt"
@@ -263,7 +263,7 @@ tests=(
   test_ignores_single_hash_comments_in_input
   test_preserves_section_labels_and_input_order
   test_handles_no_trailing_newline
-  test_preserves_literal_content_bytes
+  test_preserves_literal_backslashes_and_escape_sequences
 )
 
 for test_name in "${tests[@]}"; do
