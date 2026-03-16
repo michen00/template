@@ -33,7 +33,7 @@ def _export_requirements(groups: Sequence[str] | None = None) -> Iterator[str]:
     try:
         yield tmp.name
     finally:
-        Path(tmp.name).unlink()
+        Path(tmp.name).unlink(missing_ok=True)
 
 
 @nox.session
