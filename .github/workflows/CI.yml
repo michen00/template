@@ -84,4 +84,4 @@ jobs:
       - name: Run CI
         run: |-
           bash .github/scripts/ci-ruff-args.sh
-          uvx nox -s test -s precommit
+          uv run --locked --only-group dev nox -s test -s precommit
