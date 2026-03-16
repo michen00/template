@@ -45,10 +45,10 @@ alwaysApply: false
 The `Makefile` is the primary entry point for development tasks.
 
 - **Install Dependencies:** `make develop` (installs dev deps and git hooks)
-- **Run All Checks:** `make check` (runs format-all and test)
+- **Run All Checks:** `make check` (runs `make tidy`, both pre-commit stages, and tests)
 - **Run Tests:** `make test` or `nox -s test`
 - **Linting:** `make lint` (ruff check --fix)
-- **Formatting:** `make format` (lint + ruff format) or `make format-all` (pre-commit + format-unsafe)
+- **Formatting:** `make format` (ruff format), `make tidy` (best-effort lint autofix + format), or `make tidy-all` (pre-commit + tidy)
 - **Clean:** `make clean`
 
 ### Testing
@@ -105,7 +105,7 @@ This includes login, logout, and token refresh endpoints.
 
 - Edit `.github/workflows/CI.yml`.
 - Note that `.github/workflows/.cache-buster` is used to reset caches.
-- **CI Ruff Args:** Before running pre-commit in CI, `.github/scripts/ci-ruff-args.sh` modifies `.pre-commit-config.yaml` with stricter ruff args for better GitHub integration. This means CI behavior differs slightly from local `make check`, which uses the default args.
+- **CI Ruff Args:** Before running pre-commit in CI, `.github/scripts/ci-ruff-args.sh` modifies `.pre-commit-config.yaml` with stricter ruff args for better GitHub integration. `make check` now mirrors CI's hook stages locally; the remaining difference is CI's stricter ruff args.
 
 ### Updating Instructions
 

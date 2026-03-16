@@ -97,7 +97,10 @@ test: check-install-uv build/install-test ## Run all tests with coverage (PARALL
     $(UV) run $$PYTEST_CMD
 
 .PHONY: check
-check: format-all test ## Run all code quality checks and tests
+check: tidy ## Run all code quality checks and tests
+	$(MAKE) run-pre-commit HOOK_STAGE=pre-commit
+	$(MAKE) run-pre-commit HOOK_STAGE=pre-push
+	$(MAKE) test
 
 ################################
 ## (post-|un|re)?installation ##
@@ -158,13 +161,8 @@ clean-reinstall-dev: clean-uninstall ## Clean up project artifacts and reinstall
 format-markdown: ## Run Prettier on all markdown files in the project
 	npx --yes prettier --write '**/*.md'
 
-.PHONY: format-all
-format-all: ## Run code-quality checks and format the code
-	-$(MAKE) run-pre-commit
-	@$(MAKE) format-unsafe
-
-.PHONY: ruff-format
-ruff-format: check-install-uv build/install-dev ## Format the code with Ruff
+.PHONY: format
+format: check-install-uv build/install-dev ## Format the code with Ruff
 	$(UV) run ruff format
 	@echo "$(BOLD)$(GREEN)Code formatting complete!$(_COLOR)"
 
@@ -173,18 +171,17 @@ lint: check-install-uv build/install-dev ## Lint the code with Ruff, fixing issu
 	$(UV) run ruff check --fix
 	@$(MAKE) .display-lint-complete
 
-.PHONY: lint-unsafe
-lint-unsafe: check-install-uv build/install-dev ## Lint the code with Ruff, fixing issues where possible with --unsafe-fixes
+.PHONY: tidy
+tidy: check-install-uv build/install-dev ## Auto-fix lint issues and format the code
 	$(UV) run ruff check --fix --unsafe-fixes --exit-zero
 	@$(MAKE) .display-lint-complete
+	$(UV) run ruff format
+	@echo "$(BOLD)$(GREEN)Code formatting complete!$(_COLOR)"
 
-.PHONY: format
-format: lint ## Format the code with Ruff
-	@$(MAKE) ruff-format
-
-.PHONY: format-unsafe
-format-unsafe: lint-unsafe ## Format the code with Ruff using --unsafe-fixes
-	@$(MAKE) ruff-format
+.PHONY: tidy-all
+tidy-all: ## Run pre-commit hooks and auto-fix the code
+	-$(MAKE) run-pre-commit
+	@$(MAKE) tidy
 
 .PHONY: .display-lint-complete
 .display-lint-complete:

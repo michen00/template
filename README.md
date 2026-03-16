@@ -174,9 +174,10 @@ GitHub Actions workflows are pre-configured to:
 
 ```bash
 make develop          # Install dependencies and configure git hooks
-make check            # Run all quality checks (formatting, linting, tests)
+make check            # Run all quality checks (formatting, linting, type checking, tests)
 make test             # Run tests with coverage
 make lint             # Run linters with auto-fix
+make tidy             # Auto-fix lint issues and format code
 make format           # Format code
 make clean            # Remove build artifacts and caches
 ```

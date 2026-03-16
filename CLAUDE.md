@@ -58,10 +58,10 @@ alwaysApply: false
 The `Makefile` is the primary entry point for development tasks:
 
 - **Install Dependencies:** `make develop` (installs dev deps, git hooks, and configures git)
-- **Run All Checks (CI):** `make check` (runs format-all and test)
+- **Run All Checks (CI):** `make check` (runs `make tidy`, both pre-commit stages, and tests)
 - **Run Tests:** `make test` or `nox -s test`
 - **Linting:** `make lint` (ruff check --fix)
-- **Formatting:** `make format` (lint + ruff format) or `make format-all` (pre-commit + format-unsafe)
+- **Formatting:** `make format` (ruff format), `make tidy` (best-effort lint autofix + format), or `make tidy-all` (pre-commit + tidy)
 - **Clean:** `make clean` (removes build artifacts and caches)
 
 ### Testing the Template
