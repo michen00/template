@@ -268,14 +268,8 @@ tr -d '\r' < "$OUTPUT_FILE" > "$NORMALIZE_TMP" || {
 }
 mv "$NORMALIZE_TMP" "$OUTPUT_FILE"
 
-# Ensure single trailing newline
-if [[ $OSTYPE == "linux-gnu"* ]]; then
-  sed -i ':a;/^$/{$d;N;ba;}' "$OUTPUT_FILE" # spellchecker:disable-line
-elif [[ $OSTYPE == "darwin"* ]]; then
-  sed -i '' -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$OUTPUT_FILE" # spellchecker:disable-line
-else
-  echo "Unknown OS: unable to ensure single trailing newline"
-fi
+# Ensure single trailing newline (collapse any trailing blank lines into exactly one newline)
+perl -0777 -pi -e 's/\n*\z/\n/' "$OUTPUT_FILE"
 
 # Add additional ignore patterns
 cat >> "$OUTPUT_FILE" << EOF
