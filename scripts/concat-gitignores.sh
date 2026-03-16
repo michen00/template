@@ -269,7 +269,13 @@ tr -d '\r' < "$OUTPUT_FILE" > "$NORMALIZE_TMP" || {
 mv "$NORMALIZE_TMP" "$OUTPUT_FILE"
 
 # Ensure single trailing newline (collapse any trailing blank lines into exactly one newline)
-perl -0777 -pi -e 's/\n*\z/\n/' "$OUTPUT_FILE"
+if command -v perl > /dev/null 2>&1; then
+  perl -0777 -pi -e 's/\n*\z/\n/' "$OUTPUT_FILE"
+else
+  # Command substitution strips trailing newlines; print one newline back.
+  content=$(< "$OUTPUT_FILE")
+  printf '%s\n' "$content" > "$OUTPUT_FILE"
+fi
 
 # Add additional ignore patterns
 cat >> "$OUTPUT_FILE" << EOF
