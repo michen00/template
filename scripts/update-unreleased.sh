@@ -290,6 +290,7 @@ STAGED_DIFFS_DIR=""
 
 # Helper to re-stage files, preserving partial staging
 restage_other_files() {
+  local file
   if [[ -z "$OTHER_STAGED_FILES" ]]; then
     return
   fi
