@@ -79,35 +79,57 @@ This template helps you set up:
 
 ## Quick Start
 
-1. **Clone this repository:**
+### Option A: Use this template (GitHub)
+
+1. Click **"Use this template"** on GitHub to create a new repository.
+2. Clone your new repo:
+
+   ```bash
+   git clone https://github.com/<you>/<your-repo>.git
+   cd <your-repo>
+   ```
+
+3. Edit `.template-profile.sh` — set `GITHUB_OWNER`, `AUTHOR_NAME`, and `AUTHOR_EMAIL` to your values.
+4. Run the setup script:
+
+   ```bash
+   bash setup.sh
+   ```
+
+5. Follow the prompts (setup mode and project name).
+6. Start developing:
+
+   ```bash
+   make develop        # Install dependencies and set up git hooks
+   make check          # Run all quality checks
+   ```
+
+### Option B: Clone and run
+
+1. Clone and enter the template:
 
    ```bash
    git clone https://github.com/michen00/template.git
    cd template
    ```
 
-2. **Run the setup script:**
+2. Edit `.template-profile.sh` — set `GITHUB_OWNER`, `AUTHOR_NAME`, and `AUTHOR_EMAIL` to your values.
+3. Run the setup script:
 
    ```bash
    bash setup.sh
    ```
 
-3. **Follow the prompts:**
-   - Choose whether to set up in the current directory or create a new one
-   - Enter your project name
-   - The script will automatically:
-     - Copy all template files
-     - Rename placeholders to your project name
-     - Set up the project structure
-     - Generate a fresh `.gitignore` from GitHub templates
-
-4. **Start developing:**
+4. Follow the prompts (setup mode and project name).
+5. Start developing:
 
    ```bash
    cd your-project-name
    make develop        # Install dependencies and set up git hooks
    make check          # Run all quality checks
    ```
+
+> **For template maintainers:** Named profiles can be defined in `.template-profile.sh` and activated with `setup.sh --profile <name>` to skip editing the defaults.
 
 ## What Gets Generated
 
