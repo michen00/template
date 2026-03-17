@@ -82,10 +82,39 @@ copy_template() {
   rsync -a --exclude ".git" "$REPO_ROOT"/ "$dest"/
 }
 
+copy_template_with_git() {
+  local dest="$1"
+  copy_template "$dest"
+  (
+    cd "$dest"
+    git init -q
+    git remote add origin "git@github.com:example/template.git"
+  )
+}
+
+copy_template_with_git_worktree() {
+  local repo_dir="$1"
+  local worktree_dest="$2"
+  local branch_name
+
+  branch_name="fixture-worktree-$(date +%s)-$RANDOM"
+
+  copy_template "$repo_dir"
+  (
+    cd "$repo_dir"
+    git init -q
+    git -c user.name="Setup Test" -c user.email="setup@example.com" add -A
+    git -c user.name="Setup Test" -c user.email="setup@example.com" -c commit.gpgsign=false commit -q -m "Initial commit"
+    git remote add origin "git@github.com:example/template.git"
+    git worktree add -q "$worktree_dest" -b "$branch_name"
+  )
+}
+
 run_setup_with_inputs() {
   local workdir="$1"
   local description="$2"
   local inputs="$3"
+  local expected_exit="${4:-0}"
 
   pushd "$workdir" > /dev/null
 
@@ -96,6 +125,7 @@ run_setup_with_inputs() {
   fi
   export SETUP_SH_QUIET=1
   export SETUP_TEST_INPUTS="$inputs"
+  export SETUP_TEST_EXPECTED_EXIT="$expected_exit"
 
   printf -- '-- running setup.sh (%s)\n' "$description"
   "$PYTHON_BIN" << 'PY'
@@ -111,6 +141,7 @@ if not inputs_raw:
     sys.exit(1)
 
 verbose = os.environ.get("TEST_SETUP_VERBOSE") == "1"
+expected_exit = int(os.environ.get("SETUP_TEST_EXPECTED_EXIT", "0"))
 os.environ["SETUP_SH_QUIET"] = os.environ.get("SETUP_SH_QUIET", "1")
 
 env = os.environ.copy()
@@ -132,7 +163,9 @@ for line in inputs_raw:
 os.close(controller_fd)
 stdout, stderr = process.communicate()
 
-should_display = verbose or process.returncode != 0 or "Warning:" in stderr
+should_display = verbose or process.returncode != expected_exit or (
+    expected_exit == 0 and "Warning:" in stderr
+)
 
 if should_display:
     if stdout:
@@ -140,14 +173,89 @@ if should_display:
     if stderr:
         sys.stderr.write(stderr)
 
-if "Warning:" in stderr:
+if expected_exit == 0 and "Warning:" in stderr:
     sys.exit(1)
 
-if process.returncode != 0:
-    sys.exit(process.returncode)
+if process.returncode != expected_exit:
+    sys.exit(process.returncode or 1)
 PY
 
   popd > /dev/null
+}
+
+assert_path_missing() {
+  local path="$1"
+
+  if [[ -e $path ]]; then
+    printf '%s[ERROR]%s expected path %s to be removed.\n' "$RED" "$RESET" "$path" >&2
+    exit 1
+  fi
+}
+
+assert_git_remote_url_equals() {
+  local project_root="$1"
+  local expected="$2"
+  local actual
+
+  actual="$(git -C "$project_root" config --get remote.origin.url || true)"
+  if [[ "$actual" != "$expected" ]]; then
+    printf '%s[ERROR]%s expected git remote %s but found %s.\n' \
+      "$RED" "$RESET" "$expected" "$actual" >&2
+    exit 1
+  fi
+}
+
+assert_git_remote_url_absent() {
+  local project_root="$1"
+  local actual
+
+  actual="$(git -C "$project_root" config --get remote.origin.url || true)"
+  if [[ -n "$actual" ]]; then
+    printf '%s[ERROR]%s expected git remote to be absent, but found %s.\n' \
+      "$RED" "$RESET" "$actual" >&2
+    exit 1
+  fi
+}
+
+assert_git_repository_exists() {
+  local project_root="$1"
+
+  if ! git -C "$project_root" rev-parse --git-dir > /dev/null 2>&1; then
+    printf '%s[ERROR]%s expected git repository at %s.\n' \
+      "$RED" "$RESET" "$project_root" >&2
+    exit 1
+  fi
+}
+
+assert_git_has_no_commits() {
+  local project_root="$1"
+
+  if git -C "$project_root" rev-parse --verify HEAD > /dev/null 2>&1; then
+    printf '%s[ERROR]%s expected git repository at %s to have no commits.\n' \
+      "$RED" "$RESET" "$project_root" >&2
+    exit 1
+  fi
+}
+
+assert_no_text_match_in_dir() {
+  local path="$1"
+  local needle="$2"
+
+  if grep -R -I -q -- "$needle" "$path"; then
+    printf '%s[ERROR]%s did not expect to find %s anywhere under %s.\n' \
+      "$RED" "$RESET" "$needle" "$path" >&2
+    exit 1
+  fi
+}
+
+assert_template_only_files_removed() {
+  local project_root="$1"
+
+  assert_path_missing "$project_root/.github/workflows/template-CI.yml"
+  assert_path_missing "$project_root/.github/workflows/test-concat-gitignores.yml"
+  assert_path_missing "$project_root/.github/workflows/test-update-unreleased.yml"
+  assert_path_missing "$project_root/scripts/tests/test-concat-gitignores.sh"
+  assert_path_missing "$project_root/scripts/tests/test-update-unreleased.sh"
 }
 
 assert_templates_preserved() {
@@ -261,12 +369,14 @@ verify_new_directory_project() {
     exit 1
   fi
 
-  if find "$project_dir" -name '*.bak' -print -quit | grep -q .; then
+  if find "$project_dir" \( -path "$project_dir/.git" -o -path "$project_dir/.git/*" \) -prune -o -name '*.bak' -print -quit | grep -q .; then
     printf '%s[ERROR]%s found leftover .bak files in %s.\n' "$RED" "$RESET" "$project_dir" >&2
     exit 1
   fi
 
+  assert_git_repository_exists "$project_dir"
   assert_templates_preserved "$project_dir"
+  assert_template_only_files_removed "$project_dir"
 }
 
 verify_inplace_project() {
@@ -371,12 +481,56 @@ verify_inplace_project() {
     exit 1
   fi
 
-  if find "$project_root" -name '*.bak' -print -quit | grep -q .; then
+  if find "$project_root" \( -path "$project_root/.git" -o -path "$project_root/.git/*" \) -prune -o -name '*.bak' -print -quit | grep -q .; then
     printf '%s[ERROR]%s found leftover .bak files in %s.\n' "$RED" "$RESET" "$project_root" >&2
     exit 1
   fi
 
+  assert_git_repository_exists "$project_root"
   assert_templates_preserved "$project_root"
+  assert_template_only_files_removed "$project_root"
+}
+
+verify_inplace_project_keeps_git() {
+  local project_root="$1"
+  local project_name="$2"
+  local sentinel="$3"
+  local expected_remote="$4"
+  local backup_file="$5"
+
+  verify_inplace_project "$project_root" "$project_name" "$sentinel"
+  assert_git_remote_url_equals "$project_root" "$expected_remote"
+  assert_no_text_match_in_dir "$project_root/.git" "$project_name"
+  if [[ ! -f "$backup_file" ]]; then
+    printf '%s[ERROR]%s expected preserved git backup file at %s.\n' \
+      "$RED" "$RESET" "$backup_file" >&2
+    exit 1
+  fi
+}
+
+verify_inplace_project_recreates_git() {
+  local project_root="$1"
+  local project_name="$2"
+  local sentinel="$3"
+
+  verify_inplace_project "$project_root" "$project_name" "$sentinel"
+  assert_git_has_no_commits "$project_root"
+  assert_git_remote_url_absent "$project_root"
+}
+
+verify_inplace_project_keeps_git_worktree() {
+  local project_root="$1"
+  local project_name="$2"
+  local sentinel="$3"
+  local expected_remote="$4"
+
+  verify_inplace_project "$project_root" "$project_name" "$sentinel"
+  assert_git_remote_url_equals "$project_root" "$expected_remote"
+  if [[ ! -f "$project_root/.git" ]]; then
+    printf '%s[ERROR]%s expected worktree git metadata file at %s/.git.\n' \
+      "$RED" "$RESET" "$project_root" >&2
+    exit 1
+  fi
 }
 
 PROJECT_NAME_NEW="sample$(date +%s)"
@@ -395,6 +549,56 @@ copy_template "$TEMPLATE_DIR_INPLACE"
 touch "$SENTINEL_FILE"
 run_setup_with_inputs "$TEMPLATE_DIR_INPLACE" "current directory mode" $'1\n'"$PROJECT_NAME_INPLACE"$'\ny'
 verify_inplace_project "$TEMPLATE_DIR_INPLACE" "$PROJECT_NAME_INPLACE" "$SENTINEL_FILE"
+
+PROJECT_NAME_KEEP_GIT="keep$(date +%s)"
+TEMPLATE_DIR_KEEP_GIT="$WORK_ROOT/in-place-keep-git-template"
+SENTINEL_KEEP_GIT="$TEMPLATE_DIR_KEEP_GIT/out_of_manifest_keep.tmp"
+EXPECTED_REMOTE="git@github.com:example/template.git"
+GIT_BACKUP_FILE="$TEMPLATE_DIR_KEEP_GIT/.git/config.bak"
+
+copy_template_with_git "$TEMPLATE_DIR_KEEP_GIT"
+touch "$SENTINEL_KEEP_GIT"
+printf 'seed backup\n' > "$GIT_BACKUP_FILE"
+run_setup_with_inputs "$TEMPLATE_DIR_KEEP_GIT" "current directory mode (keep git)" $'1\n'"$PROJECT_NAME_KEEP_GIT"$'\ny\ny'
+verify_inplace_project_keeps_git \
+  "$TEMPLATE_DIR_KEEP_GIT" \
+  "$PROJECT_NAME_KEEP_GIT" \
+  "$SENTINEL_KEEP_GIT" \
+  "$EXPECTED_REMOTE" \
+  "$GIT_BACKUP_FILE"
+
+PROJECT_NAME_WIPE_GIT="wipe$(date +%s)"
+TEMPLATE_DIR_WIPE_GIT="$WORK_ROOT/in-place-wipe-git-template"
+SENTINEL_WIPE_GIT="$TEMPLATE_DIR_WIPE_GIT/out_of_manifest_wipe.tmp"
+
+copy_template_with_git "$TEMPLATE_DIR_WIPE_GIT"
+touch "$SENTINEL_WIPE_GIT"
+run_setup_with_inputs "$TEMPLATE_DIR_WIPE_GIT" "current directory mode (wipe git)" $'1\n'"$PROJECT_NAME_WIPE_GIT"$'\ny\nn'
+verify_inplace_project_recreates_git \
+  "$TEMPLATE_DIR_WIPE_GIT" \
+  "$PROJECT_NAME_WIPE_GIT" \
+  "$SENTINEL_WIPE_GIT"
+
+PROJECT_NAME_KEEP_WORKTREE_GIT="keepwt$(date +%s)"
+TEMPLATE_DIR_KEEP_WORKTREE_BASE="$WORK_ROOT/in-place-keep-worktree-base"
+TEMPLATE_DIR_KEEP_WORKTREE_GIT="$WORK_ROOT/in-place-keep-worktree-template"
+SENTINEL_KEEP_WORKTREE_GIT="$TEMPLATE_DIR_KEEP_WORKTREE_GIT/out_of_manifest_keep_worktree.tmp"
+
+copy_template_with_git_worktree "$TEMPLATE_DIR_KEEP_WORKTREE_BASE" "$TEMPLATE_DIR_KEEP_WORKTREE_GIT"
+touch "$SENTINEL_KEEP_WORKTREE_GIT"
+run_setup_with_inputs "$TEMPLATE_DIR_KEEP_WORKTREE_GIT" "current directory mode (keep git worktree)" $'1\n'"$PROJECT_NAME_KEEP_WORKTREE_GIT"$'\ny\ny'
+verify_inplace_project_keeps_git_worktree \
+  "$TEMPLATE_DIR_KEEP_WORKTREE_GIT" \
+  "$PROJECT_NAME_KEEP_WORKTREE_GIT" \
+  "$SENTINEL_KEEP_WORKTREE_GIT" \
+  "$EXPECTED_REMOTE"
+
+PROJECT_NAME_FAILURE="broken$(date +%s)"
+TEMPLATE_DIR_FAILURE="$WORK_ROOT/in-place-failure-template"
+
+copy_template "$TEMPLATE_DIR_FAILURE"
+rm -f "$TEMPLATE_DIR_FAILURE/.AGENTS.md"
+run_setup_with_inputs "$TEMPLATE_DIR_FAILURE" "current directory mode (finalize failure)" $'1\n'"$PROJECT_NAME_FAILURE"$'\ny' 1
 
 printf '%s==>%s setup.sh integration smoke test: %sPASSED%s\n' "$CYAN" "$RESET" "$GREEN" "$RESET"
 

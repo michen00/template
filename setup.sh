@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# TODO: refactor
+set -euo pipefail
 
 TEMPLATE="$(pwd)"
 MANIFEST="$TEMPLATE/manifest.txt"
 QUIET="${SETUP_SH_QUIET:-0}"
+MANIFEST_ENTRIES=()
 
 quiet_echo() {
   if [ "$QUIET" != "1" ]; then
@@ -28,33 +29,41 @@ read_input() {
   fi
 }
 
+manifest_contains() {
+  local candidate="$1"
+  local entry
+
+  for entry in "${MANIFEST_ENTRIES[@]}"; do
+    if [[ "$entry" == "$candidate" ]]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
 replace_template_tokens() {
-  local search_root="$1"
+  local project_dir="$1"
   local project_name="$2"
   local placeholder="__SETUP_SH_TEMPLATES__"
-  local files
+  local relative_path
+  local file
 
-  # Find files that contain the literal "template". Exclude the top-level
-  # `.gitignore` in the template root (we don't want to rewrite that file),
-  # and avoid matching binary files by asking grep to ignore binaries.
-  files=$(
-    find "$search_root" -type f -not -path "$search_root/.gitignore" -exec grep -Il "template" {} + 2> /dev/null || true
-  )
+  for relative_path in "${MANIFEST_ENTRIES[@]}"; do
+    [ "$relative_path" = ".gitignore" ] && continue
+    file="$project_dir/$relative_path"
+    [ -f "$file" ] || continue
 
-  if [ -z "$files" ]; then
-    return 0
-  fi
-
-  while IFS= read -r file; do
-    [ -n "$file" ] || continue
     # Force POSIX locale so BSD sed handles non-UTF8 bytes predictably, and avoid
     # touching the plural "templates" used in comments/documentation.
-    LC_ALL=C sed -i.bak \
-      -e "s/templates/$placeholder/g" \
-      -e "s/template/$project_name/g" \
-      -e "s/$placeholder/templates/g" \
-      "$file" || return 1
-  done <<< "$files"
+    if grep -Iql "template" "$file"; then
+      LC_ALL=C sed -i.bak \
+        -e "s/templates/$placeholder/g" \
+        -e "s/template/$project_name/g" \
+        -e "s/$placeholder/templates/g" \
+        "$file" || return 1
+    fi
+  done
 
   return 0
 }
@@ -69,6 +78,18 @@ disable_example_script() {
       -e 's/^example-script = /# example-script = /' \
       "$pyproject" || return 1
   fi
+  return 0
+}
+
+cleanup_backup_files() {
+  local project_dir="$1"
+  local relative_path
+
+  for relative_path in "${MANIFEST_ENTRIES[@]}"; do
+    rm -f "$project_dir/$relative_path.bak"
+  done
+
+  rm -f "$project_dir/pyproject.toml.bak"
   return 0
 }
 
@@ -118,26 +139,32 @@ finalize_setup() {
   local project_dir="$1"
   local project_name="$2"
 
-  cd "$project_dir" &&
-    mv .README.md README.md &&
-    mv .github/.copilot-instructions.md .github/copilot-instructions.md &&
-    mv .AGENTS.md AGENTS.md &&
-    mv .CLAUDE.md CLAUDE.md &&
-    mv .specify/memory/.constitution.md .specify/memory/constitution.md &&
-    mv src/template "src/$project_name" &&
-    replace_template_tokens "$project_dir" "$project_name" &&
-    disable_example_script "$project_dir" &&
-    regenerate_gitignore "$project_dir" &&
-    find "$project_dir" -name "*.bak" -type f -delete &&
-    echo "" > .git-blame-ignore-revs &&
-    quiet_echo "Project set up successfully in $PROJECT."
+  cd "$project_dir" || return 1
+  replace_template_tokens "$project_dir" "$project_name" || return 1
+  disable_example_script "$project_dir" || return 1
+  cleanup_backup_files "$project_dir" || return 1
+  mv .README.md README.md || return 1
+  mv .github/.copilot-instructions.md .github/copilot-instructions.md || return 1
+  mv .AGENTS.md AGENTS.md || return 1
+  mv .CLAUDE.md CLAUDE.md || return 1
+  mv .specify/memory/.constitution.md .specify/memory/constitution.md || return 1
+  mv src/template "src/$project_name" || return 1
+  regenerate_gitignore "$project_dir" || return 1
+  : > .git-blame-ignore-revs || return 1
+  quiet_echo "Project set up successfully in $PROJECT."
+  return 0
 }
 
 # Verify manifest exists
-cat "$MANIFEST" > /dev/null 2>&1 || {
+if [ ! -r "$MANIFEST" ]; then
   echo "$MANIFEST cannot be read. Exiting script."
   exit 1
-}
+fi
+
+while IFS= read -r FILE; do
+  [ -n "$FILE" ] || continue
+  MANIFEST_ENTRIES+=("$FILE")
+done < "$MANIFEST"
 
 # Ask user where to set up the project
 quiet_echo "Where would you like to set up your project?"
@@ -148,8 +175,17 @@ read_input SETUP_CHOICE "Enter choice (1 or 2): "
 if [[ $SETUP_CHOICE == "1" ]]; then
   # === CURRENT DIRECTORY SETUP ===
 
-  # Get and validate project name
-  read_input PROJECTNAME "Enter a name for the project: "
+  # Get and validate project name (default to current directory name)
+  DEFAULT_NAME="$(basename "$(pwd)")"
+  if [ "$DEFAULT_NAME" = "template" ]; then
+    DEFAULT_NAME=""
+  fi
+  if [ -n "$DEFAULT_NAME" ]; then
+    read_input PROJECTNAME "Enter a name for the project [$DEFAULT_NAME]: "
+    [ -z "$PROJECTNAME" ] && PROJECTNAME="$DEFAULT_NAME"
+  else
+    read_input PROJECTNAME "Enter a name for the project: "
+  fi
   validate_project_name PROJECTNAME "$PROJECTNAME"
 
   PROJECT="$TEMPLATE"
@@ -158,39 +194,28 @@ if [[ $SETUP_CHOICE == "1" ]]; then
   quiet_blank
   quiet_echo "The following files will be REMOVED (not in manifest):"
 
-  # Build list of files to keep (from manifest)
-  KEEP_FILES=()
-  while IFS= read -r FILE; do
-    KEEP_FILES+=("$FILE")
-  done < "$MANIFEST"
-
-  # Always keep .git directory if it exists
-  KEEP_FILES+=(".git")
-
   # Find files to remove
   TO_REMOVE=()
   while IFS= read -r -d '' FILE; do
     FILE_REL="${FILE#./}"
 
-    # Skip if it's in manifest
-    SHOULD_KEEP=false
-    for KEEP in "${KEEP_FILES[@]}"; do
-      if [[ $KEEP == "$FILE_REL" ]] || [[ $KEEP == "$FILE_REL"/* ]]; then
-        SHOULD_KEEP=true
-        break
-      fi
-    done
-
-    # Always remove setup files
-    if [[ $FILE_REL == "setup.sh" ]] || [[ $FILE_REL == "manifest.txt" ]]; then
-      SHOULD_KEEP=false
+    if [[ $FILE_REL == ".git" ]] || [[ $FILE_REL == .git/* ]]; then
+      continue
     fi
 
-    if ! $SHOULD_KEEP; then
+    if [[ $FILE_REL == "setup.sh" ]] || [[ $FILE_REL == "manifest.txt" ]]; then
+      TO_REMOVE+=("$FILE_REL")
+      quiet_echo "  - $FILE_REL"
+      continue
+    fi
+
+    if ! manifest_contains "$FILE_REL"; then
       TO_REMOVE+=("$FILE_REL")
       quiet_echo "  - $FILE_REL"
     fi
-  done < <(find . -mindepth 1 -maxdepth 1 -print0)
+  done < <(find . -mindepth 1 \( -type f -o -type l \) -print0)
+
+  quiet_echo "Total files to remove: ${#TO_REMOVE[@]}"
 
   quiet_blank
   read_input CONFIRM "Continue with setup? This will DELETE the files listed above. (y/n): "
@@ -202,10 +227,24 @@ if [[ $SETUP_CHOICE == "1" ]]; then
 
   # Remove non-manifest files
   for FILE in "${TO_REMOVE[@]}"; do
-    rm -rf "$FILE"
+    rm -f "$FILE"
   done
 
-  finalize_setup "$PROJECT" "$PROJECTNAME"
+  find . -depth -type d -empty -not -path "." -not -path "./.git" -not -path "./.git/*" -delete
+
+  if [ -e .git ]; then
+    read_input KEEP_GIT "Existing .git directory found. Keep it? (y = preserve history/remote, n = start fresh): "
+    if [ "$KEEP_GIT" != "y" ]; then
+      rm -rf .git
+    fi
+  fi
+
+  finalize_setup "$PROJECT" "$PROJECTNAME" || exit 1
+
+  if [ ! -e "$PROJECT/.git" ]; then
+    git init "$PROJECT" > /dev/null 2>&1
+    quiet_echo "Initialized new git repository in $PROJECT."
+  fi
 
 elif [[ $SETUP_CHOICE == "2" ]]; then
   # === NEW DIRECTORY SETUP ===
@@ -230,8 +269,7 @@ elif [[ $SETUP_CHOICE == "2" ]]; then
   fi
 
   # Copy manifest files to new directory
-  while IFS= read -r FILE; do
-    [ -n "$FILE" ] || continue
+  for FILE in "${MANIFEST_ENTRIES[@]}"; do
     SRC_PATH="$TEMPLATE/$FILE"
     DEST_DIR="$PROJECT/$(dirname "$FILE")"
     mkdir -p "$DEST_DIR"
@@ -240,9 +278,14 @@ elif [[ $SETUP_CHOICE == "2" ]]; then
     else
       echo "Warning: $FILE listed in manifest but missing." >&2
     fi
-  done < "$MANIFEST"
+  done
 
-  finalize_setup "$PROJECT" "$PROJECTNAME"
+  finalize_setup "$PROJECT" "$PROJECTNAME" || exit 1
+
+  if [ ! -e "$PROJECT/.git" ]; then
+    git init "$PROJECT" > /dev/null 2>&1
+    quiet_echo "Initialized new git repository in $PROJECT."
+  fi
 
 else
   quiet_echo "Invalid choice. Exiting script."
