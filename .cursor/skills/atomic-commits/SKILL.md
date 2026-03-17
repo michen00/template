@@ -165,7 +165,7 @@ Follow gitlint rules exactly.
 - Optionally include a co-author line
 - Separate from body (or title if no body) with a blank line
 
-**Message template:**
+**Message format:**
 
 ```text
 <type>: <subject>
