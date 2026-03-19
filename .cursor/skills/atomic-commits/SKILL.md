@@ -100,8 +100,7 @@ git log --oneline -5  # Recent commits for style reference
 - **By derivation:** Source files and their generated/derived outputs
   belong together
 
-**Key rule:** Generated or derived files (e.g.,
-`requirements-viewer.html` from `build-requirements-viewer.js`) must be
+**Key rule:** Generated or derived files must be
 committed alongside the source change that produced them — never in a
 separate commit.
 

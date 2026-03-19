@@ -16,9 +16,8 @@ uncommitted work.
 
 ## Critical Rules
 
-1. Generated or derived files (e.g. `requirements-viewer.html`) must be
-   committed in the **same** commit as the source that produced them —
-   never separately.
+1. Generated or derived files must be committed in the **same** commit
+   as the source that produced them — never separately.
 2. Present the planned commit sequence to the user before executing.
 3. Use specific file paths for `git add` — **never** `git add -A` or
    `git add .`.
