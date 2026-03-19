@@ -16,8 +16,7 @@ Bundle working-tree changes into a series of atomic, self-consistent
 commits. Each commit addresses exactly one logical concern and passes
 verification, so the history reads as a clean narrative.
 
-**Critical rules:** (1) Generated or derived files (e.g.
-`requirements-viewer.html`) must be committed in the _same_ commit as
+**Critical rules:** (1) Generated or derived files must be committed in the _same_ commit as
 the source that produced them — never separately. (2) Present the
 planned commit sequence to the user before executing. (3) Use specific
 file paths for `git add` — never `git add -A` or `git add .`. (4)
@@ -214,10 +213,6 @@ atomic commits, as this defeats the purpose of selective grouping.
 After each commit, run relevant verification if applicable:
 
 - **Script changes:** Run the script to confirm it works
-- **Build changes:** Run `node scripts/build-requirements-viewer.js` if
-  viewer-related
-- **Transcript processing:** Run `python3 scripts/clean_transcripts.py`
-  if transcript-related
 - **Verification scripts:** Run `make verify` if requirements changed
 - **Linter config:** Run `gitlint` on the commit message
 
