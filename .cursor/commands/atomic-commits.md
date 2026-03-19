@@ -112,7 +112,7 @@ commit with prepared message (signed), verify `git log --oneline -1`.
 
 ### Step 5 — Verify
 
-After each commit, run relevant checks (script, build, `make verify`,
+After each commit, run relevant checks (script, build, `make check`,
 etc.). If verification fails, offer to unstage, regroup, and re-commit.
 
 ## Examples

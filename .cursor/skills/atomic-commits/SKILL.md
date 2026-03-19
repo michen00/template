@@ -212,7 +212,7 @@ atomic commits, as this defeats the purpose of selective grouping.
 After each commit, run relevant verification if applicable:
 
 - **Script changes:** Run the script to confirm it works
-- **Verification scripts:** Run `make verify` if requirements changed
+- **Verification scripts:** Run `make check` if requirements changed
 - **Linter config:** Run `gitlint` on the commit message
 
 If verification fails, offer to restructure: unstage, regroup files,
