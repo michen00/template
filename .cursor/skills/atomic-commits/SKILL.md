@@ -298,9 +298,6 @@ build: add requirements viewer script
 feat: add expandPhases for phase ranges
 ```
 
-Files: `scripts/build-requirements-viewer.js`,
-`product-docs/requirements-viewer.html`
-
 ### Pattern: Feature + related documentation
 
 **Commits:** 2 commits — feature first, then docs.
