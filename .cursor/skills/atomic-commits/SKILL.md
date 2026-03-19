@@ -54,7 +54,8 @@ config that skip signing. See repo root [AGENTS.md](../../../AGENTS.md).
 
 | Rule          | Constraint                                     |
 | ------------- | ---------------------------------------------- |
-| Format        | `<type>: <subject>` (Conventional Commits)     |
+| Format        | `<type>(<scope>): <subject>` (Conventional     |
+|               | Commits; scope is optional)                    |
 | Length        | 5–50 characters (entire title line)            |
 | Mood          | Imperative ("add", "fix" — not past tense)     |
 | Allowed types | `feat`, `chore`, `docs`, `refactor`, `style`,  |
@@ -136,12 +137,16 @@ Follow gitlint rules exactly.
 **Title formula:**
 
 ```text
-<type>: <imperative-verb> <concise-object>
+<type>(<scope>): <imperative-verb> <concise-object>
 ```
+
+The scope is optional. Use it when the change is clearly confined to a
+subsystem, module, or area of the project (e.g., `ci`, `api`, `core`,
+`cli`). Omit it for cross-cutting or general changes.
 
 **Constraints checklist:**
 
-- Total title length: 5–50 characters
+- Total title length: 5–50 characters (including scope if present)
 - Imperative mood: "add", "fix", "update", "remove", "refactor" (not
   "added", "fixes")
 - No trailing period
@@ -168,7 +173,7 @@ Follow gitlint rules exactly.
 **Message format:**
 
 ```text
-<type>: <subject>
+<type>(<optional-scope>): <subject>
 
 <optional body explaining why>
 ```
@@ -230,6 +235,12 @@ Files: `scripts/build-requirements-viewer.js`,
 `product-docs/requirements-viewer.html`
 ```
 
+### Scoped feature
+
+```text
+feat(api): add pagination to list endpoint
+```
+
 ### Bug fix
 
 ```text
@@ -237,6 +248,14 @@ fix: correct phase range expansion
 
 Phases like "1-3" were not expanding to individual phase numbers during
 filtering.
+```
+
+### Scoped bug fix
+
+```text
+fix(auth): prevent token refresh race condition
+
+Concurrent refresh requests could invalidate each other's tokens.
 ```
 
 ### Documentation only
@@ -251,10 +270,22 @@ docs: update summary report findings
 chore: add gitlint config
 ```
 
+### Scoped CI change
+
+```text
+ci(github): add concurrency to workflow
+```
+
 ### Refactoring
 
 ```text
 refactor: simplify transcript cleanup
+```
+
+### Scoped refactoring
+
+```text
+refactor(cli): extract arg parsing helpers
 ```
 
 ### Build/tooling

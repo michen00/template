@@ -39,7 +39,8 @@ All commits must satisfy the project's `.gitlint` configuration.
 
 | Rule          | Constraint                                     |
 | ------------- | ---------------------------------------------- |
-| Format        | `<type>: <subject>` (Conventional Commits)     |
+| Format        | `<type>(<scope>): <subject>` (Conventional     |
+|               | Commits; scope is optional)                    |
 | Length        | 5–50 characters (entire title line)            |
 | Mood          | Imperative ("add", "fix" — not past tense)     |
 | Allowed types | `feat`, `chore`, `docs`, `refactor`, `style`,  |
@@ -95,8 +96,10 @@ title, files included, rationale. STOP here and
 
 ### Step 3 — Write Messages
 
-**Title formula:** `<type>: <imperative-verb> <concise-object>` — 5–50
-chars, imperative, no trailing period.
+**Title formula:** `<type>(<scope>): <imperative-verb> <concise-object>`
+— 5–50 chars, imperative, no trailing period. Scope is optional; use it
+when the change is confined to a subsystem (e.g., `fix(auth): ...`).
+Omit for cross-cutting changes.
 
 **Body:** explain _why_, not _what_. Wrap commit message body at 72
 chars; never split formatting markup (e.g. keep `**bold**` or
@@ -112,6 +115,11 @@ commit with prepared message (signed), verify `git log --oneline -1`.
 
 After each commit, run relevant checks (script, build, `make verify`,
 etc.). If verification fails, offer to unstage, regroup, and re-commit.
+
+## Examples
+
+- Unscoped: `feat: add phase filter to viewer`
+- Scoped: `fix(auth): prevent token refresh race`
 
 ## Common Patterns
 
@@ -131,7 +139,8 @@ Before executing:
 - [ ] Generated files paired with their source changes
 - [ ] No commit leaves the codebase broken
 - [ ] Sequence respects dependency order
-- [ ] Titles: 5–50 chars, imperative, `<type>: <subject>`
+- [ ] Titles: 5–50 chars (including scope if present), imperative,
+      `<type>(<optional-scope>): <subject>`
 - [ ] Commit message body lines wrap at 72 chars; don't split `**` or
       `_` markup (if present)
 - [ ] No sensitive files staged
