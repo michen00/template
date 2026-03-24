@@ -1,5 +1,5 @@
 #######################################################################################################
-# This .gitignore is composed of the following templates (retrieved 2026-03-15):
+# This .gitignore is composed of the following templates (retrieved 2026-03-23):
 # Language / runtime / ecosystem
 # - https://raw.githubusercontent.com/github/gitignore/main/community/Python/JupyterNotebooks.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
@@ -1362,14 +1362,13 @@ Backup of *.doc*
 # End of https://raw.githubusercontent.com/github/gitignore/main/Global/Patch.gitignore
 
 # Claude user-specific settings
-.claude/commands
 .claude/settings.local.json
-.claude/skills/openspec-*/SKILL.md
 
 # Cursor rules
 .cursor/rules/
 
 # OpenSpec scaffolding
+.claude/skills/openspec-*/SKILL.md
 .codex/skills/openspec-*/SKILL.md
 .cursor/commands/opsx-*.md
 .cursor/skills/openspec-*/SKILL.md
@@ -1377,9 +1376,11 @@ Backup of *.doc*
 .github/skills/openspec-*/SKILL.md
 
 # spec-kit scaffolding
+.claude/commands/speckit.*.md
 .cursor/commands/speckit.*.md
 .github/agents/speckit.*.agent.md
 .github/prompts/speckit.*.prompt.md
+.specify/init-options.json
 .specify/scripts/bash/*.sh
 .specify/templates/*.md
 
