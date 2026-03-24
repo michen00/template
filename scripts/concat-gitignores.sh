@@ -296,6 +296,7 @@ cat >> "$OUTPUT_FILE" << EOF
 .github/skills/openspec-*/SKILL.md
 
 # spec-kit scaffolding
+.agents/skills/speckit-*/SKILL.md
 .claude/commands/speckit.*.md
 .cursor/commands/speckit.*.md
 .github/agents/speckit.*.agent.md

@@ -1,5 +1,5 @@
 #######################################################################################################
-# This .gitignore is composed of the following templates (retrieved 2026-03-23):
+# This .gitignore is composed of the following templates (retrieved 2026-03-24):
 # Language / runtime / ecosystem
 # - https://raw.githubusercontent.com/github/gitignore/main/community/Python/JupyterNotebooks.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
@@ -1376,6 +1376,7 @@ Backup of *.doc*
 .github/skills/openspec-*/SKILL.md
 
 # spec-kit scaffolding
+.agents/skills/speckit-*/SKILL.md
 .claude/commands/speckit.*.md
 .cursor/commands/speckit.*.md
 .github/agents/speckit.*.agent.md
