@@ -3,3 +3,5 @@ default: true
 line-length: false
 no-duplicate-heading:
   siblings_only: true
+ul-style:
+  style: dash
