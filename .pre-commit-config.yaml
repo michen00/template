@@ -152,7 +152,7 @@ repos:
         args: ['--config-file=pyproject.toml', '--install-types', '--non-interactive']
         additional_dependencies:
           - nox[uv]
-          - pydantic[mypy]
+          - pydantic
           - pytest
           - types-pyyaml
           - typer
