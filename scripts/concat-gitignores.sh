@@ -309,6 +309,8 @@ cat >> "$OUTPUT_FILE" << EOF
 .delete-me/
 
 !.gitkeep
+!src/*/bin
+!src/*/bin/**
 EOF
 
 echo "Combined .gitignore created as $OUTPUT_FILE"

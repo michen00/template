@@ -1,5 +1,5 @@
 #######################################################################################################
-# This .gitignore is composed of the following templates (retrieved 2026-03-24):
+# This .gitignore is composed of the following templates (retrieved 2026-03-30):
 # Language / runtime / ecosystem
 # - https://raw.githubusercontent.com/github/gitignore/main/community/Python/JupyterNotebooks.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
@@ -1389,3 +1389,5 @@ Backup of *.doc*
 .delete-me/
 
 !.gitkeep
+!src/*/bin
+!src/*/bin/**
