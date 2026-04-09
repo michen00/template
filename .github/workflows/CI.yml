@@ -3,23 +3,6 @@ name: CI
 on:
   pull_request:
     branches: [main]
-    paths:
-      - .codespellrc
-      - .coveragerc
-      - .editorconfig
-      - .gitlint
-      - .pylintrc
-      - .python-version
-      - .yamllint
-      - '**/*.lock'
-      - '**/*.md'
-      - '**/*.py'
-      - '**/*.sh'
-      - '**/*.toml'
-      - '**/*.yaml'
-      - '**/*.yml'
-      - src/**
-      - tests/**
   push:
     branches: [main]
   workflow_dispatch:
