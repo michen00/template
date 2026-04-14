@@ -7,7 +7,7 @@ authors = [{ name = 'Michael I Chen', email = 'michael.chen.0@gmail.com' }]
 requires-python = '>=3.13'
 dependencies = [
     'loguru>=0.7.3',
-    'pandera[polars]>=0.25.0',
+    'pandera[polars]>=0.31.0',
     'plotly>=6.3.1',
     'polars>=1.32.2',
     'pydantic-settings>=2.10.1',

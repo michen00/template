@@ -488,7 +488,7 @@ wheels = [
 
 [[package]]
 name = "pandera"
-version = "0.26.1"
+version = "0.31.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "packaging" },
@@ -497,9 +497,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "typing-inspect" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ff/0b/bb312b98a92b00ff48e869e2769ce5ca6c7bc4ec793a429d450dc3c9bba2/pandera-0.26.1.tar.gz", hash = "sha256:81a55a6429770d31b3bf4c3e8e1096a38296bd3009f9eca5780fad3c3c17fd82", size = 560263, upload-time = "2025-08-26T17:06:30.907Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/69/cf/f4c0b5160728f476d368941918b0f16f20dce646e6f518d12e1afec2540b/pandera-0.31.0.tar.gz", hash = "sha256:2cebe283c359f04e7f8f0d1127495ab5c37c98b3dde2807168647e64fd09c3aa", size = 729387, upload-time = "2026-04-14T02:03:48.869Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/db/3b/91622e08086a6be44d2c0f34947d94c5282b53d217003d3ba390ee2d174b/pandera-0.26.1-py3-none-any.whl", hash = "sha256:1ff5b70556ce2f85c6b27e8fbe835a1761972f4d05f6548b4686b0db26ecb73b", size = 292907, upload-time = "2025-08-26T17:06:29.193Z" },
+    { url = "https://files.pythonhosted.org/packages/86/53/748edebbd160671f18a587ee2bde0dac0c0120c380041ff8ccaafbfb3d9f/pandera-0.31.0-py3-none-any.whl", hash = "sha256:8719917ab7791113457d471bab5737e124e92fba9867d74ca885c5b780aea942", size = 386245, upload-time = "2026-04-14T02:03:47.068Z" },
 ]
 
 [package.optional-dependencies]
@@ -943,7 +943,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "loguru", specifier = ">=0.7.3" },
-    { name = "pandera", extras = ["polars"], specifier = ">=0.25.0" },
+    { name = "pandera", extras = ["polars"], specifier = ">=0.31.0" },
     { name = "plotly", specifier = ">=6.3.1" },
     { name = "polars", specifier = ">=1.32.2" },
     { name = "pydantic", specifier = ">=2.13.0" },
