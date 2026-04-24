@@ -29,7 +29,7 @@ dev = [
     'pre-commit>=4.6.0',
     'prek>=0.3.10',
     'pylint>=3.3.2',
-    'ruff>=0.15.11',
+    'ruff>=0.15.12',
 ]
 test = ['pytest>=8.4.0', 'pytest-cov>=6.2.1', 'pytest-xdist>=3.8.0']
 
