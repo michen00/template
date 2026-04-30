@@ -14,7 +14,7 @@ dependencies = [
     'pydantic>=2.13.3',
     'pyyaml>=6.0.2',
     'rich-argparse>=1.7.1',
-    'typer>=0.25.0',
+    'typer>=0.25.1',
     'yapic-json>=1.9.5',
 ]
 
