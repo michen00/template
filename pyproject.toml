@@ -24,7 +24,7 @@ example-script = 'template.example_script:main'
 [dependency-groups]
 dev = [
     'mypy>=1.20.2',
-    'nox[uv]>=2025.10.14',
+    'nox[uv]>=2026.4.10',
     'pip>=26.1',
     'pre-commit>=4.6.0',
     'prek>=0.3.11',
