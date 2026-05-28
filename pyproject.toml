@@ -14,7 +14,7 @@ dependencies = [
     'pydantic>=2.13.4',
     'pyyaml>=6.0.2',
     'rich-argparse>=1.8.0',
-    'typer>=0.26.2',
+    'typer>=0.26.3',
     'yapic-json>=1.9.5',
 ]
 
@@ -29,7 +29,7 @@ dev = [
     'pre-commit>=4.6.0',
     'prek>=0.4.3',
     'pylint>=3.3.2',
-    'ruff>=0.15.14',
+    'ruff>=0.15.15',
 ]
 test = ['pytest>=8.4.0', 'pytest-cov>=6.2.1', 'pytest-xdist>=3.8.0']
 
