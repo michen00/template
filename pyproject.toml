@@ -14,7 +14,7 @@ dependencies = [
     'pydantic>=2.13.4',
     'pyyaml>=6.0.2',
     'rich-argparse>=1.8.0',
-    'typer>=0.26.3',
+    'typer>=0.26.7',
     'yapic-json>=1.9.5',
 ]
 
@@ -25,7 +25,7 @@ example-script = 'template.example_script:main'
 dev = [
     'mypy>=1.20.2',
     'nox[uv]>=2025.10.14',
-    'pip>=26.1.1',
+    'pip>=26.1.2',
     'pre-commit>=4.6.0',
     'prek>=0.4.3',
     'pylint>=3.3.2',
