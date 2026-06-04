@@ -8,7 +8,7 @@ requires-python = '>=3.13'
 dependencies = [
     'loguru>=0.7.3',
     'pandera[polars]>=0.31.1',
-    'plotly>=6.3.1',
+    'plotly>=6.8.0',
     'polars>=1.41.2',
     'pydantic-settings>=2.14.1',
     'pydantic>=2.13.4',
