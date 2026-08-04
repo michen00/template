@@ -23,7 +23,7 @@ default_stages: [pre-commit]
 repos:
   # maintenance
   - repo: https://github.com/pre-commit/sync-pre-commit-deps
-    rev: v0.0.4
+    rev: v0.0.5
     hooks:
       - id: sync-pre-commit-deps
 
@@ -80,12 +80,12 @@ repos:
       - id: requirements-txt-fixer
       - id: trailing-whitespace
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.8.4
+    rev: v3.9.6
     hooks:
       - id: prettier
         types_or: [css, html, javascript, json, markdown, scss, ts, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.18
+    rev: v0.16.1
     hooks:
       - id: ruff-check
         types_or: [jupyter, pyi, python, toml]
@@ -97,7 +97,7 @@ repos:
     hooks:
       - id: shfmt
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.49.0
+    rev: v0.49.1
     hooks:
       - id: markdownlint
         args: [--fix]
@@ -126,11 +126,11 @@ repos:
       - id: yamllint
         args: [--strict]
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.47.2
+    rev: v1.48.0
     hooks:
       - id: typos
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.2
+    rev: v2.4.3
     hooks:
       - id: codespell
         args: [--skip, '*.ipynb']
@@ -145,7 +145,7 @@ repos:
 
   # static type analysis
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.1.0
+    rev: v2.3.0
     hooks:
       - id: mypy
         exclude: '.ipynb$'
@@ -165,7 +165,7 @@ repos:
       - id: validate-pyproject
         additional_dependencies: ['validate-pyproject-schema-store[all]']
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.37.3
+    rev: 0.37.4
     hooks:
       - id: check-dependabot
       - id: check-github-workflows
