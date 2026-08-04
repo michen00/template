@@ -441,10 +441,26 @@ awk '
   in_unreleased { print }
 ' "$CLIFF_OUTPUT" > "$TEMP_FILE"
 
-# Check if we got valid content
+# An empty extraction means the output carried no "## [Unreleased]" heading.
+# Ask git whether that is expected instead of inferring it from the output's
+# shape. If HEAD sits exactly on a release tag there is nothing unreleased and
+# this is a clean no-op. Otherwise commits exist that should have been rendered
+# under that heading, so the template or --cliff-args config is incompatible --
+# '--tag vX.Y.Z' pins a versioned heading, and a custom --config may rename the
+# heading entirely -- and exiting 0 would leave ${CHANGELOG} silently stale.
+#
+# Deliberately not inspecting CLIFF_OUTPUT: byte emptiness is unusable because
+# cliff.toml always emits header/footer boilerplate, and matching on headings or
+# entry markup only ever covers the shapes you thought to enumerate. Heading
+# level, list style and template markup are all irrelevant to git.
 if [ ! -s "$TEMP_FILE" ]; then
-  echo "Error: No Unreleased section found in git cliff output" >&2
-  rm -f "$TEMP_FILE" "$CLIFF_OUTPUT"
+  if git describe --exact-match --tags HEAD > /dev/null 2>&1; then
+    echo "No unreleased changes found; ${CHANGELOG} is already up to date." >&2
+    exit 0
+  fi
+  echo "Error: no '## [Unreleased]' heading in git cliff output, but HEAD is not on a release tag." >&2
+  echo "The generated section cannot be applied to ${CHANGELOG}." >&2
+  echo "Check --cliff-args (e.g. --tag pins a versioned heading) and the changelog template." >&2
   exit 1
 fi
 
