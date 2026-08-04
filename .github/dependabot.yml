@@ -20,3 +20,13 @@ updates:
     groups:
       actions:
         patterns: ['*']
+    ignore:
+      # changelog-autoupdate.yml floats this on the major on purpose:
+      # install-action resolves an unversioned tool from manifests baked into
+      # its own release, so pinning the action pins git-cliff with it. Was
+      # re-pinned to @v2.85.4 in #149 and had to be reverted.
+      - dependency-name: taiki-e/install-action
+    cooldown:
+      # Parity with the uv ecosystem above. Without it four majors landed the
+      # day after publication with no soak time.
+      semver-major-days: 30
