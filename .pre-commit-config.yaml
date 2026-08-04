@@ -23,7 +23,7 @@ default_stages: [pre-commit]
 repos:
   # maintenance
   - repo: https://github.com/pre-commit/sync-pre-commit-deps
-    rev: v0.0.4
+    rev: v0.0.5
     hooks:
       - id: sync-pre-commit-deps
 
@@ -80,12 +80,12 @@ repos:
       - id: requirements-txt-fixer
       - id: trailing-whitespace
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.9.5
+    rev: v3.9.6
     hooks:
       - id: prettier
         types_or: [css, html, javascript, json, markdown, scss, ts, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.21
+    rev: v0.16.1
     hooks:
       - id: ruff-check
         types_or: [jupyter, pyi, python, toml]
@@ -97,7 +97,7 @@ repos:
     hooks:
       - id: shfmt
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.49.0
+    rev: v0.49.1
     hooks:
       - id: markdownlint
         args: [--fix]
@@ -130,7 +130,7 @@ repos:
     hooks:
       - id: typos
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.2
+    rev: v2.4.3
     hooks:
       - id: codespell
         args: [--skip, '*.ipynb']
