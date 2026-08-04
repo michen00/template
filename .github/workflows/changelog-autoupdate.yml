@@ -21,7 +21,10 @@ jobs:
         with:
           fetch-depth: 0 # Full history needed for git cliff
       - name: Install git-cliff
-        uses: taiki-e/install-action@v2.85.4
+        # Floating on purpose: install-action resolves an unversioned tool from
+        # manifests baked into its own release, so pinning the action pins
+        # git-cliff too. Let git-cliff track upstream.
+        uses: taiki-e/install-action@v2
         with:
           tool: git-cliff
       - name: Update Unreleased section
