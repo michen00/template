@@ -8,13 +8,13 @@ requires-python = '>=3.13'
 dependencies = [
     'loguru>=0.7.3',
     'pandera[polars]>=0.31.1',
-    'plotly>=6.8.0',
-    'polars>=1.41.2',
+    'plotly>=6.9.0',
+    'polars>=1.43.2',
     'pydantic-settings>=2.14.2',
     'pydantic>=2.13.4',
     'pyyaml>=6.0.2',
     'rich-argparse>=1.8.0',
-    'typer>=0.26.7',
+    'typer>=0.27.1',
     'yapic-json>=1.9.5',
 ]
 
@@ -23,15 +23,15 @@ example-script = 'template.example_script:main'
 
 [dependency-groups]
 dev = [
-    'mypy>=2.1.0',
+    'mypy>=2.3.0',
     'nox[uv]>=2026.7.11',
-    'pip>=26.1.2',
-    'pre-commit>=4.6.0',
-    'prek>=0.4.4',
-    'pylint>=3.3.2',
-    'ruff>=0.15.16',
+    'pip>=26.2',
+    'pre-commit>=4.6.1',
+    'prek>=0.4.12',
+    'pylint>=4.0.6',
+    'ruff>=0.16.1',
 ]
-test = ['pytest>=8.4.0', 'pytest-cov>=6.2.1', 'pytest-xdist>=3.8.0']
+test = ['pytest>=9.1.1', 'pytest-cov>=6.2.1', 'pytest-xdist>=3.8.0']
 
 [tool.uv]
 default-groups = []
