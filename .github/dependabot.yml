@@ -27,6 +27,19 @@ updates:
       # re-pinned to @v2.85.4 in #149 and had to be reverted.
       - dependency-name: taiki-e/install-action
     cooldown:
-      # Parity with the uv ecosystem above. Without it four majors landed the
-      # day after publication with no soak time.
+      # Wider than the uv ecosystem above, rather than at parity with it, and the
+      # asymmetry is the point. This is the one ecosystem whose packages execute
+      # with this repository's own token, inside jobs holding contents and
+      # pull-requests write, so a compromised release can be published and
+      # proposed here within hours. When the risk is the publisher rather than a
+      # changed interface, a patch is not safer than a major, so the delay covers
+      # every update and not only majors.
+      #
+      # The major figure also carries more weight than it did: bot-automerge.yml
+      # now arms actions majors instead of holding them, because the actions here
+      # are pinned to floating major tags, so Dependabot raises an actions pull
+      # request only when a major moves -- which made a blanket hold permanent.
+      # This delay is the soak period that replaced that hold. Without it four
+      # majors landed the day after publication with no soak time.
+      default-days: 7
       semver-major-days: 30
