@@ -164,13 +164,19 @@ jobs:
           # push to this repository can set it to the bot's noreply address and be read as
           # the bot.
           #
-          # The signature is the load-bearing half. A commit created through GitHub -- by
-          # Dependabot, by pre-commit-ci, or by the Update branch button -- is signed by
-          # GitHub's own key, and its signed payload names
-          # `committer GitHub <noreply@github.com>`. That cannot be forged without GitHub's
-          # private key, and the payload sits inside the signature, so it cannot be edited
-          # either. A locally pushed commit is signed by the pusher's own key, or not at
-          # all.
+          # `committer.login == "web-flow"` is the load-bearing half, and it is deliberately
+          # not the payload text. GitHub resolves that field from the signing key itself, so
+          # it is not git metadata a pusher can set: measured on real pull requests, both
+          # Dependabot and pre-commit-ci commits report `web-flow` with `verified: true` and
+          # `reason: valid`, while a human's own commits report that human's login.
+          #
+          # The payload check stays as a second, independent condition rather than as the
+          # argument. On its own it would rest on an unstated premise -- that GitHub declines
+          # to mark a commit verified when its committer email is not a verified email of the
+          # signing key's owner -- and a guard should not rest on a premise its reader cannot
+          # check. Requiring both means the guard holds whether or not that premise does.
+          # A locally pushed commit is signed by the pusher's own key, or not at all, and
+          # either way it does not come back as `web-flow`.
           #
           # Merges are exempt from the author check but not from the signature check, and
           # that pairing is what makes the exemption safe. A merge commit's tree is not
@@ -188,6 +194,8 @@ jobs:
           set -euo pipefail
           jq_rows='.[] | [
             (if (.commit.verification.verified == true)
+                and (.commit.verification.reason == "valid")
+                and ((.committer.login // "") == "web-flow")
                 and ((.commit.verification.payload // "") | split("\n")
                      | any(startswith("committer GitHub <noreply@github.com>")))
              then "github" else "elsewhere" end),
