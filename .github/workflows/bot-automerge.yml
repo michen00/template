@@ -263,8 +263,15 @@ jobs:
               # The actions here are pinned to floating major tags, so Dependabot raises an
               # actions pull request only when a major moves -- which made a blanket major
               # hold a blanket hold on every actions pull request there will ever be. That
-              # is not a policy but an outage. The 30-day major cooldown in dependabot.yml
-              # is the soak period that replaces the hold.
+              # is not a policy but an outage. The cooldown in dependabot.yml is the soak
+              # period that replaces the hold -- and it covers every actions update rather
+              # than only majors, because that ecosystem accepts no major-specific key.
+              #
+              # Its effective length is longer than the number suggests, which is worth
+              # knowing before tuning it: the actions ecosystem is polled on the 1st and
+              # 15th, so an update whose cooldown expires just after a poll waits until the
+              # next one. Thirty days of cooldown therefore lands a pull request roughly
+              # thirty to forty-five days after the release.
               #
               # No per-workflow hold list here, unlike the sibling repositories that publish
               # something. This repository publishes nothing: every workflow except

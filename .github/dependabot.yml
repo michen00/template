@@ -27,19 +27,17 @@ updates:
       # re-pinned to @v2.85.4 in #149 and had to be reverted.
       - dependency-name: taiki-e/install-action
     cooldown:
-      # Wider than the uv ecosystem above, rather than at parity with it, and the
-      # asymmetry is the point. This is the one ecosystem whose packages execute
-      # with this repository's own token, inside jobs holding contents and
-      # pull-requests write, so a compromised release can be published and
-      # proposed here within hours. When the risk is the publisher rather than a
-      # changed interface, a patch is not safer than a major, so the delay covers
-      # every update and not only majors.
+      # default-days only. GitHub rejects the semver-* keys for this ecosystem --
+      # "not supported for the package ecosystem 'github-actions'" -- and an
+      # invalid key here does not degrade gracefully: it invalidates the file and
+      # drops this whole entry, grouping and ignore rules included. The
+      # check-dependabot schema hook does not catch it, because the rejection is
+      # server-side rather than schematic.
       #
-      # The major figure also carries more weight than it did: bot-automerge.yml
-      # now arms actions majors instead of holding them, because the actions here
-      # are pinned to floating major tags, so Dependabot raises an actions pull
-      # request only when a major moves -- which made a blanket hold permanent.
-      # This delay is the soak period that replaced that hold. Without it four
-      # majors landed the day after publication with no soak time.
-      default-days: 7
-      semver-major-days: 30
+      # So one number covers every actions update, and 30 days is chosen over a
+      # shorter delay because bot-automerge.yml now arms actions majors: this is
+      # the only soak period between a release being published and it merging
+      # here unattended. A patch is not safer than a major when the risk is a
+      # compromised publisher rather than a changed interface, and these packages
+      # execute with this repository's own token inside jobs holding write scopes.
+      default-days: 30
