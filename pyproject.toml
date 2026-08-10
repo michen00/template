@@ -26,9 +26,9 @@ dev = [
     'mypy>=2.3.0',
     'nox[uv]>=2026.8.10',
     'pip>=26.2.1',
-    'pre-commit>=4.6.1',
-    'prek>=0.4.12',
-    'pylint>=4.0.6',
+    'pre-commit>=4.6.2',
+    'prek>=0.4.13',
+    'pylint>=4.0.7',
     'ruff>=0.16.2',
 ]
 test = ['pytest>=9.1.1', 'pytest-cov>=6.2.1', 'pytest-xdist>=3.8.0']
