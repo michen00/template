@@ -24,6 +24,7 @@ _typos.toml
 .github/workflows/delete-bot-branches-for-closed-prs.yml
 .github/workflows/greet-new-contributors.yml
 .github/workflows/lint-github-actions.yml
+.github/workflows/pr-mechanical-checks.yml
 .gitignore
 .gitlint
 .markdownlint.yml
@@ -38,6 +39,10 @@ _typos.toml
 .vscode/settings.json
 .yamllint
 CHANGELOG.md
+checks/__init__.py
+checks/_common.py
+checks/check_commit_messages.py
+checks/check_pr_title.py
 cliff.toml
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md

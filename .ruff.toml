@@ -71,6 +71,14 @@ max-complexity = 15
     'F403', # undefined-local-with-import-star
 ]
 'noxfile.py' = ['S603'] # subprocess-without-shell-equals-true
+# The PR checks are standalone CLIs: printing is their output, and the one
+# subprocess call is a fixed `git log` argv with no user-supplied executable.
+'checks/*.py' = ['T201'] # Use of print
+'checks/check_commit_messages.py' = [
+    'S603', # subprocess-without-shell-equals-true
+    'S607', # start-process-with-partial-path (`git` off PATH)
+    'T201', # Use of print
+]
 'tests/*.py' = [
     'S101', # Use of assert
     'D401', # non-imperative-mood; test docstrings read as assertions
