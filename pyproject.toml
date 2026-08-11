@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.scripts]
-example-script = 'template.example_script:main'
+example-script = 'template.bin.example_script:run_script'
 
 [dependency-groups]
 dev = [
