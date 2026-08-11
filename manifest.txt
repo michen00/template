@@ -54,6 +54,7 @@ notebooks/.gitkeep
 noxfile.py
 pyproject.toml
 scripts/concat-gitignores.sh
+scripts/lib/resolve-github-token.sh
 scripts/update-unreleased.sh
 src/template/__init__.py
 src/template/bin/.gitkeep

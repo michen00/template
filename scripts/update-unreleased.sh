@@ -18,6 +18,31 @@ if [[ ${BASH_VERSINFO[0]:-0} -lt 4 ]]; then
 fi
 
 SCRIPT_NAME=$(basename "$0")
+# Resolved before the `cd` to the repository root below, so the helper lookup does
+# not depend on the caller's working directory. Parameter expansion rather than
+# `dirname`, and `cd`/`pwd` because both are builtins: the "not installed" checks
+# further down are exercised with a deliberately minimal PATH, and reaching for an
+# external binary this early would abort the script before those checks can report.
+SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+if [[ "$SCRIPT_DIR" == "${BASH_SOURCE[0]}" ]]; then
+  SCRIPT_DIR="." # invoked as a bare filename, so it lives in the working directory
+elif [[ -z "$SCRIPT_DIR" ]]; then
+  SCRIPT_DIR="/" # invoked as an absolute path at the filesystem root
+fi
+SCRIPT_DIR="$(cd -- "$SCRIPT_DIR" && pwd -P)"
+
+# Optional helper that hands git-cliff a github.com token. Sourced defensively:
+# a checkout without scripts/lib/ should still produce a changelog, just an
+# unauthenticated one, rather than dying before it parses its own arguments.
+TOKEN_LIB="${SCRIPT_DIR}/lib/resolve-github-token.sh"
+if [[ -f "$TOKEN_LIB" ]]; then
+  # shellcheck source=lib/resolve-github-token.sh disable=SC1091
+  source "$TOKEN_LIB"
+else
+  # Stub with the same contract: print nothing, succeed.
+  resolve_github_token_via_gh() { :; }
+fi
+
 COMMIT=""
 SHOULD_COMMIT=false
 CHANGELOG="CHANGELOG.md"
@@ -195,6 +220,29 @@ if ! command -v git-cliff > /dev/null 2>&1; then
   echo "Error: git-cliff is not installed or not available in PATH" >&2
   echo "Install it with: cargo install git-cliff" >&2
   exit 1
+fi
+
+# git-cliff resolves commit authors to GitHub handles only when it knows which
+# repository to query; it does not infer one from the git remote. Deriving the value
+# here rather than pinning it in cliff.toml keeps forks and renamed repositories
+# working, since they query themselves instead of whatever upstream was hardcoded.
+# An explicit GITHUB_REPO wins, which is also how a fork can point elsewhere.
+# Resolution additionally needs a token (see the git cliff invocation below);
+# without one every author falls back to a bare mailto link.
+if [[ -z "${GITHUB_REPO:-}" ]]; then
+  origin_url="$(git remote get-url origin 2> /dev/null || true)"
+  # Normalize so the repository is the final path element.
+  candidate="${origin_url%/}"
+  candidate="${candidate%.git}"
+  candidate="${candidate%/}"
+  # Anchored on purpose. A substring test for "github.com" accepts hosts such as
+  # evil-github.com and github.com.example.net, and would hand git-cliff an
+  # unrelated owner/repo slug -- which it queries against api.github.com and then
+  # exits on when that 404s, taking changelog generation down with it.
+  github_remote_re='^(git@github\.com:|ssh://git@github\.com/|https://([^@/]*@)?github\.com/)([^/]+)/([^/]+)$'
+  if [[ "$candidate" =~ $github_remote_re ]]; then
+    export GITHUB_REPO="${BASH_REMATCH[3]}/${BASH_REMATCH[4]}"
+  fi
 fi
 
 # Check if changelog file exists
@@ -427,8 +475,25 @@ fi
 TEMP_FILE=$(mktemp)
 CLIFF_OUTPUT=$(mktemp)
 
-# Generate unreleased changes with git cliff
-git cliff --unreleased "${CLIFF_ARGS_ARRAY[@]}" > "$CLIFF_OUTPUT"
+# Generate unreleased changes with git cliff.
+#
+# git-cliff queries the GitHub API to enrich entries with author handles, and on a
+# private repository an unauthenticated request comes back 404 -- which it treats as
+# fatal rather than degrading to plain output. Supplying a token when one can be had
+# locally keeps `make` targets and hooks working outside CI, where the workflow
+# injects GITHUB_TOKEN itself (in which case the helper returns nothing and the
+# inherited value is used as-is).
+#
+# The token is deliberately NOT exported: a one-shot assignment puts it in the
+# environment of this single child and nowhere else, so it cannot leak into the
+# `git commit` below or into any hook that commit fires.
+CLIFF_GITHUB_TOKEN="$(resolve_github_token_via_gh)"
+if [[ -n "$CLIFF_GITHUB_TOKEN" ]]; then
+  GITHUB_TOKEN="$CLIFF_GITHUB_TOKEN" git cliff --unreleased "${CLIFF_ARGS_ARRAY[@]}" > "$CLIFF_OUTPUT"
+else
+  git cliff --unreleased "${CLIFF_ARGS_ARRAY[@]}" > "$CLIFF_OUTPUT"
+fi
+unset CLIFF_GITHUB_TOKEN
 
 # Extract the Unreleased section from git cliff output:
 # - Start from "## [Unreleased]"
@@ -445,14 +510,15 @@ awk '
 # Ask git whether that is expected instead of inferring it from the output's
 # shape. If HEAD sits exactly on a release tag there is nothing unreleased and
 # this is a clean no-op. Otherwise commits exist that should have been rendered
-# under that heading, so the template or --cliff-args config is incompatible --
+# under that heading, so the cliff.toml layout or --cliff-args config is
+# incompatible --
 # '--tag vX.Y.Z' pins a versioned heading, and a custom --config may rename the
 # heading entirely -- and exiting 0 would leave ${CHANGELOG} silently stale.
 #
 # Deliberately not inspecting CLIFF_OUTPUT: byte emptiness is unusable because
 # cliff.toml always emits header/footer boilerplate, and matching on headings or
 # entry markup only ever covers the shapes you thought to enumerate. Heading
-# level, list style and template markup are all irrelevant to git.
+# level, list style and markup are all irrelevant to git.
 if [ ! -s "$TEMP_FILE" ]; then
   if git describe --exact-match --tags HEAD > /dev/null 2>&1; then
     echo "No unreleased changes found; ${CHANGELOG} is already up to date." >&2
@@ -460,7 +526,7 @@ if [ ! -s "$TEMP_FILE" ]; then
   fi
   echo "Error: no '## [Unreleased]' heading in git cliff output, but HEAD is not on a release tag." >&2
   echo "The generated section cannot be applied to ${CHANGELOG}." >&2
-  echo "Check --cliff-args (e.g. --tag pins a versioned heading) and the changelog template." >&2
+  echo "Check --cliff-args (e.g. --tag pins a versioned heading) and cliff.toml." >&2
   exit 1
 fi
 
