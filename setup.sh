@@ -352,7 +352,11 @@ if [ ! -f "$PROFILE_FILE" ]; then
   echo "Error: $PROFILE_FILE not found." >&2
   exit 1
 fi
-# shellcheck source=.template-profile.sh
+# The hook does not pass -x, so shellcheck cannot follow this unless the profile
+# happens to be an input too -- which it is under --all-files and is not when
+# setup.sh is committed on its own. Keep the source= hint for an -x run and
+# silence the unresolvable case.
+# shellcheck source=.template-profile.sh disable=SC1091
 source "$PROFILE_FILE"
 
 if [ -n "$PROFILE_NAME" ]; then
@@ -423,7 +427,7 @@ if [[ $SETUP_CHOICE == "1" ]]; then
   read_input CONFIRM "Continue with setup? This will DELETE the files listed above. (y/n): "
 
   if [ "$CONFIRM" != "y" ]; then
-    quiet_echo "Setup cancelled. No changes made."
+    quiet_echo "Setup canceled. No changes made."
     exit 0
   fi
 
@@ -463,7 +467,7 @@ elif [[ $SETUP_CHOICE == "2" ]]; then
     read_input OVERWRITE "Do you want to overwrite it? (y/n): "
 
     if [ "$OVERWRITE" != "y" ]; then
-      quiet_echo "Setup cancelled. No changes made."
+      quiet_echo "Setup canceled. No changes made."
       exit 0
     fi
 

@@ -1,4 +1,10 @@
 [codespell]
+# en-GB_to_en-US enforces a single spelling convention across prose. typos does
+# not do dialect conversion at all -- a British spelling is not a misspelling --
+# so this is the only gate in the stack that can catch it.
 builtin = clear,rare,usage,en-GB_to_en-US
 check-hidden = true
-skip = .gitignore,*.lock,*.lock.yml,*-lock.json
+# CODE_OF_CONDUCT.md is verbatim Contributor Covenant text, so its en-GB spelling
+# is skipped rather than corrected -- editing vendored text to satisfy a linter
+# silently forks it from upstream.
+skip = .gitignore,CODE_OF_CONDUCT.md,*.lock,*.lock.yml,*-lock.json
