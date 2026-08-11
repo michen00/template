@@ -17,6 +17,7 @@ _typos.toml
 .github/scripts/archive-utils.sh
 .github/scripts/ci-ruff-args.sh
 .github/workflows/.cache-buster
+.github/workflows/bot-automerge-disarm.yml
 .github/workflows/bot-automerge.yml
 .github/workflows/changelog-autoupdate.yml
 .github/workflows/CI.yml
