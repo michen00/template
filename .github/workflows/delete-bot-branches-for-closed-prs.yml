@@ -39,9 +39,18 @@ jobs:
             exit 0
           fi
 
-          # Exit if branch is protected
-          if gh api "repos/${REPO}/branches/${BRANCH}" \
-            --jq '.protected' 2>/dev/null | grep -qx true; then
+          # Exit if branch is protected. Fails CLOSED: stderr is not swallowed and an
+          # unreadable answer skips the deletion rather than proceeding to it. The
+          # tempting `2>/dev/null | grep -qx true` inverts the guard -- a rate-limited
+          # or failed read produces no output, grep returns non-zero, and the branch
+          # is deleted on the strength of a question that was never answered. A
+          # swallowed read on a guard removes the guard rather than relaxing it.
+          if ! protected=$(gh api "repos/${REPO}/branches/${BRANCH}" --jq '.protected'); then
+            echo "eligible=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Could not read branch protection state, skipping deletion"
+            exit 0
+          fi
+          if [ "$protected" = true ]; then
             echo "eligible=false" >> "$GITHUB_OUTPUT"
             echo "::warning::Branch is protected, skipping deletion"
             exit 0
