@@ -1,4 +1,4 @@
 [codespell]
-skip = .gitignore,CHANGELOG.md,*.lock
+builtin = clear,rare,usage,en-GB_to_en-US
 check-hidden = true
-builtin = clear,rare,usage
+skip = .gitignore,*.lock,*.lock.yml,*-lock.json
