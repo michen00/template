@@ -275,11 +275,10 @@ jobs:
               #
               # No per-workflow hold list here, unlike the sibling repositories that publish
               # something. This repository publishes nothing: every workflow except
-              # changelog-autoupdate.yml and pre-commit-autoupdate.yml runs on pull
-              # requests, so an actions break surfaces at review time, and a break in either
-              # of those two is a dispatched job that fails visibly and costs a rerun. A list
-              # would be maintenance with nothing behind it, and a stale list fails silently
-              # in the arming direction.
+              # changelog-autoupdate.yml runs on pull requests, so an actions break
+              # surfaces at review time, and a break in that one is a dispatched job that
+              # fails visibly and costs a rerun. A list would be maintenance with nothing
+              # behind it, and a stale list fails silently in the arming direction.
               #
               # `uv` is the ecosystem that lands in the else branch here, and holding its
               # majors is deliberate: this repository is copied to start other ones, so a

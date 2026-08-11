@@ -25,13 +25,15 @@ on:
     types: [labeled]
 
 permissions:
-  contents: write
+  # Declaring the block sets every unlisted scope to none. The job never checks
+  # out and never writes a ref -- it only reads PR state and calls
+  # `gh pr merge --disable-auto` -- so the suppressor cannot do more than suppress.
   pull-requests: write
 
 concurrency:
-  # Keyed on the label as well as the number, and not cancelled in flight: a disarm must not
+  # Keyed on the label as well as the number, and not canceled in flight: a disarm must not
   # be superseded by a different label event arriving on the same pull request. Setting
-  # cancel-in-progress here would mean labelling twice in quick succession could cancel the
+  # cancel-in-progress here would mean labeling twice in quick succession could cancel the
   # disarm and leave the pull request armed.
   group: bot-automerge-disarm-${{ github.event.pull_request.number }}-${{ github.event.label.name }}
   cancel-in-progress: false

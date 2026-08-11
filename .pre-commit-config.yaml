@@ -11,6 +11,11 @@ ci:
     chore: autoupdate pre-commit hooks
 
     for more information, see https://pre-commit.ci
+  # Dependabot's pre-commit ecosystem owns hook bumps (.github/dependabot.yml).
+  # pre-commit.ci cannot be stood down entirely -- the schedule accepts only
+  # weekly/monthly/quarterly -- so it is set to the slowest cadence to keep the
+  # two from opening the same bump. Ignored outright where the app is not installed.
+  autoupdate_schedule: quarterly
 
 default_install_hook_types:
   - commit-msg

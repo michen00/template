@@ -23,7 +23,6 @@ _typos.toml
 .github/workflows/delete-bot-branches-for-closed-prs.yml
 .github/workflows/greet-new-contributors.yml
 .github/workflows/lint-github-actions.yml
-.github/workflows/pre-commit-autoupdate.yml
 .gitignore
 .gitlint
 .markdownlint.yml

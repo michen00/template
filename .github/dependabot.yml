@@ -12,6 +12,19 @@ updates:
         update-types: [minor, patch]
     cooldown:
       semver-major-days: 30
+  # Dependabot owns hook bumps. pre-commit.ci is left as a slow backstop via
+  # `autoupdate_schedule: quarterly` in .pre-commit-config.yaml -- its schedule
+  # accepts only weekly/monthly/quarterly and cannot be stood down, so the two
+  # cannot both be primary.
+  - package-ecosystem: pre-commit
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      pre-commit:
+        patterns: ['*']
+    cooldown:
+      default-days: 7
   - package-ecosystem: github-actions
     directory: /
     schedule:
