@@ -12,3 +12,8 @@ table-format:
   aligned_delimiter: true
 ul-style:
   style: dash
+no-inline-html:
+  allowed_elements:
+    - br
+    - details
+    - summary
