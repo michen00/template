@@ -240,7 +240,11 @@ for url in "${URLS[@]}"; do
     echo "Failed to fetch: $RAW_URL" >&2
     exit 1
   fi
-  CONTENT=$(awk '{ gsub(/\r$/, ""); gsub(/[ \t]+$/, ""); print }' "$TMP_CURL")
+  # macOS.gitignore encodes the CR-suffixed "Icon" file as the bracket class
+  # `Icon[\r]` (a literal CR inside `[...]`). Stripping CR only at end-of-line
+  # leaves the empty class `Icon[]`, which git matches literally, so collapse
+  # the class before the end-of-line strip.
+  CONTENT=$(awk '{ gsub(/\[\r\]/, ""); gsub(/\r$/, ""); gsub(/[ \t]+$/, ""); print }' "$TMP_CURL")
   rm -f "$TMP_CURL"
 
   if [[ -z "$CONTENT" ]]; then
@@ -279,7 +283,9 @@ else
 fi
 
 # Add additional ignore patterns
-cat >> "$OUTPUT_FILE" << EOF
+# Quoted so the block is emitted verbatim: these are gitignore glob patterns, and
+# an unquoted heredoc would treat a `$` or a backtick in one as an expansion.
+cat >> "$OUTPUT_FILE" << 'EOF'
 
 # Claude user-specific settings
 .claude/settings.local.json
@@ -309,8 +315,19 @@ cat >> "$OUTPUT_FILE" << EOF
 .delete-me/
 
 !.gitkeep
+# `bin/` and `**/[Bb]in/*` above (virtualenv and Visual Studio) would otherwise
+# ignore a package's own bin/ directory, so re-include it.
 !src/*/bin
 !src/*/bin/**
+# `lib/` above (a build-output convention) would otherwise ignore this
+# repository's own shell helper library, silently: the files stay untracked and
+# `git add` says nothing about why.
+!scripts/lib/
+!scripts/lib/**
+# ...but the re-include is broad enough to bring back build artifacts with it,
+# so ignore those again. Last match wins, so these must follow the negations.
+src/*/bin/**/__pycache__/
+src/*/bin/**/*.py[cod]
 EOF
 
 echo "Combined .gitignore created as $OUTPUT_FILE"
