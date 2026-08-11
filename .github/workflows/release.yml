@@ -1,0 +1,212 @@
+---
+name: Release
+run-name: Release ${{ github.ref_name }}
+
+# Cutting a release is a two-part ritual: land a version bump on the default
+# branch (`uv version <x.y.z>` plus `uv lock`, so `uv run --locked` in CI stays
+# green), then push a `vX.Y.Z` tag at that commit. This workflow is the second
+# half. It deliberately does NOT bump anything itself -- it only publishes what
+# the tagged commit already claims to be, and it fails loudly when the tag and
+# the built version disagree, which is the single most common release mistake:
+# tagging a commit whose version was never bumped.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  # Keyed on the ref, not the workflow, so two reruns of the same tag serialize
+  # while unrelated tags still publish in parallel. `cancel-in-progress: false`
+  # on purpose: canceling a half-finished release leaves a release object with
+  # some assets uploaded, which is exactly the state this job is written to
+  # recover from rather than create.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash -el {0}
+
+env:
+  # Kept in step with .python-version and pyproject.toml's requires-python.
+  PYTHON_VERSION: '3.13'
+
+# `astral-sh/setup-uv@v9.0.0` is pinned to an exact patch while the other
+# actions float on their major. See the long note in CI.yml: upstream stopped
+# publishing rolling major tags after v7, so an exact pin is the only pin that
+# can move forward.
+
+jobs:
+  github-release:
+    name: Build and publish GitHub Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      # The only elevated grant in this workflow, and it is job-scoped: creating
+      # a release and uploading assets writes to repository contents. No GitHub
+      # App and no personal access token -- the automatic GITHUB_TOKEN is
+      # sufficient because everything published here lives in this repository.
+      contents: write
+    env:
+      REF_NAME: ${{ github.ref_name }}
+    steps:
+      # A shallow checkout is enough. This project carries a static version in
+      # pyproject.toml rather than deriving one from git state, so no tag
+      # history is needed to build, and the release notes fallback
+      # (`--generate-notes`) is computed server-side by GitHub.
+      - uses: actions/checkout@v7
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            .github/workflows/.cache-buster
+            .github/workflows/release.yml
+            pyproject.toml
+            uv.lock
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Build distributions
+        # `rm -rf dist/` first so a stale artifact from a previous attempt on a
+        # warm runner can never be uploaded under a new tag.
+        run: |
+          rm -rf dist/
+          uv build
+          ls -la dist/
+
+      - name: Resolve built version and prerelease flag
+        id: version
+        run: |
+          # The sdist filename is the build backend's own statement of what it
+          # produced, so it -- not pyproject.toml -- is the thing worth checking
+          # against the tag. Its prefix is the PEP 625 normalized project name:
+          # lowercased, with runs of `-`, `_` and `.` collapsed to `_`. Derive it
+          # instead of hardcoding, so this file survives being renamed into any
+          # project. `uv run --no-project` honors the interpreter setup-uv
+          # selected, and tomllib is in the standard library from 3.11 on.
+          dist_name="$(uv run --no-project python -c '
+          import pathlib, re, tomllib
+          name = tomllib.loads(pathlib.Path("pyproject.toml").read_text())["project"]["name"]
+          print(re.sub(r"[-_.]+", "_", name).lower())
+          ')"
+
+          shopt -s nullglob
+          sdist=(dist/*.tar.gz)
+          if [[ ${#sdist[@]} -ne 1 ]]; then
+            echo "::error::Expected exactly one sdist in dist/, found ${#sdist[@]}" >&2
+            exit 1
+          fi
+
+          stem="$(basename "${sdist[0]}" .tar.gz)"
+          if [[ "$stem" != "$dist_name"-* ]]; then
+            echo "::error::Unexpected sdist filename: $stem (expected ${dist_name}-*)" >&2
+            exit 1
+          fi
+
+          version="${stem#"$dist_name"-}"
+          tag_version="${REF_NAME#v}"
+          if [[ "$tag_version" != "$version" ]]; then
+            echo "::error::Tag version ($tag_version) does not match built version ($version)" >&2
+            echo "::error::Bump with 'uv version $tag_version', run 'uv lock', then retag" >&2
+            exit 1
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          # PEP 440 spells prereleases `aN`/`bN`/`rcN` and developmental
+          # releases `.devN`. A `.postN` release is NOT a prerelease and is
+          # intentionally not matched. The leading `^[^+]*` confines the match
+          # to the public version: without it a local segment such as
+          # `1.2.3+beta1` would read as a prerelease.
+          if [[ $version =~ ^[^+]*((a|b|rc)[0-9]+|\.dev[0-9]+) ]]; then
+            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Extract release notes from CHANGELOG
+        id: notes
+        env:
+          BUILT_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # git-cliff writes one `## [X.Y.Z](compare-link) - DATE` heading per
+          # release, so the section for this version is everything between its
+          # heading and the next one. `index($0, ...) == 1` is a literal
+          # prefix test rather than a regex match, so the dots in a version
+          # cannot act as wildcards and match a neighboring release.
+          notes_file="$(mktemp)"
+          awk -v v="$BUILT_VERSION" '
+            index($0, "## [" v "]") == 1 { in_section = 1; next }
+            in_section && index($0, "## [") == 1 { exit }
+            in_section { print }
+          ' CHANGELOG.md > "$notes_file"
+
+          # A section of nothing but blank lines is as useless as no section.
+          if grep -q '[^[:space:]]' "$notes_file"; then
+            echo "have_notes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "have_notes=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "notes_path=$notes_file" >> "$GITHUB_OUTPUT"
+
+      - name: Create or refresh the GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          IS_PRERELEASE: ${{ steps.version.outputs.is_prerelease }}
+          HAVE_NOTES: ${{ steps.notes.outputs.have_notes }}
+          NOTES_PATH: ${{ steps.notes.outputs.notes_path }}
+        # Idempotent by construction. If an earlier attempt died after creating
+        # the release but before uploading every asset, rerunning this job
+        # repairs it in place instead of demanding hand surgery -- so the fix
+        # for a flaked release is always "rerun the job", never "delete the
+        # release and retag".
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            edit_args=(--prerelease="$IS_PRERELEASE")
+            # Only overwrite the body when the CHANGELOG actually has something
+            # to say. `gh release edit` has no --generate-notes, so on a rerun
+            # with no matching section the existing body (very possibly notes
+            # GitHub generated on the first attempt) is left alone rather than
+            # being blanked.
+            if [[ "$HAVE_NOTES" == 'true' ]]; then
+              edit_args+=(--notes-file "$NOTES_PATH")
+            fi
+            gh release edit "$TAG" "${edit_args[@]}"
+            gh release upload "$TAG" dist/* --clobber
+          else
+            create_args=(--title "$TAG" --prerelease="$IS_PRERELEASE")
+            if [[ "$HAVE_NOTES" == 'true' ]]; then
+              create_args+=(--notes-file "$NOTES_PATH")
+            else
+              # Falling back to server-generated notes is what puts
+              # .github/release.yml to work: its `changelog.exclude.authors`
+              # list keeps bot-authored pull requests out of the generated
+              # body. Nothing else in this repository reads that file.
+              create_args+=(--generate-notes)
+            fi
+            gh release create "$TAG" "${create_args[@]}" dist/*
+          fi
+
+      - name: Summary
+        if: always()
+        env:
+          BUILT_VERSION: ${{ steps.version.outputs.version }}
+          IS_PRERELEASE: ${{ steps.version.outputs.is_prerelease }}
+          HAVE_NOTES: ${{ steps.notes.outputs.have_notes }}
+        # `always()` so a failed run still reports how far it got; the empty
+        # defaults below are the tell for "died before that step ran".
+        run: |
+          {
+            echo "## Release run summary"
+            echo
+            printf -- "- Ref: %s\n" "$REF_NAME"
+            printf -- "- Built version: %s\n" "${BUILT_VERSION:-<not built>}"
+            printf -- "- Pre-release: %s\n" "${IS_PRERELEASE:-unknown}"
+            printf -- "- Notes source: %s\n" \
+              "$([[ "$HAVE_NOTES" == 'true' ]] && echo CHANGELOG.md || echo generated)"
+            printf -- "- Artifact target: GitHub Release\n"
+          } >> "$GITHUB_STEP_SUMMARY"

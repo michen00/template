@@ -25,6 +25,7 @@ _typos.toml
 .github/workflows/greet-new-contributors.yml
 .github/workflows/lint-github-actions.yml
 .github/workflows/pr-mechanical-checks.yml
+.github/workflows/release.yml
 .gitignore
 .gitlint
 .markdownlint.yml
@@ -55,6 +56,9 @@ noxfile.py
 pyproject.toml
 scripts/concat-gitignores.sh
 scripts/lib/resolve-github-token.sh
+scripts/promote-changelog.sh
+scripts/release-pr.sh
+scripts/release-tag.sh
 scripts/update-unreleased.sh
 src/template/__init__.py
 src/template/bin/.gitkeep

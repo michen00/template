@@ -274,6 +274,44 @@ push-prod: build ## Publish the package to PyPI using uv
 	@$(UV) publish && echo "Package published to PyPI!"
 
 ##############
+## releases ##
+##############
+
+# Release flow: see RELEASING.md, which is the source of truth. In short:
+#   1. make release-pr VERSION=0.0.1   # bumps, re-locks, promotes CHANGELOG, opens a PR
+#   2. <merge the PR>
+#   3. make release-tag VERSION=0.0.1  # pushes v0.0.1, firing .github/workflows/release.yml
+#
+# These targets are thin wrappers around scripts/; the behavior lives there, not here.
+#
+# VERSION may be given with or without a leading 'v' (0.0.1 or v0.0.1); the 'v' is
+# stripped before use, since the tag is always v$(VERSION).
+_RELEASE_VERSION := $(VERSION:v%=%)
+_REQUIRE_VERSION = @if [ -z "$(VERSION)" ]; then \
+    echo "$(BOLD)$(RED)Error: VERSION is required$(_COLOR) (e.g. $(MAKECMDGOALS) VERSION=0.0.1)" >&2; \
+    exit 1; \
+fi
+
+.PHONY: version
+version: ## Print the version declared in pyproject.toml
+	@python3 -c "import pathlib,tomllib;print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version'])"
+
+.PHONY: release-pr
+release-pr: ## Open a release PR promoting [Unreleased] to VERSION (usage: make release-pr VERSION=0.0.1)
+	$(_REQUIRE_VERSION)
+	@./scripts/release-pr.sh "$(_RELEASE_VERSION)"
+
+.PHONY: release-tag
+release-tag: ## Create and push vX.Y.Z, triggering the release workflow (usage: make release-tag VERSION=0.0.1)
+	$(_REQUIRE_VERSION)
+	@./scripts/release-tag.sh "$(_RELEASE_VERSION)"
+
+.PHONY: promote-changelog
+promote-changelog: ## Promote [Unreleased] to a dated VERSION section (usage: make promote-changelog VERSION=0.0.1)
+	$(_REQUIRE_VERSION)
+	@./scripts/promote-changelog.sh "$(_RELEASE_VERSION)"
+
+##############
 ## building ##
 ##############
 
