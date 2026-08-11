@@ -70,15 +70,13 @@ Using the web-based interface to make changes is fine too, and will help you by 
 
 #### Creating a release
 
-1. Prepare a release branch: `git switch main && git pull && git switch -c release/vX.Y.Z`
-1. Generate release notes from `## [Unreleased]` in `CHANGELOG.md` with `git cliff --unreleased`, then lightly curate the released section if needed.
-1. Bump the version in `pyproject.toml`.
-1. Commit the changes: `git commit -am "chore: release vX.Y.Z"`
-1. Push to your fork and open a PR.
-1. After the PR is merged, get the latest main: `git switch main && git pull`
-1. Create a signed tag: `git tag -a vX.Y.Z -m vX.Y.Z -s`
-1. Push with tags: `git push --follow-tags`
-1. Create a release on GitHub: `gh release create vX.Y.Z --generate-notes`
+Releases are cut with the tooling in [RELEASING.md](RELEASING.md), which is the source of truth. In short:
+
+1. `make release-pr VERSION=X.Y.Z` — bumps the version, re-locks `uv.lock`, promotes the `## [Unreleased]` section of `CHANGELOG.md`, and opens the release PR.
+1. Merge that PR.
+1. `make release-tag VERSION=X.Y.Z` — creates and pushes `vX.Y.Z`, which triggers the release workflow.
+
+Do not run `gh release create` by hand; the workflow does it, and doing both creates the release twice.
 
 ### Recommended VSCode extensions
 
