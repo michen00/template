@@ -19,19 +19,28 @@ defaults:
     shell: bash -el {0}
 
 env:
-  CACHE_NUMBER: 0
+  # Kept in step with .python-version and pyproject.toml's requires-python. The
+  # `run-ci` job name below repeats it literally, because a required status
+  # context cannot be built from an expression.
+  PYTHON_VERSION: '3.13'
+
+# A note on `astral-sh/setup-uv@v9.0.0` below, which is pinned to an exact patch
+# while every other action here floats on its major: upstream stopped publishing
+# rolling major tags after v7. There is no `v8` or `v9` ref, so a `@v8`/`@v9` pin
+# does not resolve and a `@v7` pin is frozen for good -- Dependabot cannot
+# advance it, because the tag it would advance to does not exist. Pinning the
+# exact release is the only way to stay current; the cost is that each setup-uv
+# release raises its own Dependabot pull request, grouped with the other actions.
 
 jobs:
-  run-ci:
-    name: Run CI
+  precommit:
+    name: Pre-commit
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.13']
     permissions:
-      id-token: write # for trufflehog
+      # trufflehog only. Deliberately not hoisted to workflow level: the pytest
+      # and mypy jobs have no business holding it.
+      id-token: write
       contents: read
     steps:
       - uses: actions/checkout@v7
@@ -42,7 +51,7 @@ jobs:
         with:
           extra_args: --results=verified,unknown
       - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
           cache-dependency-glob: |
@@ -51,20 +60,123 @@ jobs:
             noxfile.py
             pyproject.toml
             uv.lock
-          python-version: ${{ matrix.python-version }}
-      - name: Prepare cache keys
-        id: prepare-cache-keys
-        env:
-          HASH_PRECOMMIT: ${{ hashFiles('.pre-commit-config.yaml') }}
-        run: |-
-          STAMP="$(date +'%Y%m%d')-${CACHE_NUMBER}"
-          echo "pc=${HASH_PRECOMMIT}-${STAMP}" >> "$GITHUB_OUTPUT"
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Cache pre-commit hooks
         uses: actions/cache@v6
         with:
           path: ~/.cache/pre-commit
-          key: ${{ runner.os }}-precommit-${{ steps.prepare-cache-keys.outputs.pc }}
-      - name: Run CI
+          # Content-addressed, not date-stamped. The previous key embedded
+          # `date +%Y%m%d` with no restore-keys, so every hook environment was
+          # reinstalled cold on the first run of each day and the entry written
+          # was never read again. `.cache-buster` is what `make bust-ci-cache`
+          # writes, so it is the deliberate invalidation lever; the restore-keys
+          # prefix means bumping it still warm-starts from the last good entry.
+          key: >-
+            ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml')
+            }}-${{ hashFiles('.github/workflows/.cache-buster') }}
+          restore-keys: |
+            ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}-
+      - name: Run pre-commit
         run: |-
           bash .github/scripts/ci-ruff-args.sh
-          uv run --locked --only-group dev nox -s test -s precommit
+          uv run --locked --only-group dev nox -s precommit
+
+  mypy:
+    name: mypy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            .github/workflows/.cache-buster
+            .github/workflows/CI.yml
+            noxfile.py
+            pyproject.toml
+            uv.lock
+          python-version: ${{ env.PYTHON_VERSION }}
+      # mypy runs through its pre-commit hook (see noxfile), so it needs the hook
+      # environment cache as well as its own type cache.
+      - name: Cache pre-commit hooks
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/pre-commit
+          key: >-
+            ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml')
+            }}-${{ hashFiles('.github/workflows/.cache-buster') }}
+          restore-keys: |
+            ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}-
+      - name: Cache mypy
+        uses: actions/cache@v6
+        with:
+          path: .mypy_cache
+          # Two-tier: a source-only change restores the previous type cache and
+          # re-checks only what moved, while a dependency change invalidates it.
+          key: >-
+            ${{ runner.os }}-mypy-${{ hashFiles('pyproject.toml', 'uv.lock')
+            }}-${{ hashFiles('src/**/*.py', 'tests/**/*.py', 'noxfile.py') }}
+          restore-keys: |
+            ${{ runner.os }}-mypy-${{ hashFiles('pyproject.toml', 'uv.lock') }}-
+      - name: Run mypy
+        run: uv run --locked --only-group dev nox -s mypy
+
+  pytest:
+    name: pytest
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            .github/workflows/.cache-buster
+            .github/workflows/CI.yml
+            noxfile.py
+            pyproject.toml
+            uv.lock
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run tests
+        run: uv run --locked --only-group dev nox -s test
+
+  run-ci:
+    # THE REQUIRED STATUS CONTEXT. The previous single job was `name: Run CI`
+    # under a one-element python-version matrix, which GitHub rendered as
+    # `Run CI (3.13)`. This aggregate reproduces that string exactly so branch
+    # protection needs no re-pointing, and so the job set above can grow later
+    # without touching branch protection again. Renaming this leaves a required
+    # context that never reports, which blocks every pull request; renaming it to
+    # something not required silently un-gates the branch. Verify against
+    # `gh api repos/OWNER/REPO/rulesets` before changing it.
+    name: Run CI (3.13)
+    needs: [precommit, mypy, pytest]
+    # `always()` so a skipped or canceled dependency reddens this job rather
+    # than passing it by omission.
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Report job results
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |-
+          {
+            echo "| job | result |"
+            echo "| --- | --- |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          failed=0
+          while IFS=$'\t' read -r job result; do
+            echo "| ${job} | ${result} |" >> "$GITHUB_STEP_SUMMARY"
+            if [ "${result}" != "success" ]; then
+              echo "::error::job ${job} reported ${result}"
+              failed=1
+            fi
+          done < <(jq -r 'to_entries[] | "\(.key)\t\(.value.result)"' <<< "$NEEDS")
+          if [ "${failed}" -ne 0 ]; then
+            exit 1
+          fi
+          echo "All CI jobs succeeded."

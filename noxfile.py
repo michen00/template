@@ -42,10 +42,21 @@ def precommit(session: nox.Session) -> None:
     with _export_requirements(groups=('dev',)) as reqs:
         session.install('-r', reqs)
     session.run('pre-commit', 'run', '--all-files')
-    session.run('pre-commit', 'run', '--all-files', '--hook-stage', 'pre-push', 'mypy')
     session.run(
         'pre-commit', 'run', '--all-files', '--hook-stage', 'pre-push', 'talisman-push'
     )
+
+
+@nox.session
+def mypy(session: nox.Session) -> None:
+    """Run mypy through its pre-commit hook."""
+    # Invoked through pre-commit rather than as a bare `mypy` call so the hook's
+    # additional_dependencies and args stay the single source of truth. CI gives
+    # this its own job: it is the slowest hook, and splitting it off the
+    # pre-commit critical path is the point.
+    with _export_requirements(groups=('dev',)) as reqs:
+        session.install('-r', reqs)
+    session.run('pre-commit', 'run', '--all-files', '--hook-stage', 'pre-push', 'mypy')
 
 
 @nox.session
