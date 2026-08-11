@@ -18,8 +18,9 @@
 *.md            text diff=markdown
 *.php           text diff=php
 *.properties    text
-*.py            text diff=python
-*.sh            text diff=bash
+*.py            text eol=lf diff=python
+*.pyi           text eol=lf diff=python
+*.sh            text eol=lf diff=bash
 *.sql           text
 *.tf            text
 *.ts            text
