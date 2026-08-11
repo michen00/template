@@ -64,4 +64,5 @@ src/template/py.typed
 tests/__init__.py
 tests/.gitkeep
 tests/test_.py
+tests/test_workflow_injection.py
 uv.lock
