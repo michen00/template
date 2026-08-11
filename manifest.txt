@@ -3,8 +3,6 @@ _typos.toml
 .CLAUDE.md
 .codespellrc
 .coveragerc
-.cursor/commands/atomic-commits.md
-.cursor/skills/atomic-commits/SKILL.md
 .editorconfig
 .git-blame-ignore-revs
 .gitattributes
