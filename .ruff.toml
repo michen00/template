@@ -45,6 +45,11 @@ ignore = [
     'TD003',   # missing-todo-link
 ]
 
+# `convention = 'google'` below disables D401, because Google style prescribes
+# descriptive docstring first lines. The constitution asks for imperative mood,
+# so re-enable it. D401 already exempts @property and "Whether ..." predicates.
+extend-select = ['D401']
+
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable   = ['ALL']
 unfixable = []
@@ -66,7 +71,10 @@ max-complexity = 15
     'F403', # undefined-local-with-import-star
 ]
 'noxfile.py' = ['S603'] # subprocess-without-shell-equals-true
-'tests/*.py' = ['S101'] # Use of assert
+'tests/*.py' = [
+    'S101', # Use of assert
+    'D401', # non-imperative-mood; test docstrings read as assertions
+]
 '*/bin/*.py' = ['T201'] # Use of print
 '*.ipynb' = [
     'F401', # unused-import
