@@ -28,6 +28,7 @@ _typos.toml
 .gitlint
 .markdownlint.yml
 .pre-commit-config.yaml
+.prettierignore
 .prettierrc
 .pylintrc
 .python-version

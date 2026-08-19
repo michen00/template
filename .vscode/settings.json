@@ -11,9 +11,6 @@
   "[jsonl]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[markdown]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff"
   },
