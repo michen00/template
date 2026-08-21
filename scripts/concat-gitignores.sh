@@ -145,7 +145,14 @@ if [[ -n $INPUT_FILE ]]; then
     echo "Input file not found: $INPUT_FILE" >&2
     exit 1
   fi
-elif ! [ -t 0 ]; then
+# A pipe or a redirected file, rather than the broader "stdin is not a
+# terminal". A non-interactive parent hands this script a socket or a null
+# device, and the broader test was true for both: the read then either blocked
+# forever, measured on a socket, or reached end of file at once and exited with
+# "No URLs provided", measured on a null device. Neither shape is a pipe or a
+# file, so both now fall through to the defaults below. An inherited pipe is
+# still read, which is what the usage above promises.
+elif [ -p /dev/stdin ] || [ -f /dev/stdin ]; then
   parse_input_stream
 else
   for entry in "${DEFAULT_ENTRIES[@]}"; do

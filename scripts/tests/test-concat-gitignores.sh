@@ -250,6 +250,74 @@ test_preserves_literal_backslashes_and_escape_sequences() {
   assert_file_contains "$output_file" "# End of file://$fixture"
 }
 
+# The generator is the only thing here that reaches the network, and the rest of
+# this suite stays offline by serving fixtures over file:// URLs. The built-in
+# default list cannot be expressed that way, so curl is stubbed instead. The stub
+# honors -o and ignores everything else, which is all the generator asks of it.
+stub_curl_dir() {
+  local dir="$TEST_ROOT/stub-bin"
+  mkdir -p "$dir"
+  cat > "$dir/curl" << 'STUB'
+#!/usr/bin/env bash
+out=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -o)
+      out="$2"
+      shift 2
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+printf '# stubbed template\nstub-marker\n' > "${out:-/dev/stdout}"
+STUB
+  chmod +x "$dir/curl"
+  printf '%s\n' "$dir"
+}
+
+# The regression test. A non-interactive caller supplies a stdin that is not a
+# terminal and carries nothing to read, and the defaults have to be used. Before
+# the input dispatch distinguished a pipe from any non-terminal, this run read an
+# empty stdin, collected no URLs, and exited 1 complaining it had none.
+test_defaults_are_used_when_stdin_carries_nothing() {
+  local stub_dir output_file out
+  stub_dir="$(stub_curl_dir)"
+  output_file="$TEST_ROOT/out-defaults.gitignore"
+
+  out="$(PATH="$stub_dir:$PATH" "$SUT" --output "$output_file" < /dev/null 2>&1)"
+
+  [[ "$out" != *"No URLs provided."* ]] || fail "Expected the defaults when stdin carries nothing"
+  assert_file_contains "$output_file" "# - https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore"
+  assert_file_contains "$output_file" "stub-marker"
+}
+
+# The other half of the dispatch, and the reason the test above cannot simply
+# treat every non-terminal stdin as empty: both of these forms are documented,
+# and an earlier revision of this script honored only the pipe.
+test_piped_urls_are_read() {
+  local fixture output_file
+  fixture="$(new_fixture "fixture-piped.gitignore" $'# fixture piped\nmarker-piped')"
+  output_file="$TEST_ROOT/out-piped.gitignore"
+
+  to_file_url "$fixture" | "$SUT" --output "$output_file" > /dev/null
+
+  assert_file_contains "$output_file" "marker-piped"
+}
+
+test_redirected_urls_are_read() {
+  local fixture url_file output_file
+  fixture="$(new_fixture "fixture-redirected.gitignore" $'# fixture redirected\nmarker-redirected')"
+  url_file="$TEST_ROOT/urls-redirected.txt"
+  output_file="$TEST_ROOT/out-redirected.gitignore"
+
+  to_file_url "$fixture" > "$url_file"
+  "$SUT" --output "$output_file" < "$url_file" > /dev/null
+
+  assert_file_contains "$output_file" "marker-redirected"
+}
+
 tests=(
   test_help_exits_zero
   test_help_prints_usage
@@ -264,6 +332,9 @@ tests=(
   test_preserves_section_labels_and_input_order
   test_handles_no_trailing_newline
   test_preserves_literal_backslashes_and_escape_sequences
+  test_defaults_are_used_when_stdin_carries_nothing
+  test_piped_urls_are_read
+  test_redirected_urls_are_read
 )
 
 for test_name in "${tests[@]}"; do

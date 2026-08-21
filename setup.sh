@@ -278,7 +278,10 @@ regenerate_gitignore() {
   quiet_echo "Attempting to generate fresh .gitignore from GitHub templates..."
 
   if [ -f "$project_dir/scripts/concat-gitignores.sh" ]; then
-    if (cd "$project_dir" && bash scripts/concat-gitignores.sh > /dev/null 2>&1); then
+    # stdin is closed off on purpose: this script reads its own answers from
+    # stdin, and a `bash setup.sh < answers.txt` run would otherwise hand the
+    # remaining answer lines to the generator as template URLs.
+    if (cd "$project_dir" && bash scripts/concat-gitignores.sh < /dev/null > /dev/null 2>&1); then
       quiet_echo "✓ Generated fresh .gitignore from upstream templates"
     else
       quiet_echo "⚠ Failed to fetch templates (network issue?). Using static .gitignore as fallback."
