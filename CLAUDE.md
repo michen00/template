@@ -215,10 +215,9 @@ The template includes a script at `scripts/concat-gitignores.sh` that generates 
 - When creating commits:
   1. Run `git status` and `git diff` to understand changes.
   2. Review `git log` to match commit message style.
-  3. Stage relevant files with `git add`.
+  3. Stage relevant files with `git add`. Another session may share the tree, so read `git status` and stage explicit paths rather than `git add -A`.
   4. Create commit with conventional commit message.
-  5. Push when the commits are the work the user asked for and `make check` passed. Asking permission to push a change they already requested only slows them down; if the intent is genuinely unclear, ask about the change rather than about the push.
-  6. Do not force-push, do not rewrite a commit that is already on the remote, and do not push work you did not write. Another session may share the tree, so read `git status` and stage explicit paths rather than `git add -A`.
+  5. Do not force-push, do not rewrite a commit that is already on the remote, and do not push work you did not write.
 
 ### Key Reminders
 
