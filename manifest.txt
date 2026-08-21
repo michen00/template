@@ -55,6 +55,7 @@ noxfile.py
 pyproject.toml
 RELEASING.md
 scripts/concat-gitignores.sh
+scripts/custom.gitignore
 scripts/lib/resolve-github-token.sh
 scripts/promote-changelog.sh
 scripts/release-pr.sh

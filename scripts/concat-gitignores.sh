@@ -3,10 +3,12 @@
 set -euo pipefail # Exit on errors, unbound vars, and failed pipelines
 
 SCRIPT_NAME=$(basename "$0")
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 
 usage() {
   cat << EOF
-Usage: $SCRIPT_NAME [--output <output_file>] [<input_file>]
+Usage: $SCRIPT_NAME [--output <output_file>] [--custom <custom_file>] [<input_file>]
 
 Concatenate multiple .gitignore templates into a single file by fetching URLs from
 stdin, a file, or built-in defaults.
@@ -20,6 +22,9 @@ Inputs:
 
 Options:
   --output <file>  Destination file name. Defaults to .gitignore.
+  --custom <file>  Repository-specific patterns to append verbatim after the
+                   fetched templates. Defaults to custom.gitignore beside this
+                   script, and is skipped without error when absent.
   -h, --help       Show this help message and exit.
 
 Examples:
@@ -29,6 +34,7 @@ Examples:
   $SCRIPT_NAME urls.txt
   $SCRIPT_NAME urls.txt --output custom.output.gitignore
   $SCRIPT_NAME my-project/.gitignore
+  $SCRIPT_NAME --custom other-patterns.gitignore
 EOF
   exit "${1:-0}"
 }
@@ -70,6 +76,9 @@ OUTPUT_FILE=".gitignore"
 
 # Variables
 INPUT_FILE=""
+# Repository-specific patterns live beside this script rather than inside it, so
+# the script itself can be synced between repositories unchanged.
+CUSTOM_FILE="$SCRIPT_DIR/custom.gitignore"
 ENTRIES=()
 URLS=()
 
@@ -107,6 +116,14 @@ while [[ $# -gt 0 ]]; do
       OUTPUT_FILE="$2"
       shift 2
       ;;
+    --custom)
+      if [[ -z ${2:-} ]]; then
+        echo "Error: --custom requires a file name." >&2
+        usage 1
+      fi
+      CUSTOM_FILE="$2"
+      shift 2
+      ;;
     -h | --help)
       usage 0
       ;;
@@ -130,8 +147,6 @@ done
 # treat it as --output and use default URLs. Resolve relative to repo root (parent of
 # script dir) so the same path is used regardless of current working directory.
 if [[ -n $INPUT_FILE && $INPUT_FILE == */.gitignore ]]; then
-  SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-  REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
   OUTPUT_FILE="$REPO_ROOT/$INPUT_FILE"
   INPUT_FILE=""
 fi
@@ -165,6 +180,35 @@ if [[ ${#URLS[@]} -eq 0 ]]; then
   exit 1
 fi
 
+# Read the repository-specific patterns up front so the generated header and the
+# appended block agree on whether there are any.
+CUSTOM_CONTENT=""
+CUSTOM_BANNER_LINE=""
+if [[ -f "$CUSTOM_FILE" ]]; then
+  # Leading blank lines are dropped here and trailing ones by the command
+  # substitution, so the block is separated from the patterns above it by exactly
+  # one blank line however the file happens to be spaced.
+  CUSTOM_CONTENT=$(awk '
+    { gsub(/\r$/, ""); gsub(/[ \t]+$/, "") }
+    !seen && $0 == "" { next }
+    { seen = 1; print }
+  ' "$CUSTOM_FILE")
+fi
+
+if [[ -n "$CUSTOM_CONTENT" ]]; then
+  # Shown relative to the repo root when possible: this line is committed, and an
+  # absolute path would bake one checkout's location into every copy.
+  CUSTOM_FILE_DISPLAY="$CUSTOM_FILE"
+  case "$CUSTOM_FILE_DISPLAY" in
+    "$REPO_ROOT"/*) CUSTOM_FILE_DISPLAY="${CUSTOM_FILE_DISPLAY#"$REPO_ROOT"/}" ;;
+  esac
+  CUSTOM_BANNER_LINE="# Plus local patterns from $CUSTOM_FILE_DISPLAY"
+elif [[ -f "$CUSTOM_FILE" ]]; then
+  echo "Custom patterns file is empty, skipping: $CUSTOM_FILE"
+else
+  echo "No custom patterns file, skipping: $CUSTOM_FILE"
+fi
+
 # Calculate the length of the longest header line (for ruler)
 MAX_HEADER_LINE_LENGTH=0
 for entry in "${ENTRIES[@]}"; do
@@ -177,6 +221,9 @@ for entry in "${ENTRIES[@]}"; do
     MAX_HEADER_LINE_LENGTH=${#HEADER_LINE}
   fi
 done
+if [[ ${#CUSTOM_BANNER_LINE} -gt $MAX_HEADER_LINE_LENGTH ]]; then
+  MAX_HEADER_LINE_LENGTH=${#CUSTOM_BANNER_LINE}
+fi
 
 # Create the comment header
 HEADER_LENGTH=$MAX_HEADER_LINE_LENGTH
@@ -200,6 +247,7 @@ fi
       echo "# - $entry"
     fi
   done
+  [[ -n "$CUSTOM_BANNER_LINE" ]] && echo "$CUSTOM_BANNER_LINE"
   echo "$HEADER"
   echo ""
 } > "$OUTPUT_FILE"
@@ -281,42 +329,28 @@ tr -d '\r' < "$OUTPUT_FILE" > "$NORMALIZE_TMP" || {
 mv "$NORMALIZE_TMP" "$OUTPUT_FILE"
 
 # Ensure single trailing newline (collapse any trailing blank lines into exactly one newline)
-if command -v perl > /dev/null 2>&1; then
-  perl -0777 -pi -e 's/\n*\z/\n/' "$OUTPUT_FILE"
-else
-  # Command substitution strips trailing newlines; print one newline back.
-  content=$(< "$OUTPUT_FILE")
-  printf '%s\n' "$content" > "$OUTPUT_FILE"
-fi
+ensure_single_trailing_newline() {
+  local file="$1"
+  if command -v perl > /dev/null 2>&1; then
+    perl -0777 -pi -e 's/\n*\z/\n/' "$file"
+  else
+    # Command substitution strips trailing newlines; print one newline back.
+    local content
+    content=$(< "$file")
+    printf '%s\n' "$content" > "$file"
+  fi
+}
 
-# Add additional ignore patterns
+ensure_single_trailing_newline "$OUTPUT_FILE"
+
+# Add the ignore patterns that suit any repository. Tool and layout choices that
+# vary between repositories belong in the custom file appended below instead.
 # Quoted so the block is emitted verbatim: these are gitignore glob patterns, and
 # an unquoted heredoc would treat a `$` or a backtick in one as an expansion.
 cat >> "$OUTPUT_FILE" << 'EOF'
 
 # Claude user-specific settings
 .claude/settings.local.json
-
-# Cursor rules
-.cursor/rules/
-
-# OpenSpec scaffolding
-.claude/skills/openspec-*/SKILL.md
-.codex/skills/openspec-*/SKILL.md
-.cursor/commands/opsx-*.md
-.cursor/skills/openspec-*/SKILL.md
-.github/prompts/opsx-*.prompt.md
-.github/skills/openspec-*/SKILL.md
-
-# spec-kit scaffolding
-.agents/skills/speckit-*/SKILL.md
-.claude/commands/speckit.*.md
-.cursor/commands/speckit.*.md
-.github/agents/speckit.*.agent.md
-.github/prompts/speckit.*.prompt.md
-.specify/init-options.json
-.specify/scripts/bash/*.sh
-.specify/templates/*.md
 
 # Directory for temporary files marked for deletion
 .delete-me/
@@ -336,5 +370,15 @@ cat >> "$OUTPUT_FILE" << 'EOF'
 src/*/bin/**/__pycache__/
 src/*/bin/**/*.py[cod]
 EOF
+
+# Append the repository-specific patterns last so they win wherever they overlap
+# with a pattern above. Read before any output was written, so an unreadable or
+# empty file has already been reported.
+if [[ -n "$CUSTOM_CONTENT" ]]; then
+  printf '\n%s\n' "$CUSTOM_CONTENT" >> "$OUTPUT_FILE"
+  echo "Appended custom patterns from: $CUSTOM_FILE"
+fi
+
+ensure_single_trailing_newline "$OUTPUT_FILE"
 
 echo "Combined .gitignore created as $OUTPUT_FILE"

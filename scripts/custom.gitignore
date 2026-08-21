@@ -1,0 +1,24 @@
+# Repository-specific patterns, appended to the generated .gitignore by
+# scripts/concat-gitignores.sh. Patterns that suit any repository belong in that
+# script instead, so it can be synced between repositories unchanged.
+
+# Cursor rules
+.cursor/rules/
+
+# OpenSpec scaffolding
+.claude/skills/openspec-*/SKILL.md
+.codex/skills/openspec-*/SKILL.md
+.cursor/commands/opsx-*.md
+.cursor/skills/openspec-*/SKILL.md
+.github/prompts/opsx-*.prompt.md
+.github/skills/openspec-*/SKILL.md
+
+# spec-kit scaffolding
+.agents/skills/speckit-*/SKILL.md
+.claude/commands/speckit.*.md
+.cursor/commands/speckit.*.md
+.github/agents/speckit.*.agent.md
+.github/prompts/speckit.*.prompt.md
+.specify/init-options.json
+.specify/scripts/bash/*.sh
+.specify/templates/*.md

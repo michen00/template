@@ -49,6 +49,14 @@ assert_file_not_contains() {
   fi
 }
 
+assert_single_trailing_newline() {
+  local path="$1"
+  local last_two
+  [[ "$(tail -c 1 "$path")" == "" ]] || fail "Expected file to end with a newline: $path"
+  last_two="$(tail -c 2 "$path" | od -An -tx1 | tr -d ' \n')"
+  [[ "$last_two" != "0a0a" ]] || fail "Expected exactly one trailing newline: $path"
+}
+
 assert_line_order() {
   local path="$1"
   local first="$2"
@@ -100,6 +108,14 @@ test_output_missing_arg_fails() {
   [[ "$out" == *"--output requires a file name"* ]] || fail "Expected missing output argument message"
 }
 
+test_custom_missing_arg_fails() {
+  local out
+  if out="$("$SUT" --custom 2>&1)"; then
+    fail "Expected --custom with missing argument to fail"
+  fi
+  [[ "$out" == *"--custom requires a file name"* ]] || fail "Expected missing custom argument message"
+}
+
 test_fetches_from_file_url() {
   local fixture url_file output_file
   fixture="$(new_fixture "fixture-one.gitignore" $'# fixture one\n*.tmp\ncache/')"
@@ -137,17 +153,108 @@ test_output_contains_fetched_content() {
   assert_file_contains "$output_file" "$marker"
 }
 
-test_output_contains_speckit_block() {
+# The built-in tail carries only the patterns that suit any repository: the
+# user-local settings file, and the re-includes that repair what this script's
+# own default template list over-ignores. Tool choices live in the custom file.
+test_output_contains_builtin_tail() {
   local fixture url_file output_file
-  fixture="$(new_fixture "fixture-speckit.gitignore" $'# fixture speckit\n*.speckit')"
-  url_file="$TEST_ROOT/urls-speckit.txt"
-  output_file="$TEST_ROOT/out-speckit.gitignore"
+  fixture="$(new_fixture "fixture-tail.gitignore" $'# fixture tail\n*.tail')"
+  url_file="$TEST_ROOT/urls-tail.txt"
+  output_file="$TEST_ROOT/out-tail.gitignore"
 
   to_file_url "$fixture" > "$url_file"
-  "$SUT" "$url_file" --output "$output_file" > /dev/null
+  "$SUT" "$url_file" --output "$output_file" --custom "$TEST_ROOT/absent.gitignore" > /dev/null
 
-  assert_file_contains "$output_file" "# spec-kit scaffolding"
-  assert_file_contains "$output_file" ".specify/"
+  assert_file_contains "$output_file" ".claude/settings.local.json"
+  assert_file_contains "$output_file" "!scripts/lib/"
+  assert_file_contains "$output_file" "!src/*/bin"
+  assert_file_not_contains "$output_file" "# spec-kit scaffolding"
+}
+
+test_custom_file_is_appended() {
+  local fixture url_file output_file custom_file
+  fixture="$(new_fixture "fixture-custom.gitignore" $'# fixture custom\nmarker-custom-fetched')"
+  url_file="$TEST_ROOT/urls-custom.txt"
+  output_file="$TEST_ROOT/out-custom.gitignore"
+  custom_file="$(new_fixture "custom-patterns.gitignore" $'# repo tooling\nmarker-custom-pattern/')"
+
+  to_file_url "$fixture" > "$url_file"
+  "$SUT" "$url_file" --output "$output_file" --custom "$custom_file" > /dev/null
+
+  assert_file_contains "$output_file" "marker-custom-pattern/"
+  assert_file_contains "$output_file" "# Plus local patterns from $custom_file"
+  # Last match wins in gitignore, so the custom block has to follow the built-in
+  # tail rather than precede it.
+  assert_line_order "$output_file" "!scripts/lib/" "marker-custom-pattern/"
+  assert_single_trailing_newline "$output_file"
+}
+
+# The whole point of the split: a copy of this script dropped into a repository
+# that has no customization at all still has to work.
+test_missing_custom_file_is_skipped() {
+  local fixture url_file output_file out
+  fixture="$(new_fixture "fixture-nocustom.gitignore" $'# fixture nocustom\nmarker-nocustom')"
+  url_file="$TEST_ROOT/urls-nocustom.txt"
+  output_file="$TEST_ROOT/out-nocustom.gitignore"
+
+  to_file_url "$fixture" > "$url_file"
+  out="$("$SUT" "$url_file" --output "$output_file" --custom "$TEST_ROOT/does-not-exist.gitignore" 2>&1)"
+
+  [[ "$out" == *"No custom patterns file, skipping:"* ]] || fail "Expected the missing custom file to be reported"
+  assert_file_contains "$output_file" "marker-nocustom"
+  assert_file_not_contains "$output_file" "# Plus local patterns from"
+  assert_single_trailing_newline "$output_file"
+}
+
+# A file of nothing but blank lines contributes no block, so the header must not
+# announce one either.
+test_empty_custom_file_adds_nothing() {
+  local fixture url_file output_file custom_file
+  fixture="$(new_fixture "fixture-emptycustom.gitignore" $'# fixture emptycustom\nmarker-emptycustom')"
+  url_file="$TEST_ROOT/urls-emptycustom.txt"
+  output_file="$TEST_ROOT/out-emptycustom.gitignore"
+  custom_file="$(new_fixture "custom-empty.gitignore" $'\n')"
+
+  to_file_url "$fixture" > "$url_file"
+  "$SUT" "$url_file" --output "$output_file" --custom "$custom_file" > /dev/null
+
+  assert_file_contains "$output_file" "marker-emptycustom"
+  assert_file_not_contains "$output_file" "# Plus local patterns from"
+  assert_single_trailing_newline "$output_file"
+}
+
+# The custom file is hand-edited, so it can arrive with CRLF endings and padding
+# blank lines at either end. None of that should reach the generated file.
+test_custom_file_endings_are_normalized() {
+  local fixture url_file output_file custom_file
+  fixture="$(new_fixture "fixture-crlf.gitignore" $'# fixture crlf\nmarker-crlf-fetched')"
+  url_file="$TEST_ROOT/urls-crlf.txt"
+  output_file="$TEST_ROOT/out-crlf.gitignore"
+  custom_file="$TEST_ROOT/custom-crlf.gitignore"
+  printf '\r\n# crlf block\r\nmarker-crlf-pattern/\r\n\r\n\r\n' > "$custom_file"
+
+  to_file_url "$fixture" > "$url_file"
+  "$SUT" "$url_file" --output "$output_file" --custom "$custom_file" > /dev/null
+
+  assert_file_contains "$output_file" "marker-crlf-pattern/"
+  if grep -q $'\r' "$output_file"; then
+    fail "Expected no carriage returns in $output_file"
+  fi
+  assert_single_trailing_newline "$output_file"
+}
+
+# Without --custom the default resolves beside the script, not against the
+# working directory, so the same run works from anywhere.
+test_default_custom_file_is_used() {
+  local fixture url_file output_file
+  fixture="$(new_fixture "fixture-defaultcustom.gitignore" $'# fixture defaultcustom\nmarker-defaultcustom')"
+  url_file="$TEST_ROOT/urls-defaultcustom.txt"
+  output_file="$TEST_ROOT/out-defaultcustom.gitignore"
+
+  to_file_url "$fixture" > "$url_file"
+  (cd "$TEST_ROOT" && "$SUT" "$url_file" --output "$output_file" > /dev/null)
+
+  assert_file_contains "$output_file" "# Plus local patterns from scripts/custom.gitignore"
 }
 
 test_multiple_urls_in_file() {
@@ -323,10 +430,16 @@ tests=(
   test_help_prints_usage
   test_unknown_option_fails
   test_output_missing_arg_fails
+  test_custom_missing_arg_fails
   test_fetches_from_file_url
   test_output_contains_header
   test_output_contains_fetched_content
-  test_output_contains_speckit_block
+  test_output_contains_builtin_tail
+  test_custom_file_is_appended
+  test_missing_custom_file_is_skipped
+  test_empty_custom_file_adds_nothing
+  test_custom_file_endings_are_normalized
+  test_default_custom_file_is_used
   test_multiple_urls_in_file
   test_ignores_single_hash_comments_in_input
   test_preserves_section_labels_and_input_order

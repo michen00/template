@@ -6,12 +6,14 @@ on:
     paths:
       - .github/workflows/test-concat-gitignores.yml
       - scripts/concat-gitignores.sh
+      - scripts/custom.gitignore
       - scripts/tests/test-concat-gitignores.sh
   push:
     branches: [main]
     paths:
       - .github/workflows/test-concat-gitignores.yml
       - scripts/concat-gitignores.sh
+      - scripts/custom.gitignore
       - scripts/tests/test-concat-gitignores.sh
   workflow_dispatch:
 

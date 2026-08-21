@@ -180,6 +180,22 @@ The template includes a script at `scripts/concat-gitignores.sh` that generates 
 - **During setup:** The script automatically tries to generate a fresh `.gitignore` from upstream templates. If it fails, the static `.gitignore` is used.
 - **Manual update:** Run `bash scripts/concat-gitignores.sh` from the template root to regenerate `.gitignore` with the latest templates.
 
+The generated file has two hand-maintained parts, and which one you edit matters:
+
+- `scripts/concat-gitignores.sh` holds the upstream template URLs and a tail of
+  patterns that suit **any** repository, including the re-includes that repair
+  what those upstream templates over-ignore (`!src/*/bin`, `!scripts/lib/`).
+  Keeping it free of repository-specific content is what lets the script be
+  synced between repositories unchanged.
+- `scripts/custom.gitignore` holds this repository's own patterns — tool and
+  layout choices that other repositories would not want. It is appended verbatim
+  after the tail above, so it wins wherever the two overlap. The file is
+  optional: the script reports it and carries on when it is absent. Override the
+  path with `--custom <file>`.
+
+**Rule:** a new ignore pattern goes in `scripts/custom.gitignore` unless it would
+be correct in every repository. Regenerate `.gitignore` after editing either one.
+
 ### Adding a Dependency
 
 1. Add it to `pyproject.toml` (dependencies or optional-dependencies).

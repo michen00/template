@@ -1,5 +1,5 @@
 #######################################################################################################
-# This .gitignore is composed of the following templates (retrieved 2026-08-10):
+# This .gitignore is composed of the following templates (retrieved 2026-08-21):
 # Language / runtime / ecosystem
 # - https://raw.githubusercontent.com/github/gitignore/main/community/Python/JupyterNotebooks.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
@@ -24,6 +24,7 @@
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/Diff.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/MicrosoftOffice.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Global/Patch.gitignore
+# Plus local patterns from scripts/custom.gitignore
 #######################################################################################################
 
 ##############################
@@ -1414,6 +1415,28 @@ Backup of *.doc*
 # Claude user-specific settings
 .claude/settings.local.json
 
+# Directory for temporary files marked for deletion
+.delete-me/
+
+!.gitkeep
+# `bin/` and `**/[Bb]in/*` above (virtualenv and Visual Studio) would otherwise
+# ignore a package's own bin/ directory, so re-include it.
+!src/*/bin
+!src/*/bin/**
+# `lib/` above (a build-output convention) would otherwise ignore this
+# repository's own shell helper library, silently: the files stay untracked and
+# `git add` says nothing about why.
+!scripts/lib/
+!scripts/lib/**
+# ...but the re-include is broad enough to bring back build artifacts with it,
+# so ignore those again. Last match wins, so these must follow the negations.
+src/*/bin/**/__pycache__/
+src/*/bin/**/*.py[cod]
+
+# Repository-specific patterns, appended to the generated .gitignore by
+# scripts/concat-gitignores.sh. Patterns that suit any repository belong in that
+# script instead, so it can be synced between repositories unchanged.
+
 # Cursor rules
 .cursor/rules/
 
@@ -1434,21 +1457,3 @@ Backup of *.doc*
 .specify/init-options.json
 .specify/scripts/bash/*.sh
 .specify/templates/*.md
-
-# Directory for temporary files marked for deletion
-.delete-me/
-
-!.gitkeep
-# `bin/` and `**/[Bb]in/*` above (virtualenv and Visual Studio) would otherwise
-# ignore a package's own bin/ directory, so re-include it.
-!src/*/bin
-!src/*/bin/**
-# `lib/` above (a build-output convention) would otherwise ignore this
-# repository's own shell helper library, silently: the files stay untracked and
-# `git add` says nothing about why.
-!scripts/lib/
-!scripts/lib/**
-# ...but the re-include is broad enough to bring back build artifacts with it,
-# so ignore those again. Last match wins, so these must follow the negations.
-src/*/bin/**/__pycache__/
-src/*/bin/**/*.py[cod]
