@@ -4,8 +4,7 @@
 
 ### I. Template Integrity
 
-Every change to this repository propagates to all future derived projects.
-Contributors MUST treat modifications as high-impact decisions.
+Every change to this repository propagates to all future derived projects. Contributors MUST treat modifications as high-impact decisions.
 
 - All file additions, removals, or renames MUST be tested by running `setup.sh` in a disposable directory and verifying the derived project passes `make check`.
 - Hidden dotfiles (`.AGENTS.md`, `.CLAUDE.md`, `.github/.copilot-instructions.md`, `.specify/memory/.constitution.md`) are instructions for derived projects. Non-hidden counterparts are for this template. Contributors MUST NOT confuse the two scopes.
@@ -13,8 +12,7 @@ Contributors MUST treat modifications as high-impact decisions.
 
 ### II. Manifest-Driven Distribution
 
-`manifest.txt` is the single source of truth for which files ship to derived
-projects.
+`manifest.txt` is the single source of truth for which files ship to derived projects.
 
 - Every new file intended for derived projects MUST be added to `manifest.txt`.
 - Every deleted file MUST be removed from `manifest.txt`.
@@ -33,18 +31,13 @@ All code MUST pass `make check` before being committed. This command runs format
 
 ### IV. Conventional Commits
 
-All commits MUST follow the Conventional Commits specification:
-`<type>(<scope>): <subject>`.
+All commits MUST follow the Conventional Commits specification: `<type>(<scope>): <subject>`.
 
 - Types: `feat`, `fix`, `docs`, `chore`, `style`, `test`, `build`, `ci`, `refactor`, `perf`, `revert`.
 - Subject line MUST be imperative mood, lowercase start, and under 51 characters.
 - Body lines MUST wrap at 72 characters.
 - Each commit MUST represent one atomic logical change.
-- `git-cliff` generates the changelog from these commits; commits are the
-  source of truth. Do not hand-maintain `## [Unreleased]` (regenerate via
-  `git cliff --unreleased` or `scripts/update-unreleased.sh`). Manual edits
-  are limited to released sections for light curation, factual corrections,
-  or formatting cleanup.
+- `git-cliff` generates the changelog from these commits; commits are the source of truth. Do not hand-maintain `## [Unreleased]` (regenerate via `git cliff --unreleased` or `scripts/update-unreleased.sh`). Manual edits are limited to released sections for light curation, factual corrections, or formatting cleanup.
 
 ### V. Design Philosophy
 
@@ -114,8 +107,7 @@ Documentation decays with code. Any behavior-affecting change MUST update affect
 
 A documentation gap is a bug.
 
-When making significant template changes, template-scope guidance MUST remain
-internally consistent across:
+When making significant template changes, template-scope guidance MUST remain internally consistent across:
 
 - `AGENTS.md`
 - `CLAUDE.md`
@@ -124,12 +116,7 @@ internally consistent across:
 - `.specify/memory/constitution.md`
 - `README.md`
 
-When changes affect shared infrastructure or workflows (for example CI,
-Makefile targets, coding standards, or setup expectations), contributors MUST
-review derived-project counterparts (`.AGENTS.md`, `.CLAUDE.md`,
-`.github/.copilot-instructions.md`, `.specify/memory/.constitution.md`) and
-update them when behavior overlaps. Cross-scope documents may intentionally
-diverge where project needs differ.
+When changes affect shared infrastructure or workflows (for example CI, Makefile targets, coding standards, or setup expectations), contributors MUST review derived-project counterparts (`.AGENTS.md`, `.CLAUDE.md`, `.github/.copilot-instructions.md`, `.specify/memory/.constitution.md`) and update them when behavior overlaps. Cross-scope documents may intentionally diverge where project needs differ.
 
 ### Template Instantiation Testing
 
