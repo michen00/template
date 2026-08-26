@@ -136,15 +136,12 @@ This includes login, logout, and token refresh endpoints.
 
 - Managed automatically via `git cliff` based on conventional commits.
 - Use conventional commits as the source of truth for changelog entries.
-- Do not hand-maintain `## [Unreleased]`; regenerate it with
-  `git cliff --unreleased` or `scripts/update-unreleased.sh`.
-- Limit manual edits to released changelog sections for light curation,
-  factual corrections, or formatting cleanup.
+- Do not hand-maintain `## [Unreleased]`; regenerate it with `git cliff --unreleased` or `scripts/update-unreleased.sh`.
+- Limit manual edits to released changelog sections for light curation, factual corrections, or formatting cleanup.
 
 ### Documentation Consistency
 
-When making significant changes to the template, keep template-scope guidance
-consistent across:
+When making significant changes to the template, keep template-scope guidance consistent across:
 
 - `AGENTS.md`
 - `CLAUDE.md`
@@ -153,11 +150,7 @@ consistent across:
 - `.specify/memory/constitution.md`
 - `README.md`
 
-When a change affects shared tooling or workflows (for example, CI, Makefile
-targets, or coding standards), review the derived-project instruction files
-(`.AGENTS.md`, `.CLAUDE.md`, `.github/.copilot-instructions.md`,
-`.specify/memory/.constitution.md`) and update them if needed. They are related
-but may intentionally differ from template-scope files.
+When a change affects shared tooling or workflows (for example, CI, Makefile targets, or coding standards), review the derived-project instruction files (`.AGENTS.md`, `.CLAUDE.md`, `.github/.copilot-instructions.md`, `.specify/memory/.constitution.md`) and update them if needed. They are related but may intentionally differ from template-scope files.
 
 ## 6. Specific Task Instructions
 
@@ -182,19 +175,10 @@ The template includes a script at `scripts/concat-gitignores.sh` that generates 
 
 The generated file has two hand-maintained parts, and which one you edit matters:
 
-- `scripts/concat-gitignores.sh` holds the upstream template URLs and a tail of
-  patterns that suit **any** repository, including the re-includes that repair
-  what those upstream templates over-ignore (`!src/*/bin`, `!scripts/lib/`).
-  Keeping it free of repository-specific content is what lets the script be
-  synced between repositories unchanged.
-- `scripts/custom.gitignore` holds this repository's own patterns — tool and
-  layout choices that other repositories would not want. It is appended verbatim
-  after the tail above, so it wins wherever the two overlap. The file is
-  optional: the script reports it and carries on when it is absent. Override the
-  path with `--custom <file>`.
+- `scripts/concat-gitignores.sh` holds the upstream template URLs and a tail of patterns that suit **any** repository, including the re-includes that repair what those upstream templates over-ignore (`!src/*/bin`, `!scripts/lib/`). Keeping it free of repository-specific content is what lets the script be synced between repositories unchanged.
+- `scripts/custom.gitignore` holds this repository's own patterns — tool and layout choices that other repositories would not want. It is appended verbatim after the tail above, so it wins wherever the two overlap. The file is optional: the script reports it and carries on when it is absent. Override the path with `--custom <file>`.
 
-**Rule:** a new ignore pattern goes in `scripts/custom.gitignore` unless it would
-be correct in every repository. Regenerate `.gitignore` after editing either one.
+**Rule:** a new ignore pattern goes in `scripts/custom.gitignore` unless it would be correct in every repository. Regenerate `.gitignore` after editing either one.
 
 ### Adding a Dependency
 

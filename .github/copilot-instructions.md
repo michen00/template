@@ -33,12 +33,8 @@ Ping for clarifications or cases that deserve deeper treatment.
 
 - Recommended loop before commit/PR:
   - `make check` (runs `make tidy`, both pre-commit stages, then `test`)
-  - Keep changelog entries grounded in conventional commits; do not
-    hand-maintain `## [Unreleased]` (regenerate with
-    `git cliff --unreleased` or `scripts/update-unreleased.sh`).
-  - `cliff.toml` supports generating release notes; manual edits should be
-    limited to released sections for light curation, factual corrections, or
-    formatting cleanup.
+  - Keep changelog entries grounded in conventional commits; do not hand-maintain `## [Unreleased]` (regenerate with `git cliff --unreleased` or `scripts/update-unreleased.sh`).
+  - `cliff.toml` supports generating release notes; manual edits should be limited to released sections for light curation, factual corrections, or formatting cleanup.
 
 ---
 
