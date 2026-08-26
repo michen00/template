@@ -35,6 +35,7 @@ _typos.toml
 .README.md
 .ruff.toml
 .specify/memory/.constitution.md
+.unwrapignore
 .vscode/extensions.json
 .vscode/settings.json
 .yamllint

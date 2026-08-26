@@ -1,0 +1,14 @@
+# CHANGELOG.md is rendered by git-cliff from commit history (cliff.toml), so it has a
+# writer already and nothing here should be its second one. Whatever wrapping the
+# template emits is the template's to decide, and a hook that unwrapped the rendered
+# output would be overwritten on the next release anyway -- churn in both directions
+# for no gain. _typos.toml excludes it as generated content for the same reason.
+#
+# Nothing else is excluded. The agent-instruction files are deliberately in scope,
+# unlike the sibling arrangement in aicadium-lab/exemplary-prs, where they sit outside
+# the unwrapper. That exclusion answers a security question this repository does not
+# have: there, an automation rewrites prose and then approves its own gated CI runs, so
+# it must be unable to touch a file that steers a write-capable agent. Here the hook
+# runs at commit time under the hands of whoever is committing, and unwrapping a
+# paragraph does not change what it instructs.
+CHANGELOG.md
