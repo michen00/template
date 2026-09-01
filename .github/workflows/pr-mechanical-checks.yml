@@ -48,7 +48,7 @@ jobs:
       # The checks are pure standard library, so a bare interpreter is all they need.
       # Deliberately NOT `uv sync`: resolving the pull request's own dependency
       # metadata to run the gate that judges it is work with a downside and no upside.
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
       - name: Check PR title
