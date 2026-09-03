@@ -48,6 +48,9 @@ ignore = [
 # `convention = 'google'` below disables D401, because Google style prescribes
 # descriptive docstring first lines. The constitution asks for imperative mood,
 # so re-enable it. D401 already exempts @property and "Whether ..." predicates.
+# Test files (`tests/**/test_*.py`) are exempt in [lint.per-file-ignores] because the
+# constitution requires test docstrings to be declarative truth-apt propositions rather
+# than imperative; helper modules (conftest.py, _*.py) keep D401 enforcement.
 extend-select = ['D401']
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
@@ -79,10 +82,13 @@ max-complexity = 15
     'S607', # start-process-with-partial-path (`git` off PATH)
     'T201', # Use of print
 ]
-'tests/*.py' = [
-    'S101', # Use of assert
-    'D401', # non-imperative-mood; test docstrings read as assertions
-]
+# Recursive, so a derived project's `tests/unit/` gets the same exemption; the old
+# `tests/*.py` matched the top level only.
+'tests/**/*.py' = ['S101'] # Use of assert
+# D401 (imperative-mood) is re-enabled globally above; exempt it ONLY for `test_*.py`,
+# where a docstring is a declarative truth-apt proposition per the constitution.
+# Dedicated helper modules (conftest.py, _*.py) keep imperative-mood enforcement.
+'tests/**/test_*.py' = ['D401']
 '*/bin/*.py' = ['T201'] # Use of print
 '*.ipynb' = [
     'F401', # unused-import
