@@ -4,5 +4,5 @@ __all__ = ()
 
 
 def test_() -> None:
-    """Test that this test is collected."""
+    """This test is collected."""
     assert True
