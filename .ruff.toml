@@ -82,15 +82,9 @@ max-complexity = 15
     'S607', # start-process-with-partial-path (`git` off PATH)
     'T201', # Use of print
 ]
-# Recursive, so a derived project's `tests/unit/` gets the same exemption; the old
-# `tests/*.py` matched the top level only.
 'tests/**/*.py' = ['S101'] # Use of assert
 # D401 (imperative-mood) is re-enabled globally above; exempt it ONLY for `test_*.py`,
-# where a docstring is a declarative truth-apt proposition per the constitution.
-# Per-file ignores are file-scoped, so this also lifts D401 from non-test helper
-# functions defined in those files. D401 never checks module or class docstrings,
-# so those are unaffected either way.
-# Dedicated helper modules (conftest.py, _*.py) keep imperative-mood enforcement.
+# where a docstring is a declarative truth-apt proposition.
 'tests/**/test_*.py' = ['D401']
 '*/bin/*.py' = ['T201'] # Use of print
 '*.ipynb' = [
