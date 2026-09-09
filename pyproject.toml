@@ -27,9 +27,9 @@ dev = [
     'nox[uv]>=2026.8.17',
     'pip>=26.2.1',
     'pre-commit>=4.6.2',
-    'prek>=0.5.1',
+    'prek>=0.5.2',
     'pylint>=4.0.8',
-    'ruff>=0.16.5',
+    'ruff>=0.16.6',
 ]
 test = ['pytest>=9.1.1', 'pytest-cov>=6.2.1', 'pytest-xdist>=3.8.0']
 
@@ -71,5 +71,5 @@ testpaths = ['tests']
 xfail_strict = true
 
 [build-system]
-requires      = ['uv_build>=0.12.9,<0.13.0']
+requires      = ['uv_build>=0.12.11,<0.13.0']
 build-backend = 'uv_build'
