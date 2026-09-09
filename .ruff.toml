@@ -87,6 +87,9 @@ max-complexity = 15
 'tests/**/*.py' = ['S101'] # Use of assert
 # D401 (imperative-mood) is re-enabled globally above; exempt it ONLY for `test_*.py`,
 # where a docstring is a declarative truth-apt proposition per the constitution.
+# Per-file ignores are file-scoped, so this also lifts D401 from non-test helper
+# functions defined in those files. D401 never checks module or class docstrings,
+# so those are unaffected either way.
 # Dedicated helper modules (conftest.py, _*.py) keep imperative-mood enforcement.
 'tests/**/test_*.py' = ['D401']
 '*/bin/*.py' = ['T201'] # Use of print
