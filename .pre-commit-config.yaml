@@ -90,7 +90,7 @@ repos:
       - id: prettier
         types_or: [css, html, javascript, json, markdown, scss, ts, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.4
+    rev: v0.16.5
     hooks:
       - id: ruff-check
         types_or: [jupyter, pyi, python, toml]
@@ -115,7 +115,7 @@ repos:
   # so the hook can hold the convention instead of only reporting on it. Exclusions are
   # in .unwrapignore, the tool's own mechanism, which a bare CLI run honors too.
   - repo: https://github.com/michen00/markdown-prose-hooks-py
-    rev: v0.3.0
+    rev: v0.4.0
     hooks:
       - id: unwrap-markdown-prose-py
   - repo: https://github.com/igorshubovych/markdownlint-cli
@@ -148,7 +148,7 @@ repos:
       - id: yamllint
         args: [--strict]
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.49.0
+    rev: v1.50.1
     hooks:
       - id: typos
   - repo: https://github.com/codespell-project/codespell
