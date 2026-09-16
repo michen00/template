@@ -1,0 +1,19 @@
+---
+name: PR body unwrap
+
+# unwrap-markdown-prose-py in .pre-commit-config.yaml already enforces this
+# repository's one Markdown convention -- no manual line break inside a
+# paragraph -- on every tracked file. A pull request body is not a tracked
+# file, so that hook cannot reach it: an author who hard-wraps a draft in an
+# editor or a shell heredoc publishes the ragged result to every reviewer
+# with nothing here to catch it.
+
+on:
+  pull_request_target:
+    types: [opened, reopened, ready_for_review]
+
+jobs:
+  edit:
+    permissions:
+      pull-requests: write
+    uses: michen00/markdown-prose-hooks/.github/workflows/unwrap-pr-body.yml@v0.5.0
