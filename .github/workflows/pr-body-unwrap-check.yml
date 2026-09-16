@@ -11,14 +11,6 @@ name: PR body unwrap check
 # reports the wrapped body as a failing check rather than only a comment,
 # matching how pr-mechanical-checks.yml treats every other deterministic
 # finding about a pull request's own text.
-#
-# Calls michen00/markdown-prose-hooks/.github/workflows/unwrap-pr-body-check.yml,
-# documented under "On a pull request body" in that project's README. A
-# bot-authored or empty body is skipped by the reusable workflow itself.
-#
-# Pinned to v0.5.0: v0.4.0 predates this file, so the sibling workflow's pin
-# to it -- see the note there -- applies here too. Same silent failure, same
-# fix.
 
 on:
   pull_request:
