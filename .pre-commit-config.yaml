@@ -115,7 +115,7 @@ repos:
   # so the hook can hold the convention instead of only reporting on it. Exclusions are
   # in .unwrapignore, the tool's own mechanism, which a bare CLI run honors too.
   - repo: https://github.com/michen00/markdown-prose-hooks-py
-    rev: v0.4.0
+    rev: v0.5.0
     hooks:
       - id: unwrap-markdown-prose-py
   - repo: https://github.com/igorshubovych/markdownlint-cli
@@ -157,7 +157,7 @@ repos:
       - id: codespell
         args: [--skip, '*.ipynb']
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.11.0.1
+    rev: v0.11.0.1-1
     hooks:
       - id: shellcheck
   - repo: https://github.com/rhysd/actionlint
