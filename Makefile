@@ -238,8 +238,23 @@ enable-pre-commit: check-install-uv ## Enable pre-commit hooks
     if [ -n "$$hookspath" ]; then \
         case "$$hookspath" in \
             .git/hooks|"$$common_hooks_dir") \
-                echo "$(YELLOW)Note: unsetting local core.hooksPath='$$hookspath' (default value) so pre-commit can install.$(_COLOR)"; \
-                git config --local --unset-all core.hooksPath || true; \
+                inherited="$$(git config --global --get core.hooksPath 2>/dev/null || true)"; \
+                if [ -z "$$inherited" ]; then \
+                    inherited="$$(git config --system --get core.hooksPath 2>/dev/null || true)"; \
+                fi; \
+                case "$$inherited" in \
+                    ""|.git/hooks|"$$common_hooks_dir") \
+                        echo "$(YELLOW)Note: unsetting local core.hooksPath='$$hookspath' (default value) so pre-commit can install.$(_COLOR)"; \
+                        git config --local --unset-all core.hooksPath || true; \
+                        ;; \
+                    *) \
+                        echo "$(BOLD)$(RED)Error: local core.hooksPath='$$hookspath' matches the default, but an inherited core.hooksPath='$$inherited' (global/system) would take effect once it's unset.$(_COLOR)" >&2; \
+                        echo "       Removing the local override could silently switch this repo onto that inherited hooks path." >&2; \
+                        echo "       Run 'git config --local --unset-all core.hooksPath' yourself once you've confirmed that's what you want, then retry." >&2; \
+                        echo "       Alternatively, run 'make develop WITH_HOOKS=false' to skip hook installation." >&2; \
+                        exit 1; \
+                        ;; \
+                esac; \
                 ;; \
             *) \
                 echo "$(BOLD)$(RED)Error: core.hooksPath is set to '$$hookspath' (non-default).$(_COLOR)" >&2; \
