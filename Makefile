@@ -226,21 +226,13 @@ sync-main: ## Sync local branch with latest main
     fi; \
     trap - EXIT
 
-# pre-commit refuses to install when core.hooksPath is set, even when the
-# value points at the default .git/hooks (the same path it would write to
-# anyway). A previous tool can stamp this no-op value into a fresh clone's
-# local config. Auto-unset only that default so we don't quietly disrupt a
-# real third-party hooks framework (husky, lefthook, ...) -- and only once
-# pre-commit is confirmed present, so a contributor using one of those
-# frameworks without pre-commit installed still gets the plain
-# warning-and-skip below instead of a hard error out of the guard.
-#
-# --path-format=absolute is load-bearing, not decoration: bare
-# --git-common-dir returns the relative ".git" in an ordinary clone (it only
-# happens to come back absolute inside a linked worktree), so a hooksPath
-# value some tool stamped as an absolute path to that same default location
-# would otherwise match neither case arm below and get rejected as though it
-# were a real override.
+# pre-commit refuses to install when core.hooksPath is set, even to the
+# default .git/hooks. Checks pre-commit is present first, so a hooks
+# framework without it gets the plain warning below rather than a hard
+# error. Auto-unsets only the no-op default (matched by absolute path too,
+# since --git-common-dir is relative outside a worktree) -- and only once a
+# global/system value isn't waiting to take its place; anything else is a
+# real hooks framework, reported rather than overridden.
 .PHONY: enable-pre-commit
 enable-pre-commit: check-install-uv ## Enable pre-commit hooks
 	@if ! $(UV) run pre-commit --version >/dev/null 2>&1; then \
