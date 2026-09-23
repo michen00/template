@@ -226,14 +226,54 @@ sync-main: ## Sync local branch with latest main
     fi; \
     trap - EXIT
 
+# pre-commit refuses to install when core.hooksPath is set, even to the
+# default .git/hooks. Checks pre-commit is present first, so a hooks
+# framework without it gets the plain warning below rather than a hard
+# error. Auto-unsets only the no-op default (matched by absolute path too,
+# since --git-common-dir is relative outside a worktree) -- and only once a
+# global/system value isn't waiting to take its place; anything else is a
+# real hooks framework, reported rather than overridden.
 .PHONY: enable-pre-commit
 enable-pre-commit: check-install-uv ## Enable pre-commit hooks
-	@if $(UV) run pre-commit --version >/dev/null 2>&1; then \
-        $(UV) run pre-commit install; \
-    else \
+	@if ! $(UV) run pre-commit --version >/dev/null 2>&1; then \
         echo "$(YELLOW)Warning: pre-commit is not installed. Skipping hook installation.$(_COLOR)"; \
         echo "Install it with: uv sync (or make develop)"; \
-    fi
+        exit 0; \
+    fi; \
+    hookspath="$$(git config --local --get core.hooksPath 2>/dev/null || true)"; \
+    common_hooks_dir="$$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)/hooks"; \
+    if [ -n "$$hookspath" ]; then \
+        case "$$hookspath" in \
+            .git/hooks|"$$common_hooks_dir") \
+                inherited="$$(git config --global --get core.hooksPath 2>/dev/null || true)"; \
+                if [ -z "$$inherited" ]; then \
+                    inherited="$$(git config --system --get core.hooksPath 2>/dev/null || true)"; \
+                fi; \
+                case "$$inherited" in \
+                    ""|.git/hooks|"$$common_hooks_dir") \
+                        echo "$(YELLOW)Note: unsetting local core.hooksPath='$$hookspath' (default value) so pre-commit can install.$(_COLOR)"; \
+                        git config --local --unset-all core.hooksPath || true; \
+                        ;; \
+                    *) \
+                        echo "$(BOLD)$(RED)Error: local core.hooksPath='$$hookspath' matches the default, but an inherited core.hooksPath='$$inherited' (global/system) would take effect once it's unset.$(_COLOR)" >&2; \
+                        echo "       Removing the local override could silently switch this repo onto that inherited hooks path." >&2; \
+                        echo "       Run 'git config --local --unset-all core.hooksPath' yourself once you've confirmed that's what you want, then retry." >&2; \
+                        echo "       Alternatively, run 'make develop WITH_HOOKS=false' to skip hook installation." >&2; \
+                        exit 1; \
+                        ;; \
+                esac; \
+                ;; \
+            *) \
+                echo "$(BOLD)$(RED)Error: core.hooksPath is set to '$$hookspath' (non-default).$(_COLOR)" >&2; \
+                echo "       pre-commit refuses to install over an explicit core.hooksPath." >&2; \
+                echo "       Either point your other hook framework elsewhere, or run" >&2; \
+                echo "       'git config --local --unset-all core.hooksPath' before retrying." >&2; \
+                echo "       Alternatively, run 'make develop WITH_HOOKS=false' to skip hook installation." >&2; \
+                exit 1; \
+                ;; \
+        esac; \
+    fi; \
+    $(UV) run pre-commit install
 
 .PHONY: disable-pre-commit
 disable-pre-commit: check-install-uv ## Disable pre-commit hooks
