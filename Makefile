@@ -234,6 +234,13 @@ sync-main: ## Sync local branch with latest main
 # pre-commit is confirmed present, so a contributor using one of those
 # frameworks without pre-commit installed still gets the plain
 # warning-and-skip below instead of a hard error out of the guard.
+#
+# --path-format=absolute is load-bearing, not decoration: bare
+# --git-common-dir returns the relative ".git" in an ordinary clone (it only
+# happens to come back absolute inside a linked worktree), so a hooksPath
+# value some tool stamped as an absolute path to that same default location
+# would otherwise match neither case arm below and get rejected as though it
+# were a real override.
 .PHONY: enable-pre-commit
 enable-pre-commit: check-install-uv ## Enable pre-commit hooks
 	@if ! $(UV) run pre-commit --version >/dev/null 2>&1; then \
@@ -242,7 +249,7 @@ enable-pre-commit: check-install-uv ## Enable pre-commit hooks
         exit 0; \
     fi; \
     hookspath="$$(git config --local --get core.hooksPath 2>/dev/null || true)"; \
-    common_hooks_dir="$$(git rev-parse --git-common-dir 2>/dev/null)/hooks"; \
+    common_hooks_dir="$$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)/hooks"; \
     if [ -n "$$hookspath" ]; then \
         case "$$hookspath" in \
             .git/hooks|"$$common_hooks_dir") \
