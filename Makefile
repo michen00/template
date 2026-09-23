@@ -230,10 +230,18 @@ sync-main: ## Sync local branch with latest main
 # value points at the default .git/hooks (the same path it would write to
 # anyway). A previous tool can stamp this no-op value into a fresh clone's
 # local config. Auto-unset only that default so we don't quietly disrupt a
-# real third-party hooks framework (husky, lefthook, ...).
+# real third-party hooks framework (husky, lefthook, ...) -- and only once
+# pre-commit is confirmed present, so a contributor using one of those
+# frameworks without pre-commit installed still gets the plain
+# warning-and-skip below instead of a hard error out of the guard.
 .PHONY: enable-pre-commit
 enable-pre-commit: check-install-uv ## Enable pre-commit hooks
-	@hookspath="$$(git config --local --get core.hooksPath 2>/dev/null || true)"; \
+	@if ! $(UV) run pre-commit --version >/dev/null 2>&1; then \
+        echo "$(YELLOW)Warning: pre-commit is not installed. Skipping hook installation.$(_COLOR)"; \
+        echo "Install it with: uv sync (or make develop)"; \
+        exit 0; \
+    fi; \
+    hookspath="$$(git config --local --get core.hooksPath 2>/dev/null || true)"; \
     common_hooks_dir="$$(git rev-parse --git-common-dir 2>/dev/null)/hooks"; \
     if [ -n "$$hookspath" ]; then \
         case "$$hookspath" in \
@@ -266,12 +274,7 @@ enable-pre-commit: check-install-uv ## Enable pre-commit hooks
                 ;; \
         esac; \
     fi; \
-    if $(UV) run pre-commit --version >/dev/null 2>&1; then \
-        $(UV) run pre-commit install; \
-    else \
-        echo "$(YELLOW)Warning: pre-commit is not installed. Skipping hook installation.$(_COLOR)"; \
-        echo "Install it with: uv sync (or make develop)"; \
-    fi
+    $(UV) run pre-commit install
 
 .PHONY: disable-pre-commit
 disable-pre-commit: check-install-uv ## Disable pre-commit hooks
