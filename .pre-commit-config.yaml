@@ -52,7 +52,7 @@ repos:
 
   # git commit policy
   - repo: https://github.com/michen00/custom-commit-hooks
-    rev: v0.1.1
+    rev: v0.1.2
     hooks:
       - id: enhance-scope
         stages: [commit-msg]
@@ -85,12 +85,12 @@ repos:
       - id: requirements-txt-fixer
       - id: trailing-whitespace
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.9.6
+    rev: v3.9.7
     hooks:
       - id: prettier
         types_or: [css, html, javascript, json, markdown, scss, ts, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.6
+    rev: v0.16.8
     hooks:
       - id: ruff-check
         types_or: [jupyter, pyi, python, toml]
@@ -98,7 +98,7 @@ repos:
       - id: ruff-format
         types_or: [jupyter, pyi, python, toml]
   - repo: https://github.com/scop/pre-commit-shfmt
-    rev: v3.13.1-1
+    rev: v3.14.1-1
     hooks:
       - id: shfmt
   # One paragraph is one line, so a diff to a paragraph is one line. Ordered before
@@ -148,7 +148,7 @@ repos:
       - id: yamllint
         args: [--strict]
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.50.1
+    rev: v1.50.2
     hooks:
       - id: typos
   - repo: https://github.com/codespell-project/codespell
@@ -157,7 +157,7 @@ repos:
       - id: codespell
         args: [--skip, '*.ipynb']
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.11.0.1-1
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
   - repo: https://github.com/rhysd/actionlint
