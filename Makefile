@@ -226,9 +226,32 @@ sync-main: ## Sync local branch with latest main
     fi; \
     trap - EXIT
 
+# pre-commit refuses to install when core.hooksPath is set, even when the
+# value points at the default .git/hooks (the same path it would write to
+# anyway). A previous tool can stamp this no-op value into a fresh clone's
+# local config. Auto-unset only that default so we don't quietly disrupt a
+# real third-party hooks framework (husky, lefthook, ...).
 .PHONY: enable-pre-commit
 enable-pre-commit: check-install-uv ## Enable pre-commit hooks
-	@if $(UV) run pre-commit --version >/dev/null 2>&1; then \
+	@hookspath="$$(git config --local --get core.hooksPath 2>/dev/null || true)"; \
+    common_hooks_dir="$$(git rev-parse --git-common-dir 2>/dev/null)/hooks"; \
+    if [ -n "$$hookspath" ]; then \
+        case "$$hookspath" in \
+            .git/hooks|"$$common_hooks_dir") \
+                echo "$(YELLOW)Note: unsetting local core.hooksPath='$$hookspath' (default value) so pre-commit can install.$(_COLOR)"; \
+                git config --local --unset-all core.hooksPath || true; \
+                ;; \
+            *) \
+                echo "$(BOLD)$(RED)Error: core.hooksPath is set to '$$hookspath' (non-default).$(_COLOR)" >&2; \
+                echo "       pre-commit refuses to install over an explicit core.hooksPath." >&2; \
+                echo "       Either point your other hook framework elsewhere, or run" >&2; \
+                echo "       'git config --local --unset-all core.hooksPath' before retrying." >&2; \
+                echo "       Alternatively, run 'make develop WITH_HOOKS=false' to skip hook installation." >&2; \
+                exit 1; \
+                ;; \
+        esac; \
+    fi; \
+    if $(UV) run pre-commit --version >/dev/null 2>&1; then \
         $(UV) run pre-commit install; \
     else \
         echo "$(YELLOW)Warning: pre-commit is not installed. Skipping hook installation.$(_COLOR)"; \
