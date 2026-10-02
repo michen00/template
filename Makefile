@@ -379,7 +379,7 @@ build/install-test: build/install-deps
 	mkdir -p $(dir $@) && touch $@
 
 build/install-deps: build/install-python-versions $(VENV_MARKER) $(SYNC_INPUTS)
-	@set -e; $(CHECK_UV_CMD); $(UV) sync --no-editable --no-install-project
+	@set -e; $(CHECK_UV_CMD); $(UV) sync --inexact --no-editable --no-install-project
 	mkdir -p $(dir $@) && touch $@
 
 build/install-python-versions: .python-version
