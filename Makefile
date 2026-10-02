@@ -368,7 +368,7 @@ SYNC_INPUTS = pyproject.toml .python-version $(wildcard uv.lock)
 VENV_MARKER = $(VENV)/pyvenv.cfg
 
 $(VENV_MARKER): .python-version
-	@set -e; $(CHECK_UV_CMD); $(UV) venv --python $(shell cat .python-version) $(VENV)
+	@set -e; $(CHECK_UV_CMD); $(UV) venv --allow-existing --python $(shell cat .python-version) $(VENV)
 
 build/install-dev: build/install-deps
 	$(UV) sync --inexact --only-dev
@@ -379,7 +379,7 @@ build/install-test: build/install-deps
 	mkdir -p $(dir $@) && touch $@
 
 build/install-deps: build/install-python-versions $(VENV_MARKER) $(SYNC_INPUTS)
-	@set -e; $(CHECK_UV_CMD); $(UV) sync --no-editable --no-install-project
+	@set -e; $(CHECK_UV_CMD); $(UV) sync --inexact --no-editable --no-install-project
 	mkdir -p $(dir $@) && touch $@
 
 build/install-python-versions: .python-version

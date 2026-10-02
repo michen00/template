@@ -124,11 +124,15 @@ fix_module_name_references() {
 
 replace_profile_tokens() {
   local project_dir="$1"
+  local project_name="$2"
   local owner_pat owner_rep author_pat author_rep email_pat email_rep
   local relative_path file
 
-  owner_pat="$(escape_sed_pattern "$TMPL_GITHUB_OWNER")"
-  owner_rep="$(escape_sed_replacement "$GITHUB_OWNER")"
+  # Only the project's own repository path changes owner. By now
+  # replace_template_tokens has turned OWNER/template into OWNER/<project>, and
+  # any other OWNER/<repo> names a dependency that stays where it is published.
+  owner_pat="$(escape_sed_pattern "$TMPL_GITHUB_OWNER/$project_name")"
+  owner_rep="$(escape_sed_replacement "$GITHUB_OWNER/$project_name")"
   author_pat="$(escape_sed_pattern "$TMPL_AUTHOR_NAME")"
   author_rep="$(escape_sed_replacement "$AUTHOR_NAME")"
   email_pat="$(escape_sed_pattern "$TMPL_AUTHOR_EMAIL")"
@@ -302,7 +306,7 @@ finalize_setup() {
   replace_template_tokens "$project_dir" "$project_name" || return 1
   replace_module_tokens "$project_dir" "$module_name" || return 1
   fix_module_name_references "$project_dir" "$project_name" "$module_name" || return 1
-  replace_profile_tokens "$project_dir" || return 1
+  replace_profile_tokens "$project_dir" "$project_name" || return 1
   handle_cliff_email_swap "$project_dir" || return 1
   handle_deepwiki "$project_dir" || return 1
   disable_example_script "$project_dir" || return 1
