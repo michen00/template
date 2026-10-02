@@ -285,14 +285,24 @@ profile_work() {
 PROFILE
 }
 
-assert_no_text_match_in_dir_excluding() {
+# The template owner may survive only in references to dependencies the template
+# calls, such as reusable workflows, and at least one must survive: an owner swap
+# that rewrote it would point the generated project at a repository that does not
+# exist.
+assert_owner_only_in_dependencies() {
   local path="$1"
-  local needle="$2"
-  local exclude="$3"
+  local stray
 
-  if grep -R -I -q --exclude="$exclude" -- "$needle" "$path"; then
-    printf '%s[ERROR]%s did not expect to find %s under %s (excluding %s).\n' \
-      "$RED" "$RESET" "$needle" "$path" "$exclude" >&2
+  stray="$(grep -R -I -o --exclude=.pre-commit-config.yaml -- 'michen00/[A-Za-z0-9_.-]*' "$path" |
+    grep -v ':michen00/markdown-prose-hooks$' || true)"
+  if [ -n "$stray" ]; then
+    printf '%s[ERROR]%s template owner left outside dependency references under %s:\n%s\n' \
+      "$RED" "$RESET" "$path" "$stray" >&2
+    exit 1
+  fi
+  if ! grep -R -q -- 'uses: michen00/markdown-prose-hooks/' "$path/.github/workflows"; then
+    printf '%s[ERROR]%s dependency reference michen00/markdown-prose-hooks was rewritten under %s.\n' \
+      "$RED" "$RESET" "$path" >&2
     exit 1
   fi
 }
@@ -303,7 +313,7 @@ assert_profile_replacements() {
   local expected_author="$3"
   local expected_email="$4"
 
-  assert_no_text_match_in_dir_excluding "$project_root" "michen00" ".pre-commit-config.yaml"
+  assert_owner_only_in_dependencies "$project_root"
   assert_no_text_match_in_dir "$project_root" "Michael I Chen"
   assert_no_text_match_in_dir "$project_root" "michael.chen.0@gmail.com"
 
@@ -821,7 +831,7 @@ if ! grep -q "workorg" "$PROJECT_DIR_WORK/cliff.toml"; then
   exit 1
 fi
 
-assert_no_text_match_in_dir_excluding "$PROJECT_DIR_WORK" "michen00" ".pre-commit-config.yaml"
+assert_owner_only_in_dependencies "$PROJECT_DIR_WORK"
 
 # --- Error case: nonexistent profile ---
 
