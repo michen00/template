@@ -4,7 +4,8 @@
 # the optional manual re-run: it duplicates that coverage rather than adding to
 # it, so it is dispatch-only and does not spend a runner on ordinary traffic.
 #
-# The image is pinned to match .pre-commit-config.yaml's actionlint rev. Keep the
+# The image is pinned to match .pre-commit-config.yaml's actionlint rev, without
+# its leading `v`: Docker Hub tags the image `1.7.12`, not `v1.7.12`. Keep the
 # two in step -- a floating `:latest` here would run a different actionlint than
 # the gate, with this repository's token, and disagree with it silently.
 name: lint GitHub Actions workflows
@@ -20,6 +21,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Check workflow files
-        uses: docker://rhysd/actionlint:v1.7.12
+        uses: docker://rhysd/actionlint:1.7.12
         with:
           args: -color
