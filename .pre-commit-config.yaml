@@ -34,7 +34,7 @@ repos:
 
   # security (fail fast)
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.30.1
+    rev: v8.30.0
     hooks:
       - id: gitleaks
         fail_fast: true
@@ -90,7 +90,7 @@ repos:
       - id: prettier
         types_or: [css, html, javascript, json, markdown, scss, ts, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.8
+    rev: v0.16.10
     hooks:
       - id: ruff-check
         types_or: [jupyter, pyi, python, toml]
@@ -115,7 +115,7 @@ repos:
   # so the hook can hold the convention instead of only reporting on it. Exclusions are
   # in .unwrapignore, the tool's own mechanism, which a bare CLI run honors too.
   - repo: https://github.com/michen00/markdown-prose-hooks-py
-    rev: v0.5.0
+    rev: v0.5.1
     hooks:
       - id: unwrap-markdown-prose-py
   - repo: https://github.com/igorshubovych/markdownlint-cli
@@ -148,7 +148,7 @@ repos:
       - id: yamllint
         args: [--strict]
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.50.2
+    rev: v1.50.3
     hooks:
       - id: typos
   - repo: https://github.com/codespell-project/codespell
@@ -157,7 +157,7 @@ repos:
       - id: codespell
         args: [--skip, '*.ipynb']
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.11.0.1
+    rev: v0.11.0.1-1
     hooks:
       - id: shellcheck
   - repo: https://github.com/rhysd/actionlint
@@ -167,7 +167,7 @@ repos:
 
   # static type analysis
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.3.1
+    rev: v2.4.0
     hooks:
       - id: mypy
         exclude: '.ipynb$'
@@ -182,7 +182,7 @@ repos:
 
   # configuration validation
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.25
+    rev: '0.26'
     hooks:
       - id: validate-pyproject
         additional_dependencies: ['validate-pyproject-schema-store[all]']
