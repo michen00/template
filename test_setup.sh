@@ -744,6 +744,25 @@ assert_profile_replacements "$PROJECT_DIR_NEW_HYPHEN" "$TEST_OWNER" "$TEST_AUTHO
 assert_cliff_email_swap_removed "$PROJECT_DIR_NEW_HYPHEN"
 assert_deepwiki_present "$PROJECT_DIR_NEW_HYPHEN"
 
+# A project that shares its name with a dependency the template calls must swap
+# the owner of its own repository path and leave the dependency's owner alone.
+PROJECT_NAME_DEP_NAMED="markdown-prose-hooks"
+MODULE_NAME_DEP_NAMED="${PROJECT_NAME_DEP_NAMED//-/_}"
+TEMPLATE_DIR_DEP_NAMED="$WORK_ROOT/dependency-named-template"
+PROJECT_DIR_DEP_NAMED="$WORK_ROOT/$PROJECT_NAME_DEP_NAMED"
+
+copy_template "$TEMPLATE_DIR_DEP_NAMED"
+write_test_profile "$TEMPLATE_DIR_DEP_NAMED"
+run_setup_with_inputs "$TEMPLATE_DIR_DEP_NAMED" "new directory mode (project named like a dependency)" \
+  $'2\n'"$PROJECT_NAME_DEP_NAMED"
+verify_new_directory_project "$PROJECT_DIR_DEP_NAMED" "$PROJECT_NAME_DEP_NAMED" "$MODULE_NAME_DEP_NAMED"
+assert_profile_replacements "$PROJECT_DIR_DEP_NAMED" "$TEST_OWNER" "$TEST_AUTHOR_NAME" "$TEST_AUTHOR_EMAIL"
+if ! grep -q "github.com/$TEST_OWNER/$PROJECT_NAME_DEP_NAMED\"" "$PROJECT_DIR_DEP_NAMED/cliff.toml"; then
+  printf '%s[ERROR]%s cliff.toml should point at %s/%s.\n' \
+    "$RED" "$RESET" "$TEST_OWNER" "$PROJECT_NAME_DEP_NAMED" >&2
+  exit 1
+fi
+
 PROJECT_NAME_INPLACE="local$(date +%s)"
 TEMPLATE_DIR_INPLACE="$WORK_ROOT/in-place-template"
 SENTINEL_FILE="$TEMPLATE_DIR_INPLACE/out_of_manifest.tmp"
