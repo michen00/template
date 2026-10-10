@@ -286,23 +286,34 @@ PROFILE
 }
 
 # The template owner may survive only in references to dependencies the template
-# calls, such as reusable workflows, and at least one must survive: an owner swap
-# that rewrote it would point the generated project at a repository that does not
-# exist.
+# calls, such as reusable workflows. Every workflow call of such a dependency must
+# keep the template owner, and at least one call must exist: an owner swap that
+# rewrote a call would point that workflow at a repository that does not exist.
 assert_owner_only_in_dependencies() {
   local path="$1"
-  local stray
+  local dependency="markdown-prose-hooks"
+  local stray calls rewritten
 
   stray="$(grep -R -I -o --exclude=.pre-commit-config.yaml -- 'michen00/[A-Za-z0-9_.-]*' "$path" |
-    grep -v ':michen00/markdown-prose-hooks$' || true)"
+    grep -v ":michen00/$dependency\$" || true)"
   if [ -n "$stray" ]; then
     printf '%s[ERROR]%s template owner left outside dependency references under %s:\n%s\n' \
       "$RED" "$RESET" "$path" "$stray" >&2
     exit 1
   fi
-  if ! grep -R -q -- 'uses: michen00/markdown-prose-hooks/' "$path/.github/workflows"; then
-    printf '%s[ERROR]%s dependency reference michen00/markdown-prose-hooks was rewritten under %s.\n' \
-      "$RED" "$RESET" "$path" >&2
+
+  # Collect the calls under any owner, so that a call rewritten in one workflow
+  # fails even when another workflow kept the template owner.
+  calls="$(grep -R -I -o -E -- "[A-Za-z0-9_.-]+/$dependency/" "$path/.github/workflows" || true)"
+  if [ -z "$calls" ]; then
+    printf '%s[ERROR]%s no workflow under %s calls michen00/%s.\n' \
+      "$RED" "$RESET" "$path" "$dependency" >&2
+    exit 1
+  fi
+  rewritten="$(printf '%s\n' "$calls" | grep -v ":michen00/$dependency/\$" || true)"
+  if [ -n "$rewritten" ]; then
+    printf '%s[ERROR]%s dependency reference michen00/%s was rewritten under %s:\n%s\n' \
+      "$RED" "$RESET" "$dependency" "$path" "$rewritten" >&2
     exit 1
   fi
 }
