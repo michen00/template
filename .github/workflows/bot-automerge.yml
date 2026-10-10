@@ -256,41 +256,39 @@ jobs:
               echo "should_merge=true" >>"$GITHUB_OUTPUT"
               ;;
             version-update:semver-major)
-              # Majors are gated on ecosystem, because ecosystem decides whether a green
-              # pull request is evidence about the change.
+              # Majors merge on green too, in every ecosystem and with no exceptions. A major
+              # is accepted once every required check passes: the latest version is almost
+              # always the one wanted, and a major held for a person is a merge somebody has
+              # to remember to make.
               #
-              # `github-actions` arms, and correcting that is most of why this file changed.
-              # The actions here are pinned to floating major tags, so Dependabot raises an
-              # actions pull request only when a major moves -- which made a blanket major
-              # hold a blanket hold on every actions pull request there will ever be. That
-              # is not a policy but an outage. The cooldown in dependabot.yml is the soak
-              # period that replaces the hold -- and it covers every actions update rather
-              # than only majors, because that ecosystem accepts no major-specific key.
+              # The trade-off is accepted rather than overlooked. Green CI is evidence only
+              # about code a pull request runs. An actions major whose `uses:` line sits in a
+              # workflow no pull request executes -- a release, publish or scheduled job, or
+              # a step whose condition is false on a bot pull request -- merges with nothing
+              # having exercised it, and so does a dependency major on a path CI does not
+              # cover. A break there surfaces the next time that code runs, and is fixed
+              # forward. Here that includes release.yml and changelog-autoupdate.yml, neither
+              # of which a pull request starts. And because this repository is copied to
+              # start other ones, a dependency major merged here reaches every project
+              # created from it afterwards.
               #
-              # Its effective length is longer than the number suggests, which is worth
-              # knowing before tuning it: the actions ecosystem is polled on the 1st and
-              # 15th, so an update whose cooldown expires just after a poll waits until the
-              # next one. Thirty days of cooldown therefore lands a pull request roughly
-              # thirty to forty-five days after the release.
+              # The cooldowns in dependabot.yml are the soak: Dependabot raises no pull
+              # request for a release until its cooldown has passed. Their effective length
+              # is longer than the number suggests for actions, which is worth knowing before
+              # tuning it: that ecosystem is polled on the 1st and 15th, so an update whose
+              # cooldown expires just after a poll waits until the next one. Thirty days of
+              # cooldown therefore lands a pull request roughly thirty to forty-five days
+              # after the release.
               #
-              # No per-workflow hold list here, unlike the sibling repositories that publish
-              # something. This repository publishes nothing: every workflow except
-              # changelog-autoupdate.yml runs on pull requests, so an actions break
-              # surfaces at review time, and a break in that one is a dispatched job that
-              # fails visibly and costs a rerun. A list would be maintenance with nothing
-              # behind it, and a stale list fails silently in the arming direction.
-              #
-              # `uv` is the ecosystem that lands in the else branch here, and holding its
-              # majors is deliberate: this repository is copied to start other ones, so a
-              # dependency major it carries propagates into every descendant. That is a
-              # reason to look at one by hand even when CI is green.
-              if [ "$ECOSYSTEM" = "github-actions" ]; then
-                echo "::notice::actions major; nothing here publishes unexercised; eligible."
-                echo "should_merge=true" >>"$GITHUB_OUTPUT"
-              else
-                echo "::warning::${ECOSYSTEM:-unknown} major is not exercised end to end; holding."
-                echo "should_merge=false" >>"$GITHUB_OUTPUT"
-              fi
+              # Nothing here reads the ecosystem except the log line. If a test on it ever
+              # returns, compare against fetch-metadata's slugs and not the keys
+              # dependabot.yml is written in: the action takes package-ecosystem from the
+              # branch name, so it reports `github_actions`, `pre_commit` and `uv`, never
+              # `github-actions` or `pre-commit`. A comparison against a config key does not
+              # fail loudly. It never matches, every major it was meant to arm falls through
+              # to a hold, and the run stays green.
+              echo "::notice::${ECOSYSTEM:-unknown} major; eligible on green CI."
+              echo "should_merge=true" >>"$GITHUB_OUTPUT"
               ;;
             *)
               echo "::warning::Holding ${UPDATE_TYPE:-unknown update type} for a human."
