@@ -285,16 +285,52 @@ profile_work() {
 PROFILE
 }
 
-assert_no_text_match_in_dir_excluding() {
+# The template owner may survive only in references to dependencies the template
+# calls, such as reusable workflows. Every workflow call of such a dependency must
+# keep the template owner, and at least one call must exist: an owner swap that
+# rewrote a call would point that workflow at a repository that does not exist.
+assert_owner_only_in_dependencies() {
   local path="$1"
-  local needle="$2"
-  local exclude="$3"
+  local dependency="markdown-prose-hooks"
+  local stray calls rewritten
 
-  if grep -R -I -q --exclude="$exclude" -- "$needle" "$path"; then
-    printf '%s[ERROR]%s did not expect to find %s under %s (excluding %s).\n' \
-      "$RED" "$RESET" "$needle" "$path" "$exclude" >&2
+  stray="$(grep -R -I -o --exclude=.pre-commit-config.yaml -- 'michen00/[A-Za-z0-9_.-]*' "$path" |
+    grep -v ":michen00/$dependency\$" || true)"
+  if [ -n "$stray" ]; then
+    printf '%s[ERROR]%s template owner left outside dependency references under %s:\n%s\n' \
+      "$RED" "$RESET" "$path" "$stray" >&2
     exit 1
   fi
+
+  # Collect the calls under any owner, so that a call rewritten in one workflow
+  # fails even when another workflow kept the template owner.
+  calls="$(grep -R -I -o -E -- "[A-Za-z0-9_.-]+/$dependency/" "$path/.github/workflows" || true)"
+  if [ -z "$calls" ]; then
+    printf '%s[ERROR]%s no workflow under %s calls michen00/%s.\n' \
+      "$RED" "$RESET" "$path" "$dependency" >&2
+    exit 1
+  fi
+  rewritten="$(printf '%s\n' "$calls" | grep -v ":michen00/$dependency/\$" || true)"
+  if [ -n "$rewritten" ]; then
+    printf '%s[ERROR]%s dependency reference michen00/%s was rewritten under %s:\n%s\n' \
+      "$RED" "$RESET" "$dependency" "$path" "$rewritten" >&2
+    exit 1
+  fi
+}
+
+# data/.gitignore ignores everything, itself included unless it says otherwise, so
+# a generated project staged with `git add -A` would never track it and a fresh
+# clone would commit whatever lands in data/.
+assert_data_gitignore_stageable() {
+  local project_root="$1"
+
+  git -C "$project_root" add -A
+  if [ -z "$(git -C "$project_root" ls-files data/.gitignore)" ]; then
+    printf '%s[ERROR]%s data/.gitignore is not staged by git add -A in %s.\n' \
+      "$RED" "$RESET" "$project_root" >&2
+    exit 1
+  fi
+  git -C "$project_root" reset -q
 }
 
 assert_profile_replacements() {
@@ -303,7 +339,7 @@ assert_profile_replacements() {
   local expected_author="$3"
   local expected_email="$4"
 
-  assert_no_text_match_in_dir_excluding "$project_root" "michen00" ".pre-commit-config.yaml"
+  assert_owner_only_in_dependencies "$project_root"
   assert_no_text_match_in_dir "$project_root" "Michael I Chen"
   assert_no_text_match_in_dir "$project_root" "michael.chen.0@gmail.com"
 
@@ -690,6 +726,7 @@ copy_template "$TEMPLATE_DIR_NEW"
 write_test_profile "$TEMPLATE_DIR_NEW"
 run_setup_with_inputs "$TEMPLATE_DIR_NEW" "new directory mode" $'2\n'"$PROJECT_NAME_NEW"
 verify_new_directory_project "$PROJECT_DIR_NEW" "$PROJECT_NAME_NEW"
+assert_data_gitignore_stageable "$PROJECT_DIR_NEW"
 assert_profile_replacements "$PROJECT_DIR_NEW" "$TEST_OWNER" "$TEST_AUTHOR_NAME" "$TEST_AUTHOR_EMAIL"
 assert_cliff_email_swap_removed "$PROJECT_DIR_NEW"
 assert_deepwiki_present "$PROJECT_DIR_NEW"
@@ -706,6 +743,25 @@ verify_new_directory_project "$PROJECT_DIR_NEW_HYPHEN" "$PROJECT_NAME_NEW_HYPHEN
 assert_profile_replacements "$PROJECT_DIR_NEW_HYPHEN" "$TEST_OWNER" "$TEST_AUTHOR_NAME" "$TEST_AUTHOR_EMAIL"
 assert_cliff_email_swap_removed "$PROJECT_DIR_NEW_HYPHEN"
 assert_deepwiki_present "$PROJECT_DIR_NEW_HYPHEN"
+
+# A project that shares its name with a dependency the template calls must swap
+# the owner of its own repository path and leave the dependency's owner alone.
+PROJECT_NAME_DEP_NAMED="markdown-prose-hooks"
+MODULE_NAME_DEP_NAMED="${PROJECT_NAME_DEP_NAMED//-/_}"
+TEMPLATE_DIR_DEP_NAMED="$WORK_ROOT/dependency-named-template"
+PROJECT_DIR_DEP_NAMED="$WORK_ROOT/$PROJECT_NAME_DEP_NAMED"
+
+copy_template "$TEMPLATE_DIR_DEP_NAMED"
+write_test_profile "$TEMPLATE_DIR_DEP_NAMED"
+run_setup_with_inputs "$TEMPLATE_DIR_DEP_NAMED" "new directory mode (project named like a dependency)" \
+  $'2\n'"$PROJECT_NAME_DEP_NAMED"
+verify_new_directory_project "$PROJECT_DIR_DEP_NAMED" "$PROJECT_NAME_DEP_NAMED" "$MODULE_NAME_DEP_NAMED"
+assert_profile_replacements "$PROJECT_DIR_DEP_NAMED" "$TEST_OWNER" "$TEST_AUTHOR_NAME" "$TEST_AUTHOR_EMAIL"
+if ! grep -q "github.com/$TEST_OWNER/$PROJECT_NAME_DEP_NAMED\"" "$PROJECT_DIR_DEP_NAMED/cliff.toml"; then
+  printf '%s[ERROR]%s cliff.toml should point at %s/%s.\n' \
+    "$RED" "$RESET" "$TEST_OWNER" "$PROJECT_NAME_DEP_NAMED" >&2
+  exit 1
+fi
 
 PROJECT_NAME_INPLACE="local$(date +%s)"
 TEMPLATE_DIR_INPLACE="$WORK_ROOT/in-place-template"
@@ -821,7 +877,7 @@ if ! grep -q "workorg" "$PROJECT_DIR_WORK/cliff.toml"; then
   exit 1
 fi
 
-assert_no_text_match_in_dir_excluding "$PROJECT_DIR_WORK" "michen00" ".pre-commit-config.yaml"
+assert_owner_only_in_dependencies "$PROJECT_DIR_WORK"
 
 # --- Error case: nonexistent profile ---
 

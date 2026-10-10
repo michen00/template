@@ -1,2 +1,5 @@
+# Everything a notebook or script writes lands here and is not tracked. The
+# negation keeps this file itself tracked, so a fresh clone ignores data/ too.
 *
+!.gitignore
 !**/.gitkeep

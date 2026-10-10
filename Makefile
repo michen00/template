@@ -366,9 +366,14 @@ rebuild: clean ## Clean up artifacts and build the package from scratch
 
 SYNC_INPUTS = pyproject.toml .python-version $(wildcard uv.lock)
 VENV_MARKER = $(VENV)/pyvenv.cfg
+# The dependency groups an earlier run installed, read from their stamps.
+# build/install-deps syncs exactly, so packages the lock no longer names are
+# removed, and passes these groups so that the dev and test tools stay. It is
+# recursively expanded (=) so that the stamps are read when the recipe runs.
+SYNCED_GROUPS = $(patsubst build/install-%,--group %,$(wildcard build/install-dev build/install-test))
 
 $(VENV_MARKER): .python-version
-	@set -e; $(CHECK_UV_CMD); $(UV) venv --python $(shell cat .python-version) $(VENV)
+	@set -e; $(CHECK_UV_CMD); $(UV) venv --allow-existing --python $(shell cat .python-version) $(VENV)
 
 build/install-dev: build/install-deps
 	$(UV) sync --inexact --only-dev
@@ -379,7 +384,7 @@ build/install-test: build/install-deps
 	mkdir -p $(dir $@) && touch $@
 
 build/install-deps: build/install-python-versions $(VENV_MARKER) $(SYNC_INPUTS)
-	@set -e; $(CHECK_UV_CMD); $(UV) sync --no-editable --no-install-project
+	@set -e; $(CHECK_UV_CMD); $(UV) sync --no-editable --no-install-project $(SYNCED_GROUPS)
 	mkdir -p $(dir $@) && touch $@
 
 build/install-python-versions: .python-version

@@ -54,8 +54,17 @@ replace_template_tokens() {
   local project_dir="$1"
   local project_name="$2"
   local placeholder="__SETUP_SH_TEMPLATES__"
+  local own_repo_placeholder="__SETUP_SH_OWN_REPO__"
+  local own_repo_pat own_repo_rep
   local relative_path
   local file
+
+  # Only the project's own repository path changes owner. OWNER/template can be
+  # told apart from a dependency OWNER/<repo> only before "template" becomes the
+  # project name, so it is marked first and resolved last; resolving it last
+  # also keeps an owner that contains "template" intact.
+  own_repo_pat="$(escape_sed_pattern "$TMPL_GITHUB_OWNER/template")"
+  own_repo_rep="$(escape_sed_replacement "$GITHUB_OWNER/$project_name")"
 
   for relative_path in "${MANIFEST_ENTRIES[@]}"; do
     [ "$relative_path" = ".gitignore" ] && continue
@@ -67,8 +76,10 @@ replace_template_tokens() {
     if grep -Iql "template" "$file"; then
       LC_ALL=C sed -i.bak \
         -e "s/templates/$placeholder/g" \
+        -e "s/$own_repo_pat/$own_repo_placeholder/g" \
         -e "s/template/$project_name/g" \
         -e "s/$placeholder/templates/g" \
+        -e "s/$own_repo_placeholder/$own_repo_rep/g" \
         "$file" || return 1
     fi
   done
@@ -124,11 +135,11 @@ fix_module_name_references() {
 
 replace_profile_tokens() {
   local project_dir="$1"
-  local owner_pat owner_rep author_pat author_rep email_pat email_rep
+  local author_pat author_rep email_pat email_rep
   local relative_path file
 
-  owner_pat="$(escape_sed_pattern "$TMPL_GITHUB_OWNER")"
-  owner_rep="$(escape_sed_replacement "$GITHUB_OWNER")"
+  # The owner is swapped in replace_template_tokens, the last point at which the
+  # project's own repository path is recognizable.
   author_pat="$(escape_sed_pattern "$TMPL_AUTHOR_NAME")"
   author_rep="$(escape_sed_replacement "$AUTHOR_NAME")"
   email_pat="$(escape_sed_pattern "$TMPL_AUTHOR_EMAIL")"
@@ -140,9 +151,8 @@ replace_profile_tokens() {
     file="$project_dir/$relative_path"
     [ -f "$file" ] || continue
 
-    if grep -Iql "$TMPL_GITHUB_OWNER\|$TMPL_AUTHOR_NAME\|$TMPL_AUTHOR_EMAIL" "$file"; then
+    if grep -Iql "$TMPL_AUTHOR_NAME\|$TMPL_AUTHOR_EMAIL" "$file"; then
       LC_ALL=C sed -i.bak \
-        -e "s/$owner_pat/$owner_rep/g" \
         -e "s/$author_pat/$author_rep/g" \
         -e "s/$email_pat/$email_rep/g" \
         "$file" || return 1
