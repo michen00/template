@@ -143,6 +143,9 @@ class Findings:
 
         The filesystem write is a real side effect a caller reading only this
         docstring should know about, not just the printed and annotated forms.
+
+        Returns:
+            The process exit code: 0 when there are no errors, 1 otherwise.
         """
         publish = self._publish
         for warning in self.warnings:
@@ -169,6 +172,10 @@ def check_subject(subject_line: str, *, label: str = 'subject') -> Findings:
     These are the rules that govern every subject, a commit's as much as a title's. The
     tighter preferred length is not among them: it is a title rule, applied separately
     by check_preferred_length.
+
+    Returns:
+        Errors for violations that are certain and warnings for heuristic ones; both are
+        empty when the subject passes.
     """
     found = Findings()
     match = _CONVENTIONAL.match(subject_line)
@@ -233,6 +240,10 @@ def check_squash_subject(
     action strength at detection certainty without compelling a certain finding
     to take the strongest action available. The number is exact, so the
     projection is exact; the choice of what to do about it is separate.
+
+    Returns:
+        One warning, which includes the characters to trim, when the projected subject
+        is over the hard maximum; otherwise no findings.
     """
     found = Findings()
     projected = squash_subject(title, pr_number)
@@ -257,6 +268,10 @@ def check_preferred_length(subject_line: str, *, label: str = 'title') -> Findin
 
     The band stops at the hard maximum so that an over-long subject is reported once, as
     the error it already is, rather than twice.
+
+    Returns:
+        One warning when the title is over the preferred maximum but within the hard
+        maximum; otherwise no findings.
     """
     found = Findings()
     if _TITLE_SOFT_MAX < len(subject_line) <= _HARD_MAX:

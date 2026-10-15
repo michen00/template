@@ -55,6 +55,9 @@ def check_commits(rows: Iterable[tuple[str, str, str]]) -> Findings:
     """Validate the subject of every non-bot commit and combine the findings.
 
     Each row is (sha, author, subject). Bot- or tool-authored commits are skipped.
+
+    Returns:
+        The merged findings of every checked commit, each labeled by its short SHA.
     """
     aggregate = Findings()
     merge_findings = aggregate.merge

@@ -51,7 +51,14 @@ ignore = [
 # Test files (`tests/**/test_*.py`) are exempt in [lint.per-file-ignores] because the
 # constitution requires test docstrings to be declarative truth-apt propositions rather
 # than imperative; helper modules (conftest.py, _*.py) keep D401 enforcement.
-extend-select = ['D401']
+#
+# The constitution also requires `Returns:` and `Raises:` in any docstring with a body;
+# a one-line docstring may omit them (see [lint.pydoclint]). DOC201 and DOC501 enforce
+# that, but they are preview rules. `explicit-preview-rules` limits preview to rules
+# selected by exact code, so `select = ['ALL']` pulls in no other preview rules.
+preview = true
+explicit-preview-rules = true
+extend-select = ['D401', 'DOC201', 'DOC501']
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable   = ['ALL']
@@ -82,7 +89,12 @@ max-complexity = 15
     'S607', # start-process-with-partial-path (`git` off PATH)
     'T201', # Use of print
 ]
-'tests/**/*.py' = ['S101'] # Use of assert
+# A test module needs a docstring only when it adds something a reader needs, such as
+# how to run it, an unusual setup, or an external dependency (constitution).
+'tests/**/*.py' = [
+    'D100', # undocumented-public-module
+    'S101', # Use of assert
+]
 # D401 (imperative-mood) is re-enabled globally above; exempt it ONLY for `test_*.py`,
 # where a docstring is a declarative truth-apt proposition.
 'tests/**/test_*.py' = ['D401']
@@ -92,6 +104,9 @@ max-complexity = 15
     'S101', # Use of assert
     'T201', # Use of print
 ]
+
+[lint.pydoclint]
+ignore-one-line-docstrings = true
 
 [lint.pydocstyle]
 convention = 'google'
