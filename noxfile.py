@@ -1,3 +1,9 @@
+#!/usr/bin/env -S uv run --script
+
+# /// script
+# dependencies = ["nox>=2025.2.9"]
+# ///
+
 """Nox configuration file for CI checks."""
 
 from __future__ import annotations
@@ -16,6 +22,7 @@ if typing.TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
 
+nox.needs_version = '>=2025.2.9'
 nox.options.default_venv_backend = 'uv|venv'
 
 
@@ -66,3 +73,7 @@ def test(session: nox.Session) -> None:
         session.install('-r', reqs)
     session.install('.')
     session.run('pytest', '-n', 'auto', '-vv', '--tb=short', '-l', '--durations=10')
+
+
+if __name__ == '__main__':
+    nox.main()

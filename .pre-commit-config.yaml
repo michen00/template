@@ -96,7 +96,7 @@ repos:
         types_or: [jupyter, pyi, python, toml]
         args: [--fix, --show-fixes]
       - id: ruff-format
-        types_or: [jupyter, pyi, python, toml]
+        types_or: [jupyter, markdown, pyi, python, toml]
   - repo: https://github.com/scop/pre-commit-shfmt
     rev: v3.14.1-1
     hooks:
