@@ -82,7 +82,12 @@ max-complexity = 15
     'S607', # start-process-with-partial-path (`git` off PATH)
     'T201', # Use of print
 ]
-'tests/**/*.py' = ['S101'] # Use of assert
+# A test module needs a docstring only when it adds something a reader needs, such as
+# how to run it, an unusual setup, or an external dependency (constitution).
+'tests/**/*.py' = [
+    'D100', # undocumented-public-module
+    'S101', # Use of assert
+]
 # D401 (imperative-mood) is re-enabled globally above; exempt it ONLY for `test_*.py`,
 # where a docstring is a declarative truth-apt proposition.
 'tests/**/test_*.py' = ['D401']
