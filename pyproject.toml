@@ -62,7 +62,7 @@ explicit    = true
 [tool.pytest.ini_options]
 addopts = ['-ra', '--strict-config', '--strict-markers', '--cov']
 filterwarnings = ['error', 'ignore::DeprecationWarning']
-log_cli_level = 'INFO'
+log_level = 'INFO'
 markers = [
     "no_ci: marks tests that should not run in CI (deselect with '-m \"not no_ci\"')",
 ]
