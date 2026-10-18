@@ -10,15 +10,21 @@ from __future__ import annotations
 
 __all__ = (
     'CONVENTIONAL_TYPES',
+    'SUBJECT_MAX_DEFAULT',
     'Findings',
     'check_subject',
+    'subject_max_length',
 )
 
 import os
 import re
 import sys
+import typing
 from dataclasses import dataclass, field
 from pathlib import Path
+
+if typing.TYPE_CHECKING:
+    from collections.abc import Mapping
 
 CONVENTIONAL_TYPES = (
     'feat',
@@ -39,7 +45,15 @@ _CONVENTIONAL = re.compile(
     r'(?:\([a-z0-9._/-]+\))?!?: (?P<subject>.+)$'
 )
 
-_HARD_MAX = 50
+# A title and a commit subject answer to this one maximum. 50 is git's own number:
+# git-commit(1) asks for "a single short (no more than 50 characters) line summarizing
+# the change". The " (#N)" a squash merge appends is GitHub's rather than the author's,
+# so it is not counted: a 50-character title lands at 58, inside the 72 where GitHub
+# truncates a subject. SUBJECT_MAX_LENGTH rebinds it for a repository that answers to
+# another house rule; gitlint ships 72 and commitlint 100.
+SUBJECT_MAX_DEFAULT = 50
+
+_MAX_LENGTH_VARIABLE = 'SUBJECT_MAX_LENGTH'
 
 # Common non-imperative first words: third-person and past forms we see most often.
 _NON_IMPERATIVE = frozenset(
@@ -155,16 +169,43 @@ def _looks_non_imperative(first_word: str) -> bool:
     return low in _NON_IMPERATIVE or low.endswith('ing')
 
 
-def check_subject(subject_line: str, *, label: str = 'subject') -> Findings:
+def subject_max_length(
+    explicit: int | None = None, *, environ: Mapping[str, str] | None = None
+) -> int:
+    """Return how many characters a subject line may spend, most specific source first.
+
+    An argument beats the ``SUBJECT_MAX_LENGTH`` environment variable, and the variable
+    beats SUBJECT_MAX_DEFAULT. A value that is not a positive whole number is ignored
+    rather than raised on: this runs as a gate on every pull request, and a typo in a
+    repository variable should not fail all of them with a traceback that names the
+    variable instead of the title.
+
+    Returns:
+        The first usable maximum among the argument, the variable and the default.
+    """
+    if explicit is not None and explicit > 0:
+        return explicit
+    source = os.environ if environ is None else environ
+    configured = source.get(_MAX_LENGTH_VARIABLE, '').strip()
+    if configured.isdigit() and int(configured) > 0:
+        return int(configured)
+    return SUBJECT_MAX_DEFAULT
+
+
+def check_subject(
+    subject_line: str, *, label: str = 'subject', max_length: int | None = None
+) -> Findings:
     """Validate one Conventional Commit subject line against the conventions.
 
-    These are the rules that govern every subject, a commit's as much as a title's.
+    These are the rules that govern every subject, a commit's as much as a title's. The
+    maximum length is one of them, resolved from ``max_length`` by subject_max_length.
 
     Returns:
         Errors for violations that are certain and warnings for heuristic ones; both are
         empty when the subject passes.
     """
     found = Findings()
+    maximum = subject_max_length(max_length)
     match = _CONVENTIONAL.match(subject_line)
     if match is None:
         found.errors.append(
@@ -176,9 +217,9 @@ def check_subject(subject_line: str, *, label: str = 'subject') -> Findings:
     subject = match.group('subject')
 
     # Deterministic and unambiguous -> errors (block).
-    if len(subject_line) > _HARD_MAX:
+    if len(subject_line) > maximum:
         found.errors.append(
-            f'{label}: {len(subject_line)} chars exceeds hard max {_HARD_MAX}'
+            f'{label}: {len(subject_line)} chars exceeds hard max {maximum}'
         )
     if subject_line.endswith('.'):
         found.errors.append(f'{label}: must not end with a period')
