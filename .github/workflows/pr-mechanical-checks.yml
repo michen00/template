@@ -57,9 +57,6 @@ jobs:
         if: ${{ !endsWith(github.event.pull_request.user.login, '[bot]') }}
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
-          # The number lets the check measure the subject squash-merging will actually
-          # produce, suffix included, rather than the draft it came from.
-          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: python -m checks.check_pr_title
       - name: Check commit subjects
         id: commits

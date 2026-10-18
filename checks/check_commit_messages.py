@@ -5,10 +5,6 @@ are exempt from the human-authored title rules. Any human commit whose subject i
 valid Conventional Commit form (or exceeds the hard length limit, or ends in a period)
 is an error and exits non-zero; mood preferences are warnings.
 
-The 50-character hard limit is the only length rule applied here. The tighter preferred
-length belongs to titles, which have to leave room for the `" (#123)"` a squash merge
-appends; a commit subject on a branch never grows one.
-
 Usage:
     python -m checks.check_commit_messages            # origin/main..HEAD
     python -m checks.check_commit_messages main..HEAD
