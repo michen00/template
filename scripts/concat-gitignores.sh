@@ -64,6 +64,7 @@ DEFAULT_ENTRIES=(
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Windows.gitignore"
 
   "## Tools / documents / misc artifacts"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Agents.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Archives.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Backup.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Diff.gitignore"
