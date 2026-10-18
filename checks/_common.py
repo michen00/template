@@ -13,9 +13,12 @@ __all__ = (
     'SUBJECT_MAX_DEFAULT',
     'Findings',
     'check_subject',
+    'max_length_argument',
+    'parse_max_length',
     'subject_max_length',
 )
 
+import argparse
 import os
 import re
 import sys
@@ -50,10 +53,14 @@ _CONVENTIONAL = re.compile(
 # the change". The " (#N)" a squash merge appends is GitHub's rather than the author's,
 # so it is not counted: a 50-character title lands at 58, inside the 72 where GitHub
 # truncates a subject. SUBJECT_MAX_LENGTH rebinds it for a repository that answers to
-# another house rule; gitlint ships 72 and commitlint 100.
+# another house rule (gitlint ships 72 and commitlint 100), or turns it off.
 SUBJECT_MAX_DEFAULT = 50
 
 _MAX_LENGTH_VARIABLE = 'SUBJECT_MAX_LENGTH'
+
+# The settings that leave the length unchecked, matched in any case. `false` is among
+# them so that a workflow writing the setting as a YAML boolean turns the check off too.
+_UNCHECKED = frozenset({'off', 'none', 'false'})
 
 # Common non-imperative first words: third-person and past forms we see most often.
 _NON_IMPERATIVE = frozenset(
@@ -169,37 +176,81 @@ def _looks_non_imperative(first_word: str) -> bool:
     return low in _NON_IMPERATIVE or low.endswith('ing')
 
 
+def parse_max_length(setting: int | str) -> int | None:
+    """Return the maximum a setting names, or None when it leaves the length unchecked.
+
+    A setting is a positive whole number, or `off` to leave the length unchecked; `none`
+    and `false` mean `off` too, and case and surrounding spaces do not matter.
+
+    Returns:
+        The maximum as an integer, or None for `off`, `none` or `false`.
+
+    Raises:
+        ValueError: The setting is neither a positive whole number nor `off`.
+    """
+    text = str(setting).strip()
+    if text.lower() in _UNCHECKED:
+        return None
+    if text.isdigit() and int(text) > 0:
+        return int(text)
+    msg = f'expected a positive whole number or off, not {setting!r}'
+    raise ValueError(msg)
+
+
+def max_length_argument(text: str) -> str:
+    """Return a `--max-length` value unchanged once parse_max_length accepts it.
+
+    An unusable value is a usage error naming the flag, rather than the fallback an
+    unusable SUBJECT_MAX_LENGTH gets: the person who typed it is there to read it.
+
+    Returns:
+        The value as typed, for check_subject to resolve.
+
+    Raises:
+        argparse.ArgumentTypeError: parse_max_length rejects the value.
+    """
+    try:
+        parse_max_length(text)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError(str(error)) from error
+    return text
+
+
 def subject_max_length(
-    explicit: int | None = None, *, environ: Mapping[str, str] | None = None
-) -> int:
+    explicit: int | str | None = None, *, environ: Mapping[str, str] | None = None
+) -> int | None:
     """Return how many characters a subject line may spend, most specific source first.
 
     An argument beats the ``SUBJECT_MAX_LENGTH`` environment variable, and the variable
-    beats SUBJECT_MAX_DEFAULT. A variable that is not a positive whole number is ignored
-    rather than raised on: this runs as a gate on every pull request, and a typo in a
-    repository variable should not fail all of them with a traceback that names the
+    beats SUBJECT_MAX_DEFAULT; parse_max_length reads either. An unusable variable is
+    ignored rather than raised on: this runs as a gate on every pull request, and a typo
+    in a repository variable should not fail all of them with a traceback that names the
     variable instead of the title.
 
     Returns:
-        The argument when one is given, else the variable when it is usable, else the
-        default.
+        The maximum from the argument when one is given, else from the variable when it
+        is usable, else the default; None when the setting leaves the length unchecked.
+
+    Raises:
+        ValueError: The argument is neither a positive whole number nor `off`.
     """
     if explicit is not None:
-        return explicit
+        return parse_max_length(explicit)
     source = os.environ if environ is None else environ
-    configured = source.get(_MAX_LENGTH_VARIABLE, '').strip()
-    if configured.isdigit() and int(configured) > 0:
-        return int(configured)
-    return SUBJECT_MAX_DEFAULT
+    try:
+        return parse_max_length(source.get(_MAX_LENGTH_VARIABLE, ''))
+    except ValueError:
+        return SUBJECT_MAX_DEFAULT
 
 
 def check_subject(
-    subject_line: str, *, label: str = 'subject', max_length: int | None = None
+    subject_line: str, *, label: str = 'subject', max_length: int | str | None = None
 ) -> Findings:
     """Validate one Conventional Commit subject line against the conventions.
 
     These are the rules that govern every subject, a commit's as much as a title's. The
-    maximum length is one of them, resolved from ``max_length`` by subject_max_length.
+    maximum length is one of them, resolved from ``max_length`` by subject_max_length,
+    and with the length unchecked every other rule still applies.
 
     Returns:
         Errors for violations that are certain and warnings for heuristic ones; both are
@@ -218,7 +269,7 @@ def check_subject(
     subject = match.group('subject')
 
     # Deterministic and unambiguous -> errors (block).
-    if len(subject_line) > maximum:
+    if maximum is not None and len(subject_line) > maximum:
         found.errors.append(
             f'{label}: {len(subject_line)} chars exceeds hard max {maximum}'
         )

@@ -5,7 +5,12 @@ __all__ = ()
 import pytest
 
 from checks import check_pr_title
-from checks._common import SUBJECT_MAX_DEFAULT, check_subject, subject_max_length
+from checks._common import (
+    SUBJECT_MAX_DEFAULT,
+    check_subject,
+    parse_max_length,
+    subject_max_length,
+)
 from checks.check_commit_messages import check_commits
 
 
@@ -46,8 +51,31 @@ def test_an_argument_beats_the_environment(monkeypatch: pytest.MonkeyPatch) -> N
 
 @pytest.mark.parametrize('value', ['', ' ', '0', '-5', '7.5', 'seventy', '72 chars'])
 def test_an_unusable_variable_falls_back_to_the_default(value: str) -> None:
-    """A variable that is not a positive whole number is ignored rather than raised."""
+    """A variable that is neither a positive whole number nor off falls back to 50."""
     assert subject_max_length(environ={'SUBJECT_MAX_LENGTH': value}) == 50
+
+
+@pytest.mark.parametrize('setting', ['off', 'OFF', ' Off ', 'none', 'false'])
+def test_off_leaves_the_length_unchecked(setting: str) -> None:
+    """`off`, or `none` or `false` in any case, turns the length rule off."""
+    assert parse_max_length(setting) is None
+    assert subject_max_length(setting) is None
+    assert subject_max_length(environ={'SUBJECT_MAX_LENGTH': setting}) is None
+
+
+def test_an_unchecked_length_keeps_every_other_rule() -> None:
+    """With the length off, a long subject passes and a trailing period still blocks."""
+    assert check_subject(_title(200), max_length='off').ok
+    assert check_subject('fix: guard the empty body.', max_length='off').errors == [
+        'subject: must not end with a period'
+    ]
+
+
+@pytest.mark.parametrize('setting', ['', 'sixty', '0', '-3', '3.5'])
+def test_an_unusable_argument_is_an_error(setting: str) -> None:
+    """An argument is the caller's own, so a bad one is raised rather than replaced."""
+    with pytest.raises(ValueError, match='positive whole number or off'):
+        subject_max_length(setting)
 
 
 @pytest.mark.parametrize(('max_length', 'bound'), [(None, 50), (40, 40)])
@@ -62,12 +90,32 @@ def test_commit_subjects_take_the_same_maximum() -> None:
     rows = [('0123456789abcdef', 'A Developer', _title(56))]
     assert not check_commits(rows).ok
     assert check_commits(rows, max_length=72).ok
+    assert check_commits(rows, max_length='off').ok
 
 
 def test_max_length_passes_a_title_that_fails_at_the_default() -> None:
     """``--max-length 72`` passes a 56-character title that fails at 50."""
     assert check_pr_title.main([_title(56)]) == 1
     assert check_pr_title.main([_title(56), '--max-length', '72']) == 0
+
+
+def test_off_on_the_command_line_says_so(capsys: pytest.CaptureFixture[str]) -> None:
+    """`--max-length off` passes a long title, and the log says so."""
+    assert check_pr_title.main([_title(60), '--max-length', 'off']) == 0
+    assert capsys.readouterr() == ('title OK, length not checked\n', '')
+
+
+@pytest.mark.parametrize('setting', ['0', '-3', 'sixty'])
+def test_an_unusable_flag_is_a_usage_error(
+    setting: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A bad `--max-length` stops with a usage error that names the flag."""
+    with pytest.raises(SystemExit) as stopped:
+        check_pr_title.main(['docs: fix a typo', '--max-length', setting])
+    assert stopped.value.code == 2
+    assert 'argument --max-length: expected a positive whole number or off' in (
+        capsys.readouterr().err
+    )
 
 
 def test_the_squash_suffix_is_not_counted(

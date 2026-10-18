@@ -4,15 +4,16 @@ Deterministic problems (a bad Conventional Commit form, exceeding the maximum le
 trailing period) are errors and exit non-zero. Everything else is a warning and does
 not: mood, a capitalized start, and plan identifiers.
 
-The maximum is 50 unless ``--max-length`` or ``SUBJECT_MAX_LENGTH`` sets another, and a
-title answers to the same one as a commit subject. The ``" (#N)"`` a squash merge
-appends is GitHub's and is not counted: a 50-character title lands at 58, inside the 72
-where GitHub truncates a subject.
+The maximum is 50 unless ``--max-length`` or ``SUBJECT_MAX_LENGTH`` sets another or
+turns it ``off``, and a title answers to the same one as a commit subject. The
+``" (#N)"`` a squash merge appends is GitHub's and is not counted: a 50-character title
+lands at 58, inside the 72 where GitHub truncates a subject.
 
 Usage:
     python -m checks.check_pr_title "feat: add config precedence rule"
     PR_TITLE="fix: guard empty body" python -m checks.check_pr_title
     SUBJECT_MAX_LENGTH=72 python -m checks.check_pr_title "fix: guard empty body"
+    python -m checks.check_pr_title --max-length off "fix: guard empty body"
 """
 
 from __future__ import annotations
@@ -20,7 +21,7 @@ from __future__ import annotations
 import argparse
 import os
 
-from ._common import check_subject
+from ._common import check_subject, max_length_argument, subject_max_length
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -34,11 +35,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         '--max-length',
-        type=int,
+        type=max_length_argument,
         default=None,
         help=(
-            'the maximum length a title may spend; falls back to SUBJECT_MAX_LENGTH, '
-            'and then to the documented default of 50'
+            'the maximum length a title may spend, or off to leave it unchecked; '
+            'falls back to SUBJECT_MAX_LENGTH, and then to the default of 50'
         ),
     )
     args = parser.parse_args(argv)
@@ -46,7 +47,8 @@ def main(argv: list[str] | None = None) -> int:
         parser.error('provide a title argument or set PR_TITLE')
 
     found = check_subject(args.title, label='title', max_length=args.max_length)
-    return found.emit('title OK')
+    unchecked = subject_max_length(args.max_length) is None
+    return found.emit('title OK, length not checked' if unchecked else 'title OK')
 
 
 if __name__ == '__main__':
