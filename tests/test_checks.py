@@ -50,12 +50,6 @@ def test_an_unusable_variable_falls_back_to_the_default(value: str) -> None:
     assert subject_max_length(environ={'SUBJECT_MAX_LENGTH': value}) == 50
 
 
-@pytest.mark.parametrize('explicit', [0, -1])
-def test_an_unusable_argument_falls_through(explicit: int) -> None:
-    """An argument that is not positive is ignored, so the variable still applies."""
-    assert subject_max_length(explicit, environ={'SUBJECT_MAX_LENGTH': '72'}) == 72
-
-
 @pytest.mark.parametrize(('max_length', 'bound'), [(None, 50), (40, 40)])
 def test_the_error_names_the_applied_bound(max_length: int | None, bound: int) -> None:
     """The length error reports the maximum that was actually applied."""

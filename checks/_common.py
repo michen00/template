@@ -175,15 +175,16 @@ def subject_max_length(
     """Return how many characters a subject line may spend, most specific source first.
 
     An argument beats the ``SUBJECT_MAX_LENGTH`` environment variable, and the variable
-    beats SUBJECT_MAX_DEFAULT. A value that is not a positive whole number is ignored
+    beats SUBJECT_MAX_DEFAULT. A variable that is not a positive whole number is ignored
     rather than raised on: this runs as a gate on every pull request, and a typo in a
     repository variable should not fail all of them with a traceback that names the
     variable instead of the title.
 
     Returns:
-        The first usable maximum among the argument, the variable and the default.
+        The argument when one is given, else the variable when it is usable, else the
+        default.
     """
-    if explicit is not None and explicit > 0:
+    if explicit is not None:
         return explicit
     source = os.environ if environ is None else environ
     configured = source.get(_MAX_LENGTH_VARIABLE, '').strip()
