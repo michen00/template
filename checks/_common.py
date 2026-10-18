@@ -3,27 +3,31 @@
 These helpers embody the repository's governing rule: a tool's action may never be
 stronger than its detection is certain. Heuristic or ambiguous problems are therefore
 always warnings, which advise but never block. An exact detection is permitted to block
-but is not obliged to: `check_squash_subject` measures a length exactly and still only
-advises, because the characters that carry the subject over are the platform's rather
-than the author's.
+but is not obliged to: a plan identifier is matched exactly and still only advises.
 """
 
 from __future__ import annotations
 
 __all__ = (
     'CONVENTIONAL_TYPES',
+    'SUBJECT_MAX_DEFAULT',
     'Findings',
-    'check_preferred_length',
-    'check_squash_subject',
     'check_subject',
-    'squash_subject',
+    'max_length_argument',
+    'parse_max_length',
+    'subject_max_length',
 )
 
+import argparse
 import os
 import re
 import sys
+import typing
 from dataclasses import dataclass, field
 from pathlib import Path
+
+if typing.TYPE_CHECKING:
+    from collections.abc import Mapping
 
 CONVENTIONAL_TYPES = (
     'feat',
@@ -44,13 +48,19 @@ _CONVENTIONAL = re.compile(
     r'(?:\([a-z0-9._/-]+\))?!?: (?P<subject>.+)$'
 )
 
-_HARD_MAX = 50
+# A title and a commit subject answer to this one maximum. 50 is git's own number:
+# git-commit(1) asks for "a single short (no more than 50 characters) line summarizing
+# the change". The " (#N)" a squash merge appends is GitHub's rather than the author's,
+# so it is not counted: a 50-character title lands at 58, inside the 72 where GitHub
+# truncates a subject. SUBJECT_MAX_LENGTH rebinds it for a repository that answers to
+# another house rule (gitlint ships 72 and commitlint 100), or turns it off.
+SUBJECT_MAX_DEFAULT = 50
 
-# The hard maximum governs every subject. This tighter one governs titles alone, because
-# a squash merge appends `" (#123)"` to a title and nothing at all to a commit subject:
-# 50 minus that suffix is what a title really has to spend, and 44 leaves a two-digit
-# number room. See check_preferred_length for why it is not part of check_subject.
-_TITLE_SOFT_MAX = 44
+_MAX_LENGTH_VARIABLE = 'SUBJECT_MAX_LENGTH'
+
+# The settings that leave the length unchecked, matched in any case. `false` is among
+# them so that a workflow writing the setting as a YAML boolean turns the check off too.
+_UNCHECKED = frozenset({'off', 'none', 'false'})
 
 # Common non-imperative first words: third-person and past forms we see most often.
 _NON_IMPERATIVE = frozenset(
@@ -166,18 +176,88 @@ def _looks_non_imperative(first_word: str) -> bool:
     return low in _NON_IMPERATIVE or low.endswith('ing')
 
 
-def check_subject(subject_line: str, *, label: str = 'subject') -> Findings:
+def parse_max_length(setting: int | str) -> int | None:
+    """Return the maximum a setting names, or None when it leaves the length unchecked.
+
+    A setting is a positive whole number, or `off` to leave the length unchecked; `none`
+    and `false` mean `off` too, and case and surrounding spaces do not matter.
+
+    Returns:
+        The maximum as an integer, or None for `off`, `none` or `false`.
+
+    Raises:
+        ValueError: The setting is neither a positive whole number nor `off`.
+    """
+    text = str(setting).strip()
+    if text.lower() in _UNCHECKED:
+        return None
+    if text.isdigit() and int(text) > 0:
+        return int(text)
+    msg = f'expected a positive whole number or off, not {setting!r}'
+    raise ValueError(msg)
+
+
+def max_length_argument(text: str) -> str:
+    """Return a `--max-length` value unchanged once parse_max_length accepts it.
+
+    An unusable value is a usage error naming the flag, rather than the fallback an
+    unusable SUBJECT_MAX_LENGTH gets: the person who typed it is there to read it.
+
+    Returns:
+        The value as typed, for check_subject to resolve.
+
+    Raises:
+        argparse.ArgumentTypeError: parse_max_length rejects the value.
+    """
+    try:
+        parse_max_length(text)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError(str(error)) from error
+    return text
+
+
+def subject_max_length(
+    explicit: int | str | None = None, *, environ: Mapping[str, str] | None = None
+) -> int | None:
+    """Return how many characters a subject line may spend, most specific source first.
+
+    An argument beats the ``SUBJECT_MAX_LENGTH`` environment variable, and the variable
+    beats SUBJECT_MAX_DEFAULT; parse_max_length reads either. An unusable variable is
+    ignored rather than raised on: this runs as a gate on every pull request, and a typo
+    in a repository variable should not fail all of them with a traceback that names the
+    variable instead of the title.
+
+    Returns:
+        The maximum from the argument when one is given, else from the variable when it
+        is usable, else the default; None when the setting leaves the length unchecked.
+
+    Raises:
+        ValueError: The argument is neither a positive whole number nor `off`.
+    """
+    if explicit is not None:
+        return parse_max_length(explicit)
+    source = os.environ if environ is None else environ
+    try:
+        return parse_max_length(source.get(_MAX_LENGTH_VARIABLE, ''))
+    except ValueError:
+        return SUBJECT_MAX_DEFAULT
+
+
+def check_subject(
+    subject_line: str, *, label: str = 'subject', max_length: int | str | None = None
+) -> Findings:
     """Validate one Conventional Commit subject line against the conventions.
 
     These are the rules that govern every subject, a commit's as much as a title's. The
-    tighter preferred length is not among them: it is a title rule, applied separately
-    by check_preferred_length.
+    maximum length is one of them, resolved from ``max_length`` by subject_max_length,
+    and with the length unchecked every other rule still applies.
 
     Returns:
         Errors for violations that are certain and warnings for heuristic ones; both are
         empty when the subject passes.
     """
     found = Findings()
+    maximum = subject_max_length(max_length)
     match = _CONVENTIONAL.match(subject_line)
     if match is None:
         found.errors.append(
@@ -189,9 +269,9 @@ def check_subject(subject_line: str, *, label: str = 'subject') -> Findings:
     subject = match.group('subject')
 
     # Deterministic and unambiguous -> errors (block).
-    if len(subject_line) > _HARD_MAX:
+    if maximum is not None and len(subject_line) > maximum:
         found.errors.append(
-            f'{label}: {len(subject_line)} chars exceeds hard max {_HARD_MAX}'
+            f'{label}: {len(subject_line)} chars exceeds hard max {maximum}'
         )
     if subject_line.endswith('.'):
         found.errors.append(f'{label}: must not end with a period')
@@ -209,73 +289,5 @@ def check_subject(subject_line: str, *, label: str = 'subject') -> Findings:
     if _PLAN_ID.search(subject):
         found.warnings.append(
             f'{label}: contains a plan identifier; keep it out of the subject'
-        )
-    return found
-
-
-def squash_subject(title: str, pr_number: int) -> str:
-    """Return the commit subject a squash merge will produce from this title.
-
-    GitHub appends the pull request's *own* number, which is known and immutable from
-    the moment the pull request exists -- so this is a projection rather than a guess.
-    """
-    return f'{title} (#{pr_number})'
-
-
-def check_squash_subject(
-    title: str, pr_number: int, *, label: str = 'title'
-) -> Findings:
-    """Advise when the subject a squash merge will produce exceeds the hard maximum.
-
-    The hard maximum governs the string an author wrote. The suffix is the
-    platform's addition, appended after the title check has already run, so a
-    title that fits can still land over -- which is how this repository's own
-    default branch came to carry subjects that exceeded a maximum enforced on
-    every one of them. Reporting the projection is what closes that gap; blocking
-    on it would charge an author for characters they did not type, and make a
-    title that passes locally fail in CI for a reason the local run cannot show
-    them.
-
-    Advising rather than blocking is consistent with the rule above, which caps
-    action strength at detection certainty without compelling a certain finding
-    to take the strongest action available. The number is exact, so the
-    projection is exact; the choice of what to do about it is separate.
-
-    Returns:
-        One warning, which includes the characters to trim, when the projected subject
-        is over the hard maximum; otherwise no findings.
-    """
-    found = Findings()
-    projected = squash_subject(title, pr_number)
-    if len(projected) > _HARD_MAX:
-        excess = len(projected) - _HARD_MAX
-        found.warnings.append(
-            f'{label}: {len(title)} chars becomes {len(projected)} as the squash '
-            f'subject, over the hard max {_HARD_MAX}; trim {excess}'
-        )
-    return found
-
-
-def check_preferred_length(subject_line: str, *, label: str = 'title') -> Findings:
-    """Advise when a title leaves no room for the suffix a squash merge will append.
-
-    This is a title rule rather than a subject rule, which is why it sits outside
-    check_subject rather than inside it. Every subject answers to the hard maximum; only
-    a title is also charged for `" (#123)"`, because only a title becomes the squashed
-    commit subject. A commit on the branch never grows a suffix, so holding its subject
-    to the reserve would charge it for room it will never need -- which is what happened
-    while this band lived in the shared helper, and is the reason it no longer does.
-
-    The band stops at the hard maximum so that an over-long subject is reported once, as
-    the error it already is, rather than twice.
-
-    Returns:
-        One warning when the title is over the preferred maximum but within the hard
-        maximum; otherwise no findings.
-    """
-    found = Findings()
-    if _TITLE_SOFT_MAX < len(subject_line) <= _HARD_MAX:
-        found.warnings.append(
-            f'{label}: {len(subject_line)} chars over preferred max {_TITLE_SOFT_MAX}'
         )
     return found

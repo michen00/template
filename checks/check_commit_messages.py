@@ -5,13 +5,11 @@ are exempt from the human-authored title rules. Any human commit whose subject i
 valid Conventional Commit form (or exceeds the hard length limit, or ends in a period)
 is an error and exits non-zero; mood preferences are warnings.
 
-The 50-character hard limit is the only length rule applied here. The tighter preferred
-length belongs to titles, which have to leave room for the `" (#123)"` a squash merge
-appends; a commit subject on a branch never grows one.
-
 Usage:
     python -m checks.check_commit_messages            # origin/main..HEAD
     python -m checks.check_commit_messages main..HEAD
+    python -m checks.check_commit_messages --max-length 72
+    SUBJECT_MAX_LENGTH=off python -m checks.check_commit_messages
 """
 
 from __future__ import annotations
@@ -21,7 +19,12 @@ import subprocess
 import sys
 import typing
 
-from ._common import Findings, check_subject
+from ._common import (
+    Findings,
+    check_subject,
+    max_length_argument,
+    subject_max_length,
+)
 
 if typing.TYPE_CHECKING:
     from collections.abc import Iterable
@@ -51,10 +54,14 @@ def _is_bot(author: str) -> bool:
     return '[bot]' in author or author.lower() in _BOT_AUTHORS
 
 
-def check_commits(rows: Iterable[tuple[str, str, str]]) -> Findings:
+def check_commits(
+    rows: Iterable[tuple[str, str, str]], *, max_length: int | str | None = None
+) -> Findings:
     """Validate the subject of every non-bot commit and combine the findings.
 
     Each row is (sha, author, subject). Bot- or tool-authored commits are skipped.
+    ``max_length`` is passed through to check_subject, so a commit subject and a pull
+    request title answer to the same maximum from the same sources.
 
     Returns:
         The merged findings of every checked commit, each labeled by its short SHA.
@@ -64,7 +71,7 @@ def check_commits(rows: Iterable[tuple[str, str, str]]) -> Findings:
     for sha, author, subject in rows:
         if _is_bot(author):
             continue
-        merge_findings(check_subject(subject, label=sha[:7]))
+        merge_findings(check_subject(subject, label=sha[:7], max_length=max_length))
     return aggregate
 
 
@@ -77,6 +84,15 @@ def main(argv: list[str] | None = None) -> int:
         default='origin/main..HEAD',
         help='a git revision range (default: origin/main..HEAD)',
     )
+    parser.add_argument(
+        '--max-length',
+        type=max_length_argument,
+        default=None,
+        help=(
+            'the maximum length a subject may spend, or off to leave it unchecked; '
+            'falls back to SUBJECT_MAX_LENGTH, and then to the default of 50'
+        ),
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -85,10 +101,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f'error: git log failed: {exc.stderr.strip()}', file=sys.stderr)
         return 2
 
-    found = check_commits(rows)
+    found = check_commits(rows, max_length=args.max_length)
     if found.ok:
         checked = sum(1 for _, author, _ in rows if not _is_bot(author))
         ok_message = f'{checked} commit subject(s) OK'
+        if subject_max_length(args.max_length) is None:
+            ok_message += ', length not checked'
     else:
         ok_message = ''
     return found.emit(ok_message)

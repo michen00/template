@@ -38,6 +38,10 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      # The maximum for the PR title and every commit subject, counted as typed: a
+      # positive whole number, or 'off' to leave the length unchecked.
+      SUBJECT_MAX_LENGTH: '50'
     steps:
       # persist-credentials is left at its default, deliberately: the "Check commit
       # subjects" step runs `git fetch origin`, which needs the credential this
@@ -57,9 +61,6 @@ jobs:
         if: ${{ !endsWith(github.event.pull_request.user.login, '[bot]') }}
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
-          # The number lets the check measure the subject squash-merging will actually
-          # produce, suffix included, rather than the draft it came from.
-          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: python -m checks.check_pr_title
       - name: Check commit subjects
         id: commits
