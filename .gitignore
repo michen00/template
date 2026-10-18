@@ -1,5 +1,5 @@
 #######################################################################################################
-# This .gitignore is composed of the following templates (retrieved 2026-08-21):
+# This .gitignore is composed of the following templates (retrieved 2026-10-18):
 # Language / runtime / ecosystem
 # - https://raw.githubusercontent.com/github/gitignore/main/community/Python/JupyterNotebooks.gitignore
 # - https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
@@ -178,7 +178,7 @@ dist
 # TernJS port file
 .tern-port
 
-# Stores VSCode versions used for testing VSCode extensions
+# Stores Visual Studio Code versions used for testing Visual Studio Code extensions
 .vscode-test
 
 # pnpm
@@ -197,6 +197,12 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Astro generated types
+.astro/
+
+# Turbo Repo
+.turbo
 
 # End of https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 
@@ -301,7 +307,7 @@ ipython_config.py
 #   install all needed dependencies.
 # Pipfile.lock
 
-# UV
+# uv
 #   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
 #   This is especially recommended for binary packages to ensure reproducibility, and is more
 #   commonly ignored for libraries.
@@ -372,7 +378,7 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
+# mkdocs/Zensical documentation
 /site
 
 # mypy
@@ -403,10 +409,10 @@ cython_debug/
 .abstra/
 
 # Visual Studio Code
-#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore
-#   that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#   and can be added to the global gitignore or merged into this file. However, if you prefer,
-#   you could uncomment the following to ignore the entire vscode folder
+#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore that
+#   can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#   and can be added to the global gitignore or merged into this file. However, if you prefer, you
+#   could uncomment the following to ignore the entire vscode folder
 # .vscode/
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
@@ -1024,10 +1030,6 @@ ClientBin/
 *.publishsettings
 orleans.codegen.cs
 
-# Including strong name files can present a security risk
-# (https://github.com/github/gitignore/pull/2483#issue-259490424)
-#*.snk
-
 # Since there are multiple workflows, uncomment next line to ignore bower_components
 # (https://github.com/github/gitignore/pull/1529#issuecomment-104372622)
 #bower_components/
@@ -1181,6 +1183,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Official VS Code C# Dev Kit Extension exclusion
+#*.lscache
 
 # End of https://raw.githubusercontent.com/github/gitignore/main/VisualStudio.gitignore
 
@@ -1417,6 +1422,9 @@ Backup of *.doc*
 
 # Directory for temporary files marked for deletion
 .delete-me/
+
+# Playwright MCP page snapshots and console logs, written to the working directory
+.playwright-mcp/
 
 !.gitkeep
 # `bin/` and `**/[Bb]in/*` above (virtualenv and Visual Studio) would otherwise

@@ -355,6 +355,9 @@ cat >> "$OUTPUT_FILE" << 'EOF'
 # Directory for temporary files marked for deletion
 .delete-me/
 
+# Playwright MCP page snapshots and console logs, written to the working directory
+.playwright-mcp/
+
 !.gitkeep
 # `bin/` and `**/[Bb]in/*` above (virtualenv and Visual Studio) would otherwise
 # ignore a package's own bin/ directory, so re-include it.
