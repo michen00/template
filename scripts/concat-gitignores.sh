@@ -64,6 +64,7 @@ DEFAULT_ENTRIES=(
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Windows.gitignore"
 
   "## Tools / documents / misc artifacts"
+  "https://raw.githubusercontent.com/github/gitignore/main/Global/Agents.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Archives.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Backup.gitignore"
   "https://raw.githubusercontent.com/github/gitignore/main/Global/Diff.gitignore"
@@ -354,6 +355,9 @@ cat >> "$OUTPUT_FILE" << 'EOF'
 
 # Directory for temporary files marked for deletion
 .delete-me/
+
+# Playwright MCP page snapshots and console logs, written to the working directory
+.playwright-mcp/
 
 !.gitkeep
 # `bin/` and `**/[Bb]in/*` above (virtualenv and Visual Studio) would otherwise
