@@ -13,7 +13,7 @@
   - `.gitconfigs/` is copied verbatim; `make develop` configures the local git include path to use it.
 - **Toolchain:** Python 3.13+, dependency resolution via `uv` (`uv.lock`, `uv_build` backend). Use the Makefile (`make develop`, `make check`, `make lint`, `make build`) or Nox (`nox -s precommit`, `nox -s test`) to exercise the same commands CI runs.
 - **CI Expectations:** `.github/workflows/CI.yml` fans out into three parallel jobs — `precommit` (`nox -s precommit`), `mypy` (`nox -s mypy`), and `pytest` (`nox -s test`) — behind an aggregate job named `Run CI (3.13)`, which is the required status context and must not be renamed. Before running precommit, CI executes `.github/scripts/ci-ruff-args.sh` to modify `.pre-commit-config.yaml` with stricter ruff args and GitHub-optimized output formatting. `make check` mirrors CI's flow locally by running `make tidy` plus both pre-commit hook stages before tests; the main remaining difference is that local checks use the default ruff args from `.pre-commit-config.yaml`. `.github/workflows/.cache-buster` lets us reset both the uv and pre-commit GitHub caches via `make bust-ci-cache`—keep it in the manifest.
-- **PR checks:** `checks/` holds stdlib-only modules that validate the pull request title and the branch's commit subjects, run by `.github/workflows/pr-mechanical-checks.yml`. Run them locally with `python -m checks.check_pr_title "<title>"` and `python -m checks.check_commit_messages`. Errors block; heuristics (mood, capitalization) only warn.
+- **PR checks:** `checks/` holds stdlib-only modules that validate the pull request title and the branch's commit subjects, run by `.github/workflows/pr-mechanical-checks.yml`. Run them locally with `python -m checks.check_pr_title "<title>"` and `python -m checks.check_commit_messages`. Errors block, a capitalized subject start among them; heuristics such as mood only warn.
 - **Releases:** see `RELEASING.md`. `make release-pr VERSION=X.Y.Z` opens the release PR, and `make release-tag VERSION=X.Y.Z` pushes the tag that fires `.github/workflows/release.yml`. A version bump must re-lock `uv.lock`, because CI runs `uv run --locked`.
 - **Config Canon:** Root dotfiles (`.ruff.toml`, `.pylintrc`, `.pre-commit-config.yaml`) and mypy settings inside `pyproject.toml` define lint/type behavior for every generated repo. Update them in tandem with code so instructions stay coherent downstream.
 - **Publishing Hooks:** `make push-test` and `make push-prod` call `uv publish`; they read the version from `pyproject.toml`. Confirm `VERSION` bumps and changelog alignment (`cliff.toml`) before shipping.
@@ -22,7 +22,7 @@
 - **Conventional Commits:** Follow `<type>(<scope>): <subject>` format.
   - **Types:** `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`
   - **Imperative Mood:** Write subjects as commands (e.g., "add feature" not "added feature")
-  - **Lowercase Start:** The first word after the colon should be lowercase (unless it's a proper noun, acronym, etc.)
+  - **Lowercase Start:** The first character after the colon must be a lowercase letter. The commit-msg hook rejects any other start, and the PR checks reject a capital one, an acronym included: write `update the API client`, not `API client updated`.
   - **Summary Length:** Keep the subject line under 51 characters (≤50)
   - **Body Line Length:** Wrap body text at 72 characters
   - **Scopes:** Usually match top-level directories (`src`, `tests`, `docs`, `ci`). Release tooling depends on this format.
