@@ -112,7 +112,7 @@ Follow **Conventional Commits** format: `<type>(<scope>): <subject>`
 
 - **Types:** `feat`, `fix`, `docs`, `chore`, `style`, `test`, `build`, `ci`, `refactor`, `perf`, `revert`
 - **Imperative Mood:** Write subjects as commands (e.g., "add feature" not "added feature")
-- **Lowercase Start:** The first word after the colon should be lowercase (unless it's a proper noun, acronym, etc.)
+- **Lowercase Start:** The first character after the colon must be a lowercase letter. The commit-msg hook rejects any other start, and the PR checks reject a capital one, an acronym included: write `update the API client`, not `API client updated`.
 - **Summary Length:** Keep the subject line under 51 characters (≤50)
 - **Body Line Length:** Wrap body text at 72 characters
 - **Atomic Commits:** One logical change per commit

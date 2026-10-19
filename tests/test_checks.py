@@ -71,6 +71,14 @@ def test_an_unchecked_length_keeps_every_other_rule() -> None:
     ]
 
 
+@pytest.mark.parametrize('first_word', ['Guard', 'URL-encode'])
+def test_a_capitalized_start_blocks(first_word: str) -> None:
+    """A capital blocks, a capitalized verb included: it can be reworded."""
+    found = check_subject(f'fix: {first_word} the empty body')
+    assert not found.ok
+    assert f"must start lowercase ('{first_word}')" in found.errors[0]
+
+
 @pytest.mark.parametrize('setting', ['', 'sixty', '0', '-3', '3.5'])
 def test_an_unusable_argument_is_an_error(setting: str) -> None:
     """An argument is the caller's own, so a bad one is raised rather than replaced."""
