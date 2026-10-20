@@ -66,7 +66,7 @@ Here’s how we suggest you go about proposing a change to this project:
 3. Make your changes to your fork.
 4. [Send a pull request](https://help.github.com/articles/using-pull-requests/) from your fork’s branch to our `main` branch.
 
-To point at a file in your pull request's description or comments, link it on your branch. When the pull request merges, `.github/workflows/freeze-pr-links.yml` rewrites each such link to your branch's last commit, so it keeps working after the branch is deleted.
+If you link to a file from your pull request's description or comments, use the link on your branch (`blob/<branch>/<path>`) rather than one pinned to a commit. While the pull request is open, that link shows the latest version, and when it merges, `.github/workflows/freeze-pr-links.yml` points it at the branch's last commit so it keeps working after the branch is deleted.
 
 Using the web-based interface to make changes is fine too, and will help you by automatically forking the project and prompting to send a pull request too.
 
