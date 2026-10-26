@@ -32,7 +32,7 @@ fail() {
 
 assert_file_exists() {
   local path="$1"
-  [[ -f "$path" ]] || fail "Expected file to exist: $path"
+  [[ -f $path ]] || fail "Expected file to exist: $path"
 }
 
 assert_file_contains() {
@@ -56,9 +56,9 @@ assert_line_order() {
   local first_line second_line
   first_line="$(grep -nF -- "$first" "$path" | awk -F: 'NR==1 {print $1}')"
   second_line="$(grep -nF -- "$second" "$path" | awk -F: 'NR==1 {print $1}')"
-  [[ -n "$first_line" ]] || fail "Could not find first marker: $first"
-  [[ -n "$second_line" ]] || fail "Could not find second marker: $second"
-  [[ "$first_line" -lt "$second_line" ]] || fail "Expected '$first' before '$second'"
+  [[ -n $first_line ]] || fail "Could not find first marker: $first"
+  [[ -n $second_line ]] || fail "Could not find second marker: $second"
+  [[ $first_line -lt $second_line ]] || fail "Expected '$first' before '$second'"
 }
 
 setup_test_repo() {
@@ -228,7 +228,7 @@ test_help_exits_zero() {
 test_help_prints_usage() {
   local out
   out="$("$SUT" --help 2>&1)"
-  [[ "$out" == *"Usage:"* ]] || fail "Expected help output to include 'Usage:'"
+  [[ $out == *"Usage:"* ]] || fail "Expected help output to include 'Usage:'"
 }
 
 test_unknown_option_fails() {
@@ -236,7 +236,7 @@ test_unknown_option_fails() {
   if out="$("$SUT" --invalid 2>&1)"; then
     fail "Expected unknown option to fail"
   fi
-  [[ "$out" == *"Unknown option"* ]] || fail "Expected unknown option error message"
+  [[ $out == *"Unknown option"* ]] || fail "Expected unknown option error message"
 }
 
 test_not_in_git_repo_fails() {
@@ -246,7 +246,7 @@ test_not_in_git_repo_fails() {
   if out="$(cd "$dir" && "$SUT" 2>&1)"; then
     fail "Expected non-git directory to fail"
   fi
-  [[ "$out" == *"Must be run from inside a git repository"* ]] || fail "Expected git repository error"
+  [[ $out == *"Must be run from inside a git repository"* ]] || fail "Expected git repository error"
 }
 
 test_missing_changelog_fails() {
@@ -256,7 +256,7 @@ test_missing_changelog_fails() {
   if out="$(cd "$repo" && PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/missing-changelog/mock-cliff-output.md" "$SUT" 2>&1)"; then
     fail "Expected missing changelog to fail"
   fi
-  [[ "$out" == *"CHANGELOG.md does not exist"* ]] || fail "Expected missing changelog error"
+  [[ $out == *"CHANGELOG.md does not exist"* ]] || fail "Expected missing changelog error"
 }
 
 test_missing_cliff_fails() {
@@ -272,7 +272,7 @@ test_missing_cliff_fails() {
   if out="$(cd "$repo" && PATH="$tool_path" "$SUT" 2>&1)"; then
     fail "Expected missing git cliff to fail"
   fi
-  [[ "$out" == *"git-cliff is not installed"* ]] || fail "Expected missing git-cliff message"
+  [[ $out == *"git-cliff is not installed"* ]] || fail "Expected missing git-cliff message"
 }
 
 test_initializes_cleanup_state_before_trap() {
@@ -365,7 +365,7 @@ test_empty_cliff_output_on_release_tag_is_noop() {
   (
     cd "$repo"
     out="$(PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/empty-on-tag/mock-cliff-output.md" "$SUT" 2>&1)"
-    [[ "$out" == *"No unreleased changes found"* ]] || fail "Expected no-op message, got: $out"
+    [[ $out == *"No unreleased changes found"* ]] || fail "Expected no-op message, got: $out"
     git diff --quiet HEAD -- CHANGELOG.md || fail "Expected no changelog changes"
   )
 }
@@ -396,7 +396,7 @@ EOF
   (
     cd "$repo"
     out="$(PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/versioned-on-tag/mock-cliff-output.md" "$SUT" 2>&1)"
-    [[ "$out" == *"No unreleased changes found"* ]] || fail "Expected no-op message, got: $out"
+    [[ $out == *"No unreleased changes found"* ]] || fail "Expected no-op message, got: $out"
     git diff --quiet HEAD -- CHANGELOG.md || fail "Expected no changelog changes"
   )
   assert_file_contains "$repo/CHANGELOG.md" "- old feature placeholder"
@@ -431,7 +431,7 @@ EOF
   if out="$(cd "$repo" && PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/missing-off-tag/mock-cliff-output.md" "$SUT" 2>&1)"; then
     fail "Expected a missing Unreleased heading off-tag to fail"
   fi
-  [[ "$out" == *"no '## [Unreleased]' heading"* ]] || fail "Expected missing-heading error, got: $out"
+  [[ $out == *"no '## [Unreleased]' heading"* ]] || fail "Expected missing-heading error, got: $out"
   assert_file_contains "$repo/CHANGELOG.md" "- old feature placeholder"
 }
 
@@ -461,7 +461,7 @@ EOF
   if out="$(cd "$repo" && PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/markup-off-tag/mock-cliff-output.md" "$SUT" 2>&1)"; then
     fail "Expected unrecognized markup off-tag to fail"
   fi
-  [[ "$out" == *"no '## [Unreleased]' heading"* ]] || fail "Expected missing-heading error, got: $out"
+  [[ $out == *"no '## [Unreleased]' heading"* ]] || fail "Expected missing-heading error, got: $out"
   assert_file_contains "$repo/CHANGELOG.md" "- old feature placeholder"
 }
 
@@ -478,7 +478,7 @@ test_up_to_date_reports_no_change() {
     git add CHANGELOG.md
     git commit -q -m "test: update changelog fixture"
     out="$(PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/up-to-date/mock-cliff-output.md" "$SUT" 2>&1)"
-    [[ "$out" == *"already up-to-date"* ]] || fail "Expected already up-to-date message"
+    [[ $out == *"already up-to-date"* ]] || fail "Expected already up-to-date message"
     git diff --quiet HEAD -- CHANGELOG.md || fail "Expected no changelog changes"
   )
 }
@@ -496,7 +496,7 @@ test_skips_when_last_commit_was_autoupdate() {
   )
   bin_dir="$(setup_mock_cliff "skip-loop")"
   out="$(cd "$repo" && PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/skip-loop/mock-cliff-output.md" "$SUT" 2>&1)"
-  [[ "$out" == *"Skipping: Last commit was already a CHANGELOG auto-update."* ]] || fail "Expected loop prevention skip message"
+  [[ $out == *"Skipping: Last commit was already a CHANGELOG auto-update."* ]] || fail "Expected loop prevention skip message"
 }
 
 test_commit_flag_creates_commit() {
@@ -511,9 +511,9 @@ test_commit_flag_creates_commit() {
     PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/commit-creates/mock-cliff-output.md" "$SUT" --commit > /dev/null
   )
   after="$(cd "$repo" && git rev-list --count HEAD)"
-  [[ "$after" -eq $((before + 1)) ]] || fail "Expected exactly one new commit"
+  [[ $after -eq $((before + 1)) ]] || fail "Expected exactly one new commit"
   files="$(cd "$repo" && git diff-tree --no-commit-id --name-only -r HEAD)"
-  [[ "$files" == "CHANGELOG.md" ]] || fail "Expected commit to include only CHANGELOG.md"
+  [[ $files == "CHANGELOG.md" ]] || fail "Expected commit to include only CHANGELOG.md"
 }
 
 test_commit_default_message() {
@@ -527,7 +527,7 @@ test_commit_default_message() {
     PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/commit-default-message/mock-cliff-output.md" "$SUT" --commit > /dev/null
   )
   subject="$(cd "$repo" && git log -1 --pretty=%s)"
-  [[ "$subject" == "docs(CHANGELOG.md): autoupdate Unreleased section" ]] || fail "Expected default commit message"
+  [[ $subject == "docs(CHANGELOG.md): autoupdate Unreleased section" ]] || fail "Expected default commit message"
 }
 
 test_commit_custom_message() {
@@ -541,7 +541,7 @@ test_commit_custom_message() {
     PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/commit-custom-message/mock-cliff-output.md" "$SUT" --commit -- -m "Custom msg" > /dev/null
   )
   subject="$(cd "$repo" && git log -1 --pretty=%s)"
-  [[ "$subject" == "Custom msg" ]] || fail "Expected custom commit message"
+  [[ $subject == "Custom msg" ]] || fail "Expected custom commit message"
 }
 
 test_custom_changelog_path() {
@@ -576,7 +576,7 @@ test_stashes_uncommitted_changelog_changes() {
   printf '\n%s\n' "$marker" >> "$repo/CHANGELOG.md"
   bin_dir="$(setup_mock_cliff "stash-safety")"
   out="$(cd "$repo" && PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/stash-safety/mock-cliff-output.md" "$SUT" 2>&1)"
-  [[ "$out" == *"your changes preserved"* ]] || fail "Expected stash preservation message"
+  [[ $out == *"your changes preserved"* ]] || fail "Expected stash preservation message"
   assert_file_contains "$repo/CHANGELOG.md" "- new feature from cliff"
   assert_file_contains "$repo/CHANGELOG.md" "$marker"
 }
@@ -614,9 +614,9 @@ test_commit_staged_changelog_matching_cliff() {
   (cd "$repo" && git add CHANGELOG.md)
   # Run again with --commit; staged content should match
   out="$(cd "$repo" && PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/staged-match/mock-cliff-output.md" "$SUT" --commit 2>&1)"
-  [[ "$out" == *"already matches"* ]] || fail "Expected staged matches message"
+  [[ $out == *"already matches"* ]] || fail "Expected staged matches message"
   subject="$(cd "$repo" && git log -1 --pretty=%s)"
-  [[ "$subject" == "docs(CHANGELOG.md): autoupdate Unreleased section" ]] || fail "Expected auto-commit message"
+  [[ $subject == "docs(CHANGELOG.md): autoupdate Unreleased section" ]] || fail "Expected auto-commit message"
 }
 
 test_commit_staged_changelog_differing_fails() {
@@ -634,7 +634,7 @@ test_commit_staged_changelog_differing_fails() {
   if out="$(cd "$repo" && PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/staged-differ/mock-cliff-output.md" "$SUT" --commit 2>&1)"; then
     fail "Expected staged changelog mismatch to fail"
   fi
-  [[ "$out" == *"staged changes that differ"* ]] || fail "Expected staged changes differ error"
+  [[ $out == *"staged changes that differ"* ]] || fail "Expected staged changes differ error"
 }
 
 test_preserves_other_staged_files() {
@@ -657,10 +657,10 @@ test_preserves_other_staged_files() {
   )
   # The commit should only contain CHANGELOG.md
   files="$(cd "$repo" && git diff-tree --no-commit-id --name-only -r HEAD)"
-  [[ "$files" == "CHANGELOG.md" ]] || fail "Expected commit to include only CHANGELOG.md"
+  [[ $files == "CHANGELOG.md" ]] || fail "Expected commit to include only CHANGELOG.md"
   # other.txt should still be staged
   staged="$(cd "$repo" && git diff --cached --name-only)"
-  [[ "$staged" == "other.txt" ]] || fail "Expected other.txt to still be staged"
+  [[ $staged == "other.txt" ]] || fail "Expected other.txt to still be staged"
 }
 
 test_conflict_with_uncommitted_changes_restores_state() {
@@ -691,7 +691,7 @@ USEREOF
   if out="$(cd "$repo" && PATH="$bin_dir:$PATH" MOCK_CLIFF_OUTPUT="$TEST_ROOT/conflict-restore/mock-cliff-output.md" "$SUT" 2>&1)"; then
     fail "Expected conflict to cause failure"
   fi
-  [[ "$out" == *"conflict"* ]] || fail "Expected conflict error message"
+  [[ $out == *"conflict"* ]] || fail "Expected conflict error message"
   # Verify user's uncommitted changes are restored
   assert_file_contains "$repo/CHANGELOG.md" "- user modified feature"
   assert_file_contains "$repo/CHANGELOG.md" "- another user edit"

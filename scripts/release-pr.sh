@@ -71,7 +71,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --base)
-      [[ -n "${2:-}" ]] || {
+      [[ -n ${2:-} ]] || {
         echo "Error: --base requires a branch name" >&2
         usage 1
       }
@@ -83,7 +83,7 @@ while [[ $# -gt 0 ]]; do
       usage 1
       ;;
     *)
-      [[ -z "$VERSION" ]] || {
+      [[ -z $VERSION ]] || {
         echo "Error: only one version argument allowed" >&2
         usage 1
       }
@@ -93,7 +93,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-[[ -n "$VERSION" ]] || {
+[[ -n $VERSION ]] || {
   echo "Error: VERSION argument is required" >&2
   usage 1
 }
@@ -101,7 +101,7 @@ done
 # Accept either '0.0.1' or 'v0.0.1' — the tag is always v$VERSION downstream,
 # so a leading 'v' is redundant. Strip it with a stderr note so callers see
 # what we landed on.
-if [[ "$VERSION" == v* ]]; then
+if [[ $VERSION == v* ]]; then
   echo "Note: stripping leading 'v' from VERSION; using '${VERSION#v}' (tag will be v${VERSION#v})." >&2
   VERSION="${VERSION#v}"
 fi
@@ -120,7 +120,7 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 
 # Resolve base branch
-if [[ -z "$BASE_BRANCH" ]]; then
+if [[ -z $BASE_BRANCH ]]; then
   if command -v gh > /dev/null 2>&1; then
     BASE_BRANCH="$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name 2> /dev/null || true)"
   fi
@@ -140,7 +140,7 @@ fi
 # "no matching ref" (empty stdout, exit 0) from "query failed" (non-zero exit).
 # Skip in --no-push mode so a local rehearsal can run without network access;
 # the eventual push path re-checks origin before any release ref is created.
-if [[ "$DO_PUSH" == true ]]; then
+if [[ $DO_PUSH == true ]]; then
   # The `|| ls_remote_status=$?` is load-bearing: under `set -e` a plain
   # `var="$(cmd)"` assignment aborts the script the instant the substitution
   # fails, so a bare `$?` on the next line can never observe a failure and the
@@ -153,7 +153,7 @@ if [[ "$DO_PUSH" == true ]]; then
     printf '%s\n' "$remote_tag_refs" >&2
     exit 1
   fi
-  if [[ -n "$remote_tag_refs" ]]; then
+  if [[ -n $remote_tag_refs ]]; then
     echo "Error: tag $TAG already exists on origin." >&2
     exit 1
   fi
@@ -169,7 +169,7 @@ fi
 # The local branch is created below, so `git push` would either fail with a
 # confusing non-fast-forward error or, worse, race another maintainer's
 # in-flight release PR. Detect the collision up front with a clear message.
-if [[ "$DO_PUSH" == true ]] &&
+if [[ $DO_PUSH == true ]] &&
   [[ -n "$(git ls-remote --heads origin "refs/heads/$RELEASE_BRANCH" 2> /dev/null)" ]]; then
   echo "Error: branch $RELEASE_BRANCH already exists on origin." >&2
   echo "       Another maintainer may have an in-flight release PR for $VERSION." >&2
@@ -181,7 +181,7 @@ fi
 # feature branch checkout would silently produce a release PR with missing or
 # extra commits.
 CURRENT_BRANCH="$(git symbolic-ref --short HEAD 2> /dev/null || true)"
-if [[ "$CURRENT_BRANCH" != "$BASE_BRANCH" ]]; then
+if [[ $CURRENT_BRANCH != "$BASE_BRANCH" ]]; then
   echo "Error: must be on '$BASE_BRANCH' to open a release PR (currently on '${CURRENT_BRANCH:-detached HEAD}')." >&2
   echo "       Run 'git switch $BASE_BRANCH && git pull --ff-only' first, or pass --base to override." >&2
   exit 1
@@ -191,7 +191,7 @@ fi
 # promoted from the same history the maintainer thinks they are on. A stale
 # local checkout would silently miss recently merged commits.
 # Skip in --no-push mode so a local rehearsal can run without network access.
-if [[ "$DO_PUSH" == true ]]; then
+if [[ $DO_PUSH == true ]]; then
   if ! git fetch origin "$BASE_BRANCH" --quiet; then
     echo "Error: failed to fetch origin/$BASE_BRANCH" >&2
     exit 1
@@ -201,7 +201,7 @@ if [[ "$DO_PUSH" == true ]]; then
     echo "Error: cannot resolve origin/$BASE_BRANCH; run 'git fetch origin $BASE_BRANCH' first." >&2
     exit 1
   }
-  if [[ "$LOCAL_SHA" != "$REMOTE_SHA" ]]; then
+  if [[ $LOCAL_SHA != "$REMOTE_SHA" ]]; then
     echo "Error: local '$BASE_BRANCH' is out of sync with 'origin/$BASE_BRANCH'." >&2
     echo "       local HEAD          : $LOCAL_SHA" >&2
     echo "       origin/$BASE_BRANCH : $REMOTE_SHA" >&2
@@ -260,7 +260,7 @@ uv version --no-sync "$VERSION"
 # friends) that can skip the re-lock, and a stale uv.lock is exactly the failure
 # this step exists to prevent — so assert the outcome instead of trusting it.
 ACTUAL_VERSION="$(uv version --short)"
-if [[ "$ACTUAL_VERSION" != "$VERSION" ]]; then
+if [[ $ACTUAL_VERSION != "$VERSION" ]]; then
   echo "Error: expected project version '$VERSION' after the bump, found '$ACTUAL_VERSION'." >&2
   exit 1
 fi
@@ -315,7 +315,7 @@ git commit -m "chore(release): prepare $VERSION"
 
 trap - EXIT
 
-if [[ "$DO_PUSH" == false ]]; then
+if [[ $DO_PUSH == false ]]; then
   echo
   echo "Local release branch ready: $RELEASE_BRANCH"
   echo "Skipped push and PR creation (--no-push)."
