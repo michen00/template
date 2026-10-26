@@ -3,20 +3,18 @@ name: Bot auto-merge
 
 # Arms GitHub's native auto-merge (squash) on Dependabot and pre-commit-ci pull requests
 # that pass the eligibility rules below. GitHub performs the merge only once the pull
-# request is mergeable -- `Run CI (3.13)` green, a review recorded, no unresolved review
+# request satisfies every rule on its base branch -- required checks, reviews, resolved
 # threads -- so a review comment pauses it until that thread is resolved.
 #
-# There is deliberately no in-workflow check polling. The previous version of this file
-# called `gh pr checks --required --watch`, which races check registration: it reports "no
-# required checks reported" before CI has posted and fails the job on a pull request that
-# was never unhealthy. Native auto-merge gates on the ruleset server-side, which is both
-# correct and free. `main-protect` requires the single context `Run CI (3.13)`, and that
-# requirement is what auto-merge waits on; without at least one required check GitHub
-# rejects `--auto` outright, so removing it would break this workflow rather than relax it.
+# There is deliberately no in-workflow check polling. `gh pr checks --required --watch`
+# races check registration: it reports "no required checks reported" before CI has posted
+# and fails the job on a pull request that was never unhealthy. Native auto-merge gates on
+# the ruleset server-side, which is both correct and free. The checks the base branch
+# requires are what auto-merge waits on; without at least one, GitHub rejects `--auto`
+# outright, so removing the requirement breaks this workflow rather than relaxing it.
 #
-# One required context is a thinner base than the siblings have, and worth knowing rather
-# than assuming away: whatever `Run CI (3.13)` does not cover is not covered before a bot
-# merge lands here. That is an argument about what CI should run, not about this file.
+# Whatever the required checks do not cover is not covered before a bot merge lands. That
+# is an argument about what CI should run, not about this file.
 #
 # The author guard reads `pull_request.user.login` and not `github.actor`. `github.actor`
 # is whoever triggered *this event* rather than whoever opened the pull request, so any
@@ -32,10 +30,8 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
 
-# Narrower than it was. The previous version also held `packages: read`, which nothing in
-# this repository ever read. Because declaring this block sets every unlisted scope to
-# `none`, a scope kept for symmetry grants real authority for no reader. Leave it at what
-# the calls below use.
+# Declaring this block sets every unlisted scope to `none`, so a scope listed for symmetry
+# grants real authority for no reader. Keep it to what the calls below use.
 permissions:
   contents: write
   pull-requests: write
@@ -68,21 +64,17 @@ jobs:
     steps:
       # No checkout step: nothing below reads the repository.
 
-      # Optional, and inert unless both settings resolve. Arming under an App matters
-      # because auto-merge is completed by whoever armed it, and GitHub creates no workflow
-      # run for an event caused by `GITHUB_TOKEN` -- so a `GITHUB_TOKEN` merge fires no
-      # `push` and no `pull_request_target: closed` trigger downstream, while an App merge
-      # does.
+      # Optional: the App path runs only when both settings resolve, and this step logs a
+      # notice when they do not, so a run says which identity armed it. Arming under an App
+      # matters because auto-merge is completed by whoever armed it, and GitHub creates no
+      # workflow run for an event caused by `GITHUB_TOKEN` -- so a `GITHUB_TOKEN` merge
+      # fires no `push` and no `pull_request_target: closed` trigger downstream, while an
+      # App merge does. That is all the App buys here; the merge itself works without it.
       #
-      # Neither setting exists here yet, so this resolves false on every run and the whole
-      # App path is inert -- which is why it is written as a detection rather than a
-      # requirement. Setting them buys the downstream triggers described above and nothing
-      # else; the merge itself already works. Note that a Dependabot-triggered run is handed
-      # the *Dependabot* secret store rather than the Actions one, so whenever these are
-      # added the private key has to go into both stores or the App path will stay inert on
-      # exactly the pull requests it was added for. Saying so here is the point: the failure
-      # is otherwise entirely silent -- the token comes back empty and the fallback takes
-      # over with nothing logged.
+      # A Dependabot-triggered run is handed the *Dependabot* secret store rather than the
+      # Actions one, so the private key has to be in both stores. With it in the Actions
+      # store alone, the App path stays inert on exactly the pull requests it was added for,
+      # and the notice below is the only sign.
       - name: Detect App credentials
         id: creds
         env:
@@ -176,14 +168,18 @@ jobs:
           # A locally pushed commit is signed by the pusher's own key, or not at all, and
           # either way it does not come back as `web-flow`.
           #
-          # Merges are exempt from the author check but not from the signature check, and
-          # that pairing is what makes the exemption safe. A merge commit's tree is not
-          # constrained to be the mechanical merge of its parents, so a local "evil merge"
-          # can carry content present in neither parent while contributing no non-merge
-          # commits to the range. Requiring GitHub's signature rules that out: the only
-          # merges GitHub signs are the mechanical ones its own interface produces, and the
-          # button cannot inject a tree. That is what lets a required Update branch merge
-          # through without reopening the hole.
+          # Merges are exempt from the author check but not from the signature check. A
+          # merge commit's tree is not constrained to be the mechanical merge of its
+          # parents, so a local "evil merge" can carry content present in neither parent
+          # while contributing no non-merge commits to the range; requiring GitHub's
+          # signature rules that one out. It does not rule out every crafted merge: GitHub
+          # also signs commits that an App or `GITHUB_TOKEN` creates through its API, which
+          # accepts any tree and any parents. So the exemption trusts whoever holds a write
+          # token for this repository. Where the base branch requires approval of the most
+          # recent push, the approval below does not count on a commit github-actions
+          # pushed, which bounds what the default token can do; an App's key is trusted as
+          # far as any write credential is. The exemption is what lets Update branch, or a
+          # catch-up merge, through.
           #
           # `set -e` does the fail-closed work. Every hand-written error branch here would
           # be a way to fail open instead, so there is no `2>/dev/null` and no
@@ -265,18 +261,16 @@ jobs:
               # a step whose condition is false on a bot pull request -- merges with nothing
               # having exercised it, and so does a dependency major on a path CI does not
               # cover. A break there surfaces the next time that code runs, and is fixed
-              # forward. Here that includes release.yml and changelog-autoupdate.yml, neither
-              # of which a pull request starts. And because this repository is copied to
-              # start other ones, a dependency major merged here reaches every project
-              # created from it afterwards.
+              # forward. And because this repository is copied to start other ones, a
+              # dependency major merged here reaches every project created from it
+              # afterwards.
               #
               # The cooldowns in dependabot.yml are the soak: Dependabot raises no pull
-              # request for a release until its cooldown has passed. Their effective length
-              # is longer than the number suggests for actions, which is worth knowing before
-              # tuning it: that ecosystem is polled on the 1st and 15th, so an update whose
-              # cooldown expires just after a poll waits until the next one. Thirty days of
-              # cooldown therefore lands a pull request roughly thirty to forty-five days
-              # after the release.
+              # request for a release until its cooldown has passed. For an ecosystem polled
+              # less often than daily the effective soak is longer than the number, which is
+              # worth knowing before tuning it: an update whose cooldown expires just after a
+              # poll waits for the next one, so the delay is the cooldown plus up to one
+              # polling interval.
               #
               # Nothing here reads the ecosystem except the log line. If a test on it ever
               # returns, compare against fetch-metadata's slugs and not the keys
