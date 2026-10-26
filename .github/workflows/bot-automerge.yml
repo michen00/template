@@ -61,7 +61,7 @@ jobs:
           fi
 
       # `APP_CLIENT_ID` is the App's client ID, which the action reads from `app-id` when
-      # `client-id` is unset. It is a variable, not a secret, so that `if:` can test it.
+      # `client-id` is unset.
       - name: Mint an App token, if one is configured
         id: app-token
         if: steps.creds.outputs.available == 'true'
