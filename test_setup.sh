@@ -202,7 +202,7 @@ assert_git_remote_url_equals() {
   local actual
 
   actual="$(git -C "$project_root" config --get remote.origin.url || true)"
-  if [[ "$actual" != "$expected" ]]; then
+  if [[ $actual != "$expected" ]]; then
     printf '%s[ERROR]%s expected git remote %s but found %s.\n' \
       "$RED" "$RESET" "$expected" "$actual" >&2
     exit 1
@@ -214,7 +214,7 @@ assert_git_remote_url_absent() {
   local actual
 
   actual="$(git -C "$project_root" config --get remote.origin.url || true)"
-  if [[ -n "$actual" ]]; then
+  if [[ -n $actual ]]; then
     printf '%s[ERROR]%s expected git remote to be absent, but found %s.\n' \
       "$RED" "$RESET" "$actual" >&2
     exit 1
@@ -691,7 +691,7 @@ verify_inplace_project_keeps_git() {
   verify_inplace_project "$project_root" "$project_name" "$sentinel" "$module_name"
   assert_git_remote_url_equals "$project_root" "$expected_remote"
   assert_no_text_match_in_dir "$project_root/.git" "$project_name"
-  if [[ ! -f "$backup_file" ]]; then
+  if [[ ! -f $backup_file ]]; then
     printf '%s[ERROR]%s expected preserved git backup file at %s.\n' \
       "$RED" "$RESET" "$backup_file" >&2
     exit 1

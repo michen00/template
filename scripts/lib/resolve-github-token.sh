@@ -52,10 +52,10 @@
 # This keeps the credential out of the script's process environment and out
 # of any subsequent child processes (notably `git commit` and its hooks).
 resolve_github_token_via_gh() {
-  if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+  if [[ -n ${GITHUB_TOKEN:-} ]]; then
     return 0
   fi
-  if [[ -n "${GH_TOKEN:-}" ]]; then
+  if [[ -n ${GH_TOKEN:-} ]]; then
     return 0
   fi
   if ! command -v gh > /dev/null 2>&1; then
