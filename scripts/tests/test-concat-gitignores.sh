@@ -32,7 +32,7 @@ fail() {
 
 assert_file_exists() {
   local path="$1"
-  [[ -f "$path" ]] || fail "Expected file to exist: $path"
+  [[ -f $path ]] || fail "Expected file to exist: $path"
 }
 
 assert_file_contains() {
@@ -54,7 +54,7 @@ assert_single_trailing_newline() {
   local last_two
   [[ "$(tail -c 1 "$path")" == "" ]] || fail "Expected file to end with a newline: $path"
   last_two="$(tail -c 2 "$path" | od -An -tx1 | tr -d ' \n')"
-  [[ "$last_two" != "0a0a" ]] || fail "Expected exactly one trailing newline: $path"
+  [[ $last_two != "0a0a" ]] || fail "Expected exactly one trailing newline: $path"
 }
 
 assert_line_order() {
@@ -64,9 +64,9 @@ assert_line_order() {
   local first_line second_line
   first_line="$(grep -nF -- "$first" "$path" | awk -F: 'NR==1 {print $1}')"
   second_line="$(grep -nF -- "$second" "$path" | awk -F: 'NR==1 {print $1}')"
-  [[ -n "$first_line" ]] || fail "Could not find first marker: $first"
-  [[ -n "$second_line" ]] || fail "Could not find second marker: $second"
-  [[ "$first_line" -lt "$second_line" ]] || fail "Expected '$first' before '$second'"
+  [[ -n $first_line ]] || fail "Could not find first marker: $first"
+  [[ -n $second_line ]] || fail "Could not find second marker: $second"
+  [[ $first_line -lt $second_line ]] || fail "Expected '$first' before '$second'"
 }
 
 new_fixture() {
@@ -89,7 +89,7 @@ test_help_exits_zero() {
 test_help_prints_usage() {
   local out
   out="$("$SUT" --help 2>&1)"
-  [[ "$out" == *"Usage:"* ]] || fail "Expected help output to include 'Usage:'"
+  [[ $out == *"Usage:"* ]] || fail "Expected help output to include 'Usage:'"
 }
 
 test_unknown_option_fails() {
@@ -97,7 +97,7 @@ test_unknown_option_fails() {
   if out="$("$SUT" --invalid 2>&1)"; then
     fail "Expected unknown option to fail"
   fi
-  [[ "$out" == *"Unknown option"* ]] || fail "Expected unknown option error message"
+  [[ $out == *"Unknown option"* ]] || fail "Expected unknown option error message"
 }
 
 test_output_missing_arg_fails() {
@@ -105,7 +105,7 @@ test_output_missing_arg_fails() {
   if out="$("$SUT" --output 2>&1)"; then
     fail "Expected --output with missing argument to fail"
   fi
-  [[ "$out" == *"--output requires a file name"* ]] || fail "Expected missing output argument message"
+  [[ $out == *"--output requires a file name"* ]] || fail "Expected missing output argument message"
 }
 
 test_custom_missing_arg_fails() {
@@ -113,7 +113,7 @@ test_custom_missing_arg_fails() {
   if out="$("$SUT" --custom 2>&1)"; then
     fail "Expected --custom with missing argument to fail"
   fi
-  [[ "$out" == *"--custom requires a file name"* ]] || fail "Expected missing custom argument message"
+  [[ $out == *"--custom requires a file name"* ]] || fail "Expected missing custom argument message"
 }
 
 test_fetches_from_file_url() {
@@ -200,7 +200,7 @@ test_missing_custom_file_is_skipped() {
   to_file_url "$fixture" > "$url_file"
   out="$("$SUT" "$url_file" --output "$output_file" --custom "$TEST_ROOT/does-not-exist.gitignore" 2>&1)"
 
-  [[ "$out" == *"No custom patterns file, skipping:"* ]] || fail "Expected the missing custom file to be reported"
+  [[ $out == *"No custom patterns file, skipping:"* ]] || fail "Expected the missing custom file to be reported"
   assert_file_contains "$output_file" "marker-nocustom"
   assert_file_not_contains "$output_file" "# Plus local patterns from"
   assert_single_trailing_newline "$output_file"
@@ -395,7 +395,7 @@ test_defaults_are_used_when_stdin_carries_nothing() {
 
   out="$(PATH="$stub_dir:$PATH" "$SUT" --output "$output_file" < /dev/null 2>&1)"
 
-  [[ "$out" != *"No URLs provided."* ]] || fail "Expected the defaults when stdin carries nothing"
+  [[ $out != *"No URLs provided."* ]] || fail "Expected the defaults when stdin carries nothing"
   assert_file_contains "$output_file" "# - https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore"
   assert_file_contains "$output_file" "stub-marker"
 }

@@ -88,10 +88,10 @@ add_entry() {
   local trimmed="$line"
   trimmed="${trimmed#"${trimmed%%[![:space:]]*}"}"
   trimmed="${trimmed%"${trimmed##*[![:space:]]}"}"
-  [[ -z "$trimmed" ]] && return 0
-  if [[ "$trimmed" == "## "* ]]; then
+  [[ -z $trimmed ]] && return 0
+  if [[ $trimmed == "## "* ]]; then
     ENTRIES+=("$trimmed")
-  elif [[ "$trimmed" == \#* ]]; then
+  elif [[ $trimmed == \#* ]]; then
     return 0
   else
     ENTRIES+=("$trimmed")
@@ -101,7 +101,7 @@ add_entry() {
 
 parse_input_stream() {
   local line=""
-  while IFS= read -r line || [[ -n "$line" ]]; do
+  while IFS= read -r line || [[ -n $line ]]; do
     add_entry "$line"
   done
 }
@@ -185,7 +185,7 @@ fi
 # appended block agree on whether there are any.
 CUSTOM_CONTENT=""
 CUSTOM_BANNER_LINE=""
-if [[ -f "$CUSTOM_FILE" ]]; then
+if [[ -f $CUSTOM_FILE ]]; then
   # Leading blank lines are dropped here and trailing ones by the command
   # substitution, so the block is separated from the patterns above it by exactly
   # one blank line however the file happens to be spaced.
@@ -196,7 +196,7 @@ if [[ -f "$CUSTOM_FILE" ]]; then
   ' "$CUSTOM_FILE")
 fi
 
-if [[ -n "$CUSTOM_CONTENT" ]]; then
+if [[ -n $CUSTOM_CONTENT ]]; then
   # Shown relative to the repo root when possible: this line is committed, and an
   # absolute path would bake one checkout's location into every copy.
   CUSTOM_FILE_DISPLAY="$CUSTOM_FILE"
@@ -204,7 +204,7 @@ if [[ -n "$CUSTOM_CONTENT" ]]; then
     "$REPO_ROOT"/*) CUSTOM_FILE_DISPLAY="${CUSTOM_FILE_DISPLAY#"$REPO_ROOT"/}" ;;
   esac
   CUSTOM_BANNER_LINE="# Plus local patterns from $CUSTOM_FILE_DISPLAY"
-elif [[ -f "$CUSTOM_FILE" ]]; then
+elif [[ -f $CUSTOM_FILE ]]; then
   echo "Custom patterns file is empty, skipping: $CUSTOM_FILE"
 else
   echo "No custom patterns file, skipping: $CUSTOM_FILE"
@@ -213,7 +213,7 @@ fi
 # Calculate the length of the longest header line (for ruler)
 MAX_HEADER_LINE_LENGTH=0
 for entry in "${ENTRIES[@]}"; do
-  if [[ "$entry" == "## "* ]]; then
+  if [[ $entry == "## "* ]]; then
     HEADER_LINE="# ${entry#\#\# }"
   else
     HEADER_LINE="# - $entry"
@@ -231,7 +231,7 @@ HEADER_LENGTH=$MAX_HEADER_LINE_LENGTH
 HEADER=$(printf '#%.0s' $(seq 1 "$HEADER_LENGTH"))
 
 OUTPUT_DIR=$(dirname "$OUTPUT_FILE")
-if [[ ! -d "$OUTPUT_DIR" ]]; then
+if [[ ! -d $OUTPUT_DIR ]]; then
   mkdir -p "$OUTPUT_DIR" || {
     echo "Error: cannot create directory '$OUTPUT_DIR' for output file." >&2
     exit 1
@@ -242,13 +242,13 @@ fi
   echo "$HEADER"
   echo "# This .gitignore is composed of the following templates (retrieved $(date +%Y-%m-%d)):"
   for entry in "${ENTRIES[@]}"; do
-    if [[ "$entry" == "## "* ]]; then
+    if [[ $entry == "## "* ]]; then
       echo "# ${entry#\#\# }"
     else
       echo "# - $entry"
     fi
   done
-  [[ -n "$CUSTOM_BANNER_LINE" ]] && echo "$CUSTOM_BANNER_LINE"
+  [[ -n $CUSTOM_BANNER_LINE ]] && echo "$CUSTOM_BANNER_LINE"
   echo "$HEADER"
   echo ""
 } > "$OUTPUT_FILE"
@@ -258,7 +258,7 @@ echo "Initialized output file with header: $OUTPUT_FILE"
 # Convert blob URL to raw URL if needed (user-supplied input may use blob format)
 to_raw_url() {
   local u="$1"
-  if [[ "$u" == *"/blob/"* ]]; then
+  if [[ $u == *"/blob/"* ]]; then
     echo "$u" | sed 's|github.com|raw.githubusercontent.com|; s|/blob||'
   else
     echo "$u"
@@ -270,7 +270,7 @@ for url in "${URLS[@]}"; do
   echo "Processing URL: $url"
 
   RAW_URL=$(to_raw_url "$url")
-  if [[ "$url" != "$RAW_URL" ]]; then
+  if [[ $url != "$RAW_URL" ]]; then
     echo "Converted to raw URL: $RAW_URL"
   fi
 
@@ -303,15 +303,15 @@ for url in "${URLS[@]}"; do
   CONTENT=$(awk '{ gsub(/\[\r\]/, ""); gsub(/\r$/, ""); gsub(/[ \t]+$/, ""); print }' "$TMP_CURL")
   rm -f "$TMP_CURL"
 
-  if [[ -z "$CONTENT" ]]; then
+  if [[ -z $CONTENT ]]; then
     echo "Empty content from: $RAW_URL" >&2
     exit 1
   fi
 
   # Reject HTML (e.g. GitHub error page)
   content_prefix="${CONTENT:0:256}"
-  if [[ "$content_prefix" =~ ^[[:space:]]*\<\![[:space:]]*[Dd][Oo][Cc][Tt][Yy][Pp][Ee] ]] ||
-    [[ "$content_prefix" =~ ^[[:space:]]*\<[Hh][Tt][Mm][Ll] ]]; then
+  if [[ $content_prefix =~ ^[[:space:]]*\<\![[:space:]]*[Dd][Oo][Cc][Tt][Yy][Pp][Ee] ]] ||
+    [[ $content_prefix =~ ^[[:space:]]*\<[Hh][Tt][Mm][Ll] ]]; then
     echo "Received HTML instead of gitignore content from: $RAW_URL" >&2
     exit 1
   fi
@@ -378,7 +378,7 @@ EOF
 # Append the repository-specific patterns last so they win wherever they overlap
 # with a pattern above. Read before any output was written, so an unreadable or
 # empty file has already been reported.
-if [[ -n "$CUSTOM_CONTENT" ]]; then
+if [[ -n $CUSTOM_CONTENT ]]; then
   printf '\n%s\n' "$CUSTOM_CONTENT" >> "$OUTPUT_FILE"
   echo "Appended custom patterns from: $CUSTOM_FILE"
 fi

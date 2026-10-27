@@ -42,7 +42,7 @@ manifest_contains() {
   local entry
 
   for entry in "${MANIFEST_ENTRIES[@]}"; do
-    if [[ "$entry" == "$candidate" ]]; then
+    if [[ $entry == "$candidate" ]]; then
       return 0
     fi
   done
