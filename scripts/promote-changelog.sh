@@ -71,7 +71,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --changelog)
-      [[ -n "${2:-}" ]] || {
+      [[ -n ${2:-} ]] || {
         echo "Error: --changelog requires a path" >&2
         usage 1
       }
@@ -83,7 +83,7 @@ while [[ $# -gt 0 ]]; do
       usage 1
       ;;
     *)
-      [[ -z "$VERSION" ]] || {
+      [[ -z $VERSION ]] || {
         echo "Error: only one version argument allowed" >&2
         usage 1
       }
@@ -93,7 +93,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-[[ -n "$VERSION" ]] || {
+[[ -n $VERSION ]] || {
   echo "Error: VERSION argument is required" >&2
   usage 1
 }
@@ -102,7 +102,7 @@ done
 # the version recorded in pyproject.toml. Strip it silently so this behaves the
 # same whether it is invoked by hand or by the release-PR script (which strips
 # the prefix too).
-if [[ "$VERSION" == v* ]]; then
+if [[ $VERSION == v* ]]; then
   VERSION="${VERSION#v}"
 fi
 
@@ -122,7 +122,7 @@ fi
 # the repository root, so `--changelog ../notes/CHANGELOG.md` means what it says
 # when this is run from a subdirectory. `pwd -P` resolves symlinks, which keeps
 # the path comparable on macOS (/tmp is a link to /private/tmp).
-if [[ "$CHANGELOG" != /* ]]; then
+if [[ $CHANGELOG != /* ]]; then
   CHANGELOG="$(pwd -P)/$CHANGELOG"
 fi
 
@@ -135,14 +135,14 @@ case "$CHANGELOG" in
   "$REPO_ROOT"/*) CHANGELOG="${CHANGELOG#"$REPO_ROOT/"}" ;;
 esac
 
-[[ -f "$CHANGELOG" ]] || die "$CHANGELOG does not exist"
+[[ -f $CHANGELOG ]] || die "$CHANGELOG does not exist"
 
 # Refresh the Unreleased section first so the promoted block reflects current
 # HEAD. A missing sibling script is fatal rather than a warning: skipping the
 # refresh promotes a stale section into a heading that is about to be tagged and
 # published, and a warning in the middle of a release run is not read in time.
 # `--no-refresh` is the supported way to opt out.
-if [[ "$SKIP_REFRESH" == false ]]; then
+if [[ $SKIP_REFRESH == false ]]; then
   [[ -f "$SCRIPT_DIR/update-unreleased.sh" ]] || die \
     "$SCRIPT_DIR/update-unreleased.sh not found." \
     "Pass --no-refresh to promote the section as it already stands."
@@ -187,7 +187,7 @@ REMOTE_URL="$(git config --get remote.origin.url || true)"
 # A tag for the version being released is already reachable (a re-run, or a tag
 # pushed ahead of the changelog). Comparing a tag against itself links to an
 # empty diff, so fall back to the plain heading instead.
-if [[ "$PREV_TAG" == "v$VERSION" ]]; then
+if [[ $PREV_TAG == "v$VERSION" ]]; then
   PREV_TAG=""
 fi
 
@@ -214,13 +214,13 @@ format_repo_url() {
 }
 
 REPO_URL=""
-if [[ -n "$REMOTE_URL" ]]; then
+if [[ -n $REMOTE_URL ]]; then
   REPO_URL="$(format_repo_url "$REMOTE_URL")"
 fi
 
 # Both shapes come from cliff.toml's changelog body: a compare link when there is
 # a previous release to compare against, a bare heading for the first one.
-if [[ -n "$PREV_TAG" && -n "$REPO_URL" ]]; then
+if [[ -n $PREV_TAG && -n $REPO_URL ]]; then
   HEADING="## [$VERSION]($REPO_URL/compare/$PREV_TAG..v$VERSION) - $DATE"
 else
   HEADING="## [$VERSION] - $DATE"
