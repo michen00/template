@@ -8,6 +8,7 @@ _typos.toml
 .gitattributes
 .gitconfigs/alias
 .github/.copilot-instructions.md
+.github/actionlint.yaml
 .github/actions/detect-bot-author/action.yml
 .github/dependabot.yml
 .github/instructions/CI.instructions.md
