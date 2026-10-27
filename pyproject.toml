@@ -50,7 +50,7 @@ publish-url = "https://test.pypi.org/legacy/"
 explicit = true
 
 [tool.pyproject-fmt]
-# The newest Python CI runs; pyproject-fmt writes classifiers up to it.
+# The newest Python CI tests.
 max_supported_python = "3.13"
 
 [tool.mypy]

@@ -16,9 +16,7 @@ ci:
   # weekly/monthly/quarterly -- so it is set to the slowest cadence to keep the
   # two from opening the same bump. Ignored outright where the app is not installed.
   autoupdate_schedule: quarterly
-  # tombi fetches the SchemaStore catalog to format and lint TOML against each
-  # file's schema, and pre-commit.ci runs hooks with no network access, so both
-  # tombi hooks fail there before reading a file. CI's pre-commit job runs them.
+  # tombi needs the network for its schema catalog; CI's pre-commit job runs it.
   skip: [tombi-format, tombi-lint]
 
 default_install_hook_types:
@@ -105,10 +103,7 @@ repos:
     rev: v3.14.1-1
     hooks:
       - id: shfmt
-  # pyproject-fmt formats pyproject.toml, in the double quotes uv writes; tombi
-  # formats every other TOML file, in single quotes to match the rest, and lints
-  # all of them. tombi.toml keeps tombi's formatter off pyproject.toml, because
-  # the two order keys differently and would each undo the other's output.
+  # pyproject-fmt owns pyproject.toml; tombi.toml keeps tombi's formatter off it.
   - repo: https://github.com/tox-dev/pyproject-fmt
     rev: v2.30.3
     hooks:
