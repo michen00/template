@@ -101,6 +101,18 @@ repos:
     rev: v3.14.1-1
     hooks:
       - id: shfmt
+  # pyproject-fmt formats pyproject.toml, in the double quotes uv writes; tombi
+  # formats every other TOML file, in single quotes to match the rest, and lints
+  # all of them. tombi.toml keeps tombi's formatter off pyproject.toml, because
+  # the two order keys differently and would each undo the other's output.
+  - repo: https://github.com/tox-dev/pyproject-fmt
+    rev: v2.30.3
+    hooks:
+      - id: pyproject-fmt
+  - repo: https://github.com/tombi-toml/tombi-pre-commit
+    rev: v1.9.6
+    hooks:
+      - id: tombi-format
   # One paragraph is one line, so a diff to a paragraph is one line. Ordered before
   # markdownlint below, so that what markdownlint --fix sees is the final text rather
   # than a shape about to change under it.
@@ -142,6 +154,10 @@ repos:
       - id: debug-statements
       - id: name-tests-test
         args: [--pytest-test-first]
+  - repo: https://github.com/tombi-toml/tombi-pre-commit
+    rev: v1.9.6
+    hooks:
+      - id: tombi-lint
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.38.0
     hooks:

@@ -1,35 +1,35 @@
 exclude = [
-    '__pypackages__',
-    '_build',
-    '.bzr',
-    '.direnv',
-    '.eggs',
-    '.git-rewrite',
-    '.git',
-    '.hg',
-    '.ipynb_checkpoints',
-    '.mypy_cache',
-    '.nox',
-    '.pants.d',
-    '.pyenv',
-    '.pytest_cache',
-    '.pytype',
-    '.ruff_cache',
-    '.svn',
-    '.tox',
-    '.venv',
-    '.vscode',
-    '*.lock',
-    'buck-out',
-    'build',
-    'dist',
-    'node_modules',
-    'site-packages',
-    'venv',
-] # Exclude a variety of commonly ignored directories.
+  '__pypackages__',
+  '_build',
+  '.bzr',
+  '.direnv',
+  '.eggs',
+  '.git-rewrite',
+  '.git',
+  '.hg',
+  '.ipynb_checkpoints',
+  '.mypy_cache',
+  '.nox',
+  '.pants.d',
+  '.pyenv',
+  '.pytest_cache',
+  '.pytype',
+  '.ruff_cache',
+  '.svn',
+  '.tox',
+  '.venv',
+  '.vscode',
+  '*.lock',
+  'buck-out',
+  'build',
+  'dist',
+  'node_modules',
+  'site-packages',
+  'venv',
+]  # Exclude a variety of commonly ignored directories.
 
 # Same as Black.
-line-length  = 88
+line-length = 88
 indent-width = 4
 
 target-version = 'py313'
@@ -37,12 +37,12 @@ target-version = 'py313'
 [lint]
 select = ['ALL']
 ignore = [
-    'COM812',  # missing-trailing-comma
-    'CPY001',  # missing-copyright-notice
-    'ERA001',  # commented-out-code
-    'PLR2004', # magic-value-comparison
-    'TD002',   # missing-todo-author
-    'TD003',   # missing-todo-link
+  'COM812',  # missing-trailing-comma
+  'CPY001',  # missing-copyright-notice
+  'ERA001',  # commented-out-code
+  'PLR2004',  # magic-value-comparison
+  'TD002',  # missing-todo-author
+  'TD003',  # missing-todo-link
 ]
 
 # `convention = 'google'` below disables D401, because Google style prescribes
@@ -61,7 +61,7 @@ explicit-preview-rules = true
 extend-select = ['D401', 'DOC201', 'DOC501']
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
-fixable   = ['ALL']
+fixable = ['ALL']
 unfixable = []
 
 # Allow unused variables when underscore-prefixed.
@@ -76,33 +76,33 @@ max-complexity = 15
 
 [lint.per-file-ignores]
 '__init__.py' = [
-    'D104', # undocumented-public-package
-    'F401', # unused-import
-    'F403', # undefined-local-with-import-star
+  'D104',  # undocumented-public-package
+  'F401',  # unused-import
+  'F403',  # undefined-local-with-import-star
 ]
-'noxfile.py' = ['S603'] # subprocess-without-shell-equals-true
+'noxfile.py' = ['S603']  # subprocess-without-shell-equals-true
 # The PR checks are standalone CLIs: printing is their output, and the one
 # subprocess call is a fixed `git log` argv with no user-supplied executable.
-'checks/*.py' = ['T201'] # Use of print
+'checks/*.py' = ['T201']  # Use of print
 'checks/check_commit_messages.py' = [
-    'S603', # subprocess-without-shell-equals-true
-    'S607', # start-process-with-partial-path (`git` off PATH)
-    'T201', # Use of print
+  'S603',  # subprocess-without-shell-equals-true
+  'S607',  # start-process-with-partial-path (`git` off PATH)
+  'T201',  # Use of print
 ]
 # A test module needs a docstring only when it adds something a reader needs, such as
 # how to run it, an unusual setup, or an external dependency (constitution).
 'tests/**/*.py' = [
-    'D100', # undocumented-public-module
-    'S101', # Use of assert
+  'D100',  # undocumented-public-module
+  'S101',  # Use of assert
 ]
 # D401 (imperative-mood) is re-enabled globally above; exempt it ONLY for `test_*.py`,
 # where a docstring is a declarative truth-apt proposition.
 'tests/**/test_*.py' = ['D401']
-'*/bin/*.py' = ['T201'] # Use of print
+'*/bin/*.py' = ['T201']  # Use of print
 '*.ipynb' = [
-    'F401', # unused-import
-    'S101', # Use of assert
-    'T201', # Use of print
+  'F401',  # unused-import
+  'S101',  # Use of assert
+  'T201',  # Use of print
 ]
 
 [lint.pydoclint]
@@ -113,7 +113,7 @@ convention = 'google'
 
 [lint.pylint]
 max-branches = 15
-max-returns  = 10
+max-returns = 10
 
 [format]
 # Unlike Black, use single quotes for strings.
