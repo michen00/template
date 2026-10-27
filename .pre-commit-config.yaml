@@ -16,6 +16,10 @@ ci:
   # weekly/monthly/quarterly -- so it is set to the slowest cadence to keep the
   # two from opening the same bump. Ignored outright where the app is not installed.
   autoupdate_schedule: quarterly
+  # tombi fetches the SchemaStore catalog to format and lint TOML against each
+  # file's schema, and pre-commit.ci runs hooks with no network access, so both
+  # tombi hooks fail there before reading a file. CI's pre-commit job runs them.
+  skip: [tombi-format, tombi-lint]
 
 default_install_hook_types:
   - commit-msg
