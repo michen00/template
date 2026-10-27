@@ -26,10 +26,12 @@ exclude = [
   'node_modules',
   'site-packages',
   'venv',
-]
+]  # Exclude a variety of commonly ignored directories.
 
+# Same as Black.
 line-length = 88
 indent-width = 4
+
 target-version = 'py313'
 
 [lint]
@@ -43,20 +45,33 @@ ignore = [
   'TD003',  # missing-todo-link
 ]
 
-# The google convention turns D401 (imperative mood) off; the constitution wants it.
-# DOC201 and DOC501 (Returns:, Raises:) are preview rules, and explicit-preview-rules
-# keeps `select = ['ALL']` from pulling in the rest.
+# `convention = 'google'` below disables D401, because Google style prescribes
+# descriptive docstring first lines. The constitution asks for imperative mood,
+# so re-enable it. D401 already exempts @property and "Whether ..." predicates.
+# Test files (`tests/**/test_*.py`) are exempt in [lint.per-file-ignores] because the
+# constitution requires test docstrings to be declarative truth-apt propositions rather
+# than imperative; helper modules (conftest.py, _*.py) keep D401 enforcement.
+#
+# The constitution also requires `Returns:` and `Raises:` in any docstring with a body;
+# a one-line docstring may omit them (see [lint.pydoclint]). DOC201 and DOC501 enforce
+# that, but they are preview rules. `explicit-preview-rules` limits preview to rules
+# selected by exact code, so `select = ['ALL']` pulls in no other preview rules.
 preview = true
 explicit-preview-rules = true
 extend-select = ['D401', 'DOC201', 'DOC501']
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ['ALL']
 unfixable = []
+
+# Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = '^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$'
 
 [lint.flake8-quotes]
 inline-quotes = 'single'
 
 [lint.mccabe]
+# Flag errors (`C901`) whenever the complexity level exceeds `max-complexity`.
 max-complexity = 15
 
 [lint.per-file-ignores]
@@ -66,18 +81,22 @@ max-complexity = 15
   'F403',  # undefined-local-with-import-star
 ]
 'noxfile.py' = ['S603']  # subprocess-without-shell-equals-true
-# Standalone CLIs that print their output and run a fixed `git log`.
+# The PR checks are standalone CLIs: printing is their output, and the one
+# subprocess call is a fixed `git log` argv with no user-supplied executable.
 'checks/*.py' = ['T201']  # Use of print
 'checks/check_commit_messages.py' = [
   'S603',  # subprocess-without-shell-equals-true
   'S607',  # start-process-with-partial-path (`git` off PATH)
   'T201',  # Use of print
 ]
+# A test module needs a docstring only when it adds something a reader needs, such as
+# how to run it, an unusual setup, or an external dependency (constitution).
 'tests/**/*.py' = [
   'D100',  # undocumented-public-module
   'S101',  # Use of assert
 ]
-# A test docstring states what holds rather than commanding.
+# D401 (imperative-mood) is re-enabled globally above; exempt it ONLY for `test_*.py`,
+# where a docstring is a declarative truth-apt proposition.
 'tests/**/test_*.py' = ['D401']
 '*/bin/*.py' = ['T201']  # Use of print
 '*.ipynb' = [
@@ -97,9 +116,25 @@ max-branches = 15
 max-returns = 10
 
 [format]
+# Unlike Black, use single quotes for strings.
 quote-style = 'single'
+
+# Like Black, indent with spaces, rather than tabs.
 indent-style = 'space'
+
+# Unlike Black, disregard magic trailing commas.
 skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
 line-ending = 'auto'
+
+# Enable auto-formatting of code examples in docstrings. Markdown,
+# reStructuredText code/literal blocks and doctests are all supported.
 docstring-code-format = true
+
+# Set the line length limit used when formatting code snippets in
+# docstrings.
+#
+# This only has an effect when the `docstring-code-format` setting is
+# enabled.
 docstring-code-line-length = 'dynamic'
