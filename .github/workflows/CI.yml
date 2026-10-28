@@ -114,12 +114,13 @@ jobs:
         with:
           path: .mypy_cache
           # Two-tier: a source-only change restores the previous type cache and
-          # re-checks only what moved, while a dependency change invalidates it.
+          # re-checks only what moved, while a dependency or config change
+          # invalidates it.
           key: >-
-            ${{ runner.os }}-mypy-${{ hashFiles('pyproject.toml', 'uv.lock')
+            ${{ runner.os }}-mypy-${{ hashFiles('.mypy.ini', 'pyproject.toml', 'uv.lock')
             }}-${{ hashFiles('src/**/*.py', 'tests/**/*.py', 'noxfile.py') }}
           restore-keys: |
-            ${{ runner.os }}-mypy-${{ hashFiles('pyproject.toml', 'uv.lock') }}-
+            ${{ runner.os }}-mypy-${{ hashFiles('.mypy.ini', 'pyproject.toml', 'uv.lock') }}-
       - name: Run mypy
         run: uv run --locked --only-group dev nox -s mypy
 
