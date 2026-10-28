@@ -26,7 +26,7 @@ if typing.TYPE_CHECKING:
 nox.needs_version = '>=2025.2.9'
 nox.options.default_venv_backend = 'uv|venv'
 
-_ANALYSIS_HOOKS = 'ty', 'basedpyright'
+_ANALYSIS_HOOKS = 'ty', 'basedpyright', 'pylint'
 """The hooks that check against the project environment, which `analysis` runs."""
 
 

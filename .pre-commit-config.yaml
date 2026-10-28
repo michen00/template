@@ -168,10 +168,11 @@ repos:
 
   # static type analysis
   #
-  # Locally, ty runs at commit, where it takes under a second, and basedpyright at
-  # push, because it checks the whole project. Both also list the manual stage, which
-  # is the one CI's `nox -s analysis` runs them at, so CI runs both whatever stage each
-  # runs at here.
+  # Locally, ty runs at commit, where it takes under a second, and basedpyright and
+  # pylint at push: each checks the whole project, which would add seconds to every
+  # commit that staged Python. All three also list the manual stage, which is the one
+  # CI's `nox -s analysis` runs them at, so CI runs all three whatever stage each runs
+  # at here.
   - repo: https://github.com/astral-sh/ty-pre-commit
     rev: v0.0.94
     hooks:
@@ -185,14 +186,21 @@ repos:
         args: ['--all-groups', '--locked']
   - repo: local
     hooks:
-      # Runs in the project environment from uv.lock, so imports resolve and the
-      # version is the locked one. pyrightconfig.json chooses the checks: only the
-      # ones ty does not make.
+      # Both run in the project environment from uv.lock, so imports resolve and the
+      # version is the locked one. pyrightconfig.json and .pylintrc choose the checks.
       - id: basedpyright
         name: basedpyright
         entry: uv run --locked --all-groups basedpyright
         language: system
         types_or: [python, pyi, jupyter]
+        pass_filenames: false
+        require_serial: true
+        stages: [pre-push, manual]
+      - id: pylint
+        name: pylint
+        entry: uv run --locked --all-groups pylint checks noxfile.py scripts src tests
+        language: system
+        types: [python]
         pass_filenames: false
         require_serial: true
         stages: [pre-push, manual]

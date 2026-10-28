@@ -79,19 +79,20 @@ jobs:
       - name: Run pre-commit
         env:
           # The analysis job runs these, by the ids in noxfile.py's _ANALYSIS_HOOKS.
-          SKIP: ty,basedpyright
+          SKIP: ty,basedpyright,pylint
         run: |-
           bash .github/scripts/ci-ruff-args.sh
           uv run --locked --only-group dev nox -s precommit
 
   analysis:
     # The hooks that check against the project environment, in parallel with the
-    # rest instead of after them. Each leg runs the hooks it names.
+    # rest instead of after them. Each leg runs the hooks it names; pylint, the
+    # slowest of the three, has a leg of its own.
     name: Static analysis (${{ matrix.hooks }})
     strategy:
       fail-fast: false
       matrix:
-        hooks: [ty basedpyright]
+        hooks: [ty basedpyright, pylint]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

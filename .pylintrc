@@ -1,10 +1,62 @@
-[FORMAT]
-# Good variable names which should always be accepted, separated by a comma
-good-names=__,df,f,h,i,j,k,v,w,x,x1,x2,x3,y,y1,y2,y3,z,z1,z2,z3,P,T
-max-line-length=88
-
 [MAIN]
-init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.dirname(find_pylintrc()))"
+load-plugins=pylint.extensions.docparams,pylint.extensions.overlapping_exceptions
 
 [MESSAGES CONTROL]
-disable=missing-module-docstring
+# Only the checks no other tool here makes. ruff, with every rule selected, ty and
+# basedpyright cover the rest, so everything else is off.
+disable=all
+enable=
+    # errors
+    access-member-before-definition,
+    assignment-from-no-return,
+    assignment-from-none,
+    bad-except-order,
+    invalid-character-carriage-return,
+    invalid-format-returned,
+    invalid-getnewargs-ex-returned,
+    invalid-getnewargs-returned,
+    invalid-length-hint-returned,
+    invalid-metaclass,
+    invalid-repr-returned,
+    invalid-slots,
+    invalid-slots-object,
+    logging-format-truncated,
+    logging-unsupported-format,
+    method-hidden,
+    modified-iterating-dict,
+    no-method-argument,
+    non-iterator-returned,
+    unsupported-assignment-operation,
+    # warnings
+    abstract-method,
+    anomalous-unicode-escape-in-string,
+    arguments-out-of-order,
+    attribute-defined-outside-init,
+    bad-chained-comparison,
+    bad-format-string-key,
+    comparison-with-callable,
+    confusing-with-statement,
+    duplicate-string-formatting-argument,
+    invalid-format-index,
+    invalid-overridden-method,
+    missing-format-attribute,
+    modified-iterating-list,
+    non-parent-init-called,
+    overlapping-except,
+    pointless-string-statement,
+    possibly-unused-variable,
+    raising-format-tuple,
+    redundant-unittest-assert,
+    super-init-not-called,
+    unused-private-member,
+    unused-wildcard-import,
+    useless-parent-delegation,
+    using-constant-test,
+    # docstrings that describe what is not there
+    differing-param-doc,
+    redundant-returns-doc,
+    redundant-yields-doc,
+    # logic and structure
+    cyclic-import,
+    simplifiable-condition,
+    simplify-boolean-expression
