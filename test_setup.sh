@@ -445,15 +445,16 @@ assert_template_only_files_removed() {
 
 assert_templates_preserved() {
   local project_root="$1"
-  local cliff_path="$project_root/cliff.toml"
+  # Its subject is GitHub's gitignore templates, so the plural word stays in it.
+  local probe_path="$project_root/scripts/concat-gitignores.sh"
 
-  if [[ ! -f $cliff_path ]]; then
-    printf '%s[ERROR]%s missing %s.\n' "$RED" "$RESET" "$cliff_path" >&2
+  if [[ ! -f $probe_path ]]; then
+    printf '%s[ERROR]%s missing %s.\n' "$RED" "$RESET" "$probe_path" >&2
     exit 1
   fi
 
-  if ! grep -q "templates" "$cliff_path"; then
-    printf '%s[ERROR]%s expected %s to retain the word "templates" (do not replace plural tokens).\n' "$RED" "$RESET" "$cliff_path" >&2
+  if ! grep -q "templates" "$probe_path"; then
+    printf '%s[ERROR]%s expected %s to retain the word "templates" (do not replace plural tokens).\n' "$RED" "$RESET" "$probe_path" >&2
     exit 1
   fi
 }
