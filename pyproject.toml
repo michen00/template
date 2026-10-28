@@ -52,14 +52,3 @@ explicit = true
 [tool.pyproject-fmt]
 # The newest Python CI tests.
 max_supported_python = "3.13"
-
-[tool.pytest]
-ini_options.minversion = "8.2"
-ini_options.testpaths = [ "tests" ]
-ini_options.addopts = [ "-ra", "--strict-config", "--strict-markers", "--cov" ]
-ini_options.markers = [
-  "no_ci: marks tests that should not run in CI (deselect with '-m \"not no_ci\"')",
-]
-ini_options.xfail_strict = true
-ini_options.filterwarnings = [ "error", "ignore::DeprecationWarning" ]
-ini_options.log_level = "INFO"
