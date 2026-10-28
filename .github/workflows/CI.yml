@@ -39,7 +39,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       # trufflehog only. Deliberately not hoisted to workflow level: the pytest
-      # and mypy jobs have no business holding it.
+      # and analysis jobs have no business holding it.
       id-token: write
       contents: read
     steps:
@@ -77,12 +77,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}-
       - name: Run pre-commit
+        env:
+          # The analysis job runs these, by the ids in noxfile.py's _ANALYSIS_HOOKS.
+          SKIP: ty
         run: |-
           bash .github/scripts/ci-ruff-args.sh
           uv run --locked --only-group dev nox -s precommit
 
-  mypy:
-    name: mypy
+  analysis:
+    # The hooks that check against the project environment, in parallel with the
+    # rest instead of after them. Each leg runs the hooks it names.
+    name: Static analysis (${{ matrix.hooks }})
+    strategy:
+      fail-fast: false
+      matrix:
+        hooks: [ty]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -97,32 +106,29 @@ jobs:
             noxfile.py
             pyproject.toml
             uv.lock
+          # One entry per leg: a matrix shares its job id.
+          cache-suffix: ${{ github.job }}-${{ strategy.job-index }}
           python-version: ${{ env.PYTHON_VERSION }}
-      # mypy runs through its pre-commit hook (see noxfile), so it needs the hook
-      # environment cache as well as its own type cache.
+      # Its own key, because this job installs only the analysis hooks' environments
+      # and the precommit job every other one: sharing an entry would leave one of
+      # them without its environments. One per leg, for the same reason.
       - name: Cache pre-commit hooks
         uses: actions/cache@v6
         with:
           path: ~/.cache/pre-commit
           key: >-
-            ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml')
+            ${{ runner.os }}-precommit-analysis-${{ strategy.job-index
+            }}-${{ hashFiles('.pre-commit-config.yaml')
             }}-${{ hashFiles('.github/workflows/.cache-buster') }}
-          restore-keys: |
-            ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}-
-      - name: Cache mypy
-        uses: actions/cache@v6
-        with:
-          path: .mypy_cache
-          # Two-tier: a source-only change restores the previous type cache and
-          # re-checks only what moved, while a dependency or config change
-          # invalidates it.
-          key: >-
-            ${{ runner.os }}-mypy-${{ hashFiles('.mypy.ini', 'pyproject.toml', 'uv.lock')
-            }}-${{ hashFiles('src/**/*.py', 'tests/**/*.py', 'noxfile.py') }}
-          restore-keys: |
-            ${{ runner.os }}-mypy-${{ hashFiles('.mypy.ini', 'pyproject.toml', 'uv.lock') }}-
-      - name: Run mypy
-        run: uv run --locked --only-group dev nox -s mypy
+          restore-keys: >-
+            ${{ runner.os }}-precommit-analysis-${{ strategy.job-index
+            }}-${{ hashFiles('.pre-commit-config.yaml') }}-
+      - name: Run the analysis hooks
+        env:
+          HOOKS: ${{ matrix.hooks }}
+        run: |-
+          read -ra hooks <<< "${HOOKS}"
+          uv run --locked --only-group dev nox -s analysis -- "${hooks[@]}"
 
   pytest:
     name: pytest
@@ -154,7 +160,7 @@ jobs:
     # something not required silently un-gates the branch. Verify against
     # `gh api repos/OWNER/REPO/rulesets` before changing it.
     name: Run CI (3.13)
-    needs: [precommit, mypy, pytest]
+    needs: [precommit, analysis, pytest]
     # `always()` so a skipped or canceled dependency reddens this job rather
     # than passing it by omission.
     if: always()

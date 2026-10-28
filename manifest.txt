@@ -33,7 +33,6 @@ _typos.toml
 .gitignore
 .gitlint
 .markdownlint.yml
-.mypy.ini
 .pre-commit-config.yaml
 .prettierignore
 .prettierrc
@@ -81,4 +80,5 @@ tests/test_approve_bot_gated_runs.py
 tests/test_checks.py
 tests/test_pr_catchup_workflow.py
 tests/test_workflow_injection.py
+ty.toml
 uv.lock

@@ -1,0 +1,23 @@
+[rules]
+# Raised to errors from ty's defaults. With ruff's ANN rules, they require annotated
+# functions and catch bare generics, always-true conditions, unused suppressions,
+# decorators that erase a function's type, and truthiness tests that cannot tell
+# None from other falsy values.
+deprecated = 'error'
+division-by-zero = 'error'
+dynamic-function-decorator-return = 'error'
+missing-type-argument = 'error'
+possibly-missing-attribute = 'error'
+possibly-missing-import = 'error'
+possibly-unresolved-reference = 'error'
+redundant-cast = 'error'
+redundant-condition = 'error'
+redundant-condition-strict = 'error'
+truthiness-test-of-callable = 'error'
+truthiness-test-of-iterable = 'error'
+truthiness-test-of-none-union = 'error'
+unused-ignore-comment = 'error'
+unused-type-ignore-comment = 'error'
+
+[terminal]
+error-on-warning = true
