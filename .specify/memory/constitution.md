@@ -24,7 +24,7 @@ Every change to this repository propagates to all future derived projects. Contr
 All code MUST pass `make check` before being committed. This command runs formatting, linting, type checking, and tests.
 
 - `ruff` enforces linting and formatting rules (`.ruff.toml`).
-- `mypy` enforces strict static type checking (`pyproject.toml`).
+- `mypy` enforces strict static type checking (`.mypy.ini`).
 - `pytest` runs the test suite with coverage reporting.
 - Pre-commit hooks MUST remain active; contributors MUST NOT bypass them with `--no-verify`.
 - CI via GitHub Actions reproduces these checks on every pull request.

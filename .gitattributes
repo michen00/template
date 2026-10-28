@@ -11,6 +11,7 @@
 *.css           text diff=css
 *.htm           text diff=html
 *.html          text diff=html
+*.ini           text
 *.java          text diff=java
 *.js            text
 *.json          text

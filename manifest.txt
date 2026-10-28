@@ -33,6 +33,7 @@ _typos.toml
 .gitignore
 .gitlint
 .markdownlint.yml
+.mypy.ini
 .pre-commit-config.yaml
 .prettierignore
 .prettierrc
