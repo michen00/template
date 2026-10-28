@@ -79,6 +79,7 @@ tests/__init__.py
 tests/test_.py
 tests/test_approve_bot_gated_runs.py
 tests/test_checks.py
+tests/test_ci_analysis.py
 tests/test_pr_catchup_workflow.py
 tests/test_workflow_injection.py
 ty.toml
