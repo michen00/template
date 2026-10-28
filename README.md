@@ -44,7 +44,7 @@ This template helps you set up:
   - `.yamllint` - YAML linting configuration
   - `.gitlint` - Git commit message linting
   - `.editorconfig` - Editor configuration for consistent formatting
-  - `pyproject.toml` - Mypy strict type checking configuration
+  - `.mypy.ini` - Mypy strict type checking configuration
 - **GitHub Actions workflows** for:
   - Automated testing and linting on every PR
   - Dependabot for dependency updates
@@ -164,7 +164,7 @@ The template includes multiple layers of quality checks with carefully tuned con
 
 - **Formatting**: Automatic code formatting with ruff (custom `.ruff.toml` config)
 - **Linting**: Multiple linters (ruff, pylint, shellcheck, yamllint) with pre-configured rules
-- **Type Safety**: Strict mypy configuration in `pyproject.toml` catches type errors early
+- **Type Safety**: Strict mypy configuration in `.mypy.ini` catches type errors early
 - **Security**: Automated secret scanning in commits (gitleaks, talisman)
 - **Documentation**: Spell checking (codespell) and markdown linting with custom configs
 - **Git Hygiene**: Git commit message validation (gitlint) and editor consistency (editorconfig)
