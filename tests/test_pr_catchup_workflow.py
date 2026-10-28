@@ -297,7 +297,7 @@ def _run_update_step(  # noqa: PLR0913 -- one keyword per way the merge call ans
 ) -> subprocess.CompletedProcess[str]:
     """Run the update loop against the stub, naming how the merge answers each PR.
 
-    A PR named in none of `current`, `conflicting`, `withheld` or `refused` is
+    A PR named in none of `current`, `conflicting`, `withheld`, or `refused` is
     merged and moves to a new head. A `withheld` PR gets the same 409 as a
     `conflicting` one, but GitHub reports it as mergeable.
 
