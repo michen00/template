@@ -77,6 +77,13 @@ max-complexity = 15
   'D100',  # undocumented-public-module
   'S101',  # Use of assert
 ]
+# The catch-up tests run workflow step bodies and the approval script under `bash`,
+# against a stub `gh` put first on PATH, and pass stub tokens to the update loop.
+'tests/test_{approve_bot_gated_runs,pr_catchup_workflow}.py' = [
+  'S106',  # hardcoded-password-func-arg (stub tokens)
+  'S603',  # subprocess-without-shell-equals-true
+  'S607',  # start-process-with-partial-path (`bash` off PATH)
+]
 # A test docstring states what holds rather than commanding.
 'tests/**/test_*.py' = ['D401']
 '*/bin/*.py' = ['T201']  # Use of print
