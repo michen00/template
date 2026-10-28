@@ -1,0 +1,10 @@
+[pytest]
+minversion = '9.0'
+testpaths = ['tests']
+addopts = ['-ra', '--strict-config', '--strict-markers', '--cov']
+markers = [
+  "no_ci: marks tests that should not run in CI (deselect with '-m \"not no_ci\"')",
+]
+xfail_strict = true
+filterwarnings = ['error', 'ignore::DeprecationWarning']
+log_level = 'INFO'

@@ -171,7 +171,7 @@ repos:
     hooks:
       - id: mypy
         exclude: '.ipynb$'
-        args: ['--config-file=pyproject.toml', '--install-types', '--non-interactive']
+        args: ['--config-file=.mypy.ini', '--install-types', '--non-interactive']
         additional_dependencies:
           - nox[uv]
           - pydantic
