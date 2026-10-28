@@ -40,16 +40,16 @@ env:
 # can move forward.
 
 jobs:
-  github-release:
-    name: Build and publish GitHub Release
+  # Builds under the read-only token, so uv and the build backend never run
+  # beside the write token `publish` needs.
+  build:
+    name: Build distributions
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    permissions:
-      # The only elevated grant in this workflow, and it is job-scoped: creating
-      # a release and uploading assets writes to repository contents. No GitHub
-      # App and no personal access token -- the automatic GITHUB_TOKEN is
-      # sufficient because everything published here lives in this repository.
-      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is_prerelease: ${{ steps.version.outputs.is_prerelease }}
+      have_notes: ${{ steps.notes.outputs.have_notes }}
     env:
       REF_NAME: ${{ github.ref_name }}
     steps:
@@ -58,6 +58,8 @@ jobs:
       # history is needed to build, and the release notes fallback
       # (`--generate-notes`) is computed server-side by GitHub.
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v10.2.0
@@ -137,7 +139,7 @@ jobs:
           # heading and the next one. `index($0, ...) == 1` is a literal
           # prefix test rather than a regex match, so the dots in a version
           # cannot act as wildcards and match a neighboring release.
-          notes_file="$(mktemp)"
+          notes_file=release-notes.md
           awk -v v="$BUILT_VERSION" '
             index($0, "## [" v "]") == 1 { in_section = 1; next }
             in_section && index($0, "## [") == 1 { exit }
@@ -150,15 +152,59 @@ jobs:
           else
             echo "have_notes=false" >> "$GITHUB_OUTPUT"
           fi
-          echo "notes_path=$notes_file" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release
+          path: |
+            dist/
+            release-notes.md
+          if-no-files-found: error
+
+      - name: Summary
+        if: always()
+        env:
+          BUILT_VERSION: ${{ steps.version.outputs.version }}
+          IS_PRERELEASE: ${{ steps.version.outputs.is_prerelease }}
+          HAVE_NOTES: ${{ steps.notes.outputs.have_notes }}
+        # `always()` so a failed run still reports how far it got; the empty
+        # defaults below are the tell for "died before that step ran".
+        run: |
+          {
+            echo "## Release run summary"
+            echo
+            printf -- "- Ref: %s\n" "$REF_NAME"
+            printf -- "- Built version: %s\n" "${BUILT_VERSION:-<not built>}"
+            printf -- "- Pre-release: %s\n" "${IS_PRERELEASE:-unknown}"
+            printf -- "- Notes source: %s\n" \
+              "$([[ "$HAVE_NOTES" == 'true' ]] && echo CHANGELOG.md || echo generated)"
+            printf -- "- Artifact target: GitHub Release\n"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      # The only elevated grant in this workflow, and it is job-scoped: creating
+      # a release and uploading assets writes to repository contents. No GitHub
+      # App and no personal access token -- the automatic GITHUB_TOKEN is
+      # sufficient because everything published here lives in this repository.
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release
 
       - name: Create or refresh the GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.ref_name }}
-          IS_PRERELEASE: ${{ steps.version.outputs.is_prerelease }}
-          HAVE_NOTES: ${{ steps.notes.outputs.have_notes }}
-          NOTES_PATH: ${{ steps.notes.outputs.notes_path }}
+          GH_REPO: ${{ github.repository }}
+          IS_PRERELEASE: ${{ needs.build.outputs.is_prerelease }}
+          HAVE_NOTES: ${{ needs.build.outputs.have_notes }}
+          NOTES_PATH: release-notes.md
         # Idempotent by construction. If an earlier attempt died after creating
         # the release but before uploading every asset, rerunning this job
         # repairs it in place instead of demanding hand surgery -- so the fix
@@ -190,23 +236,3 @@ jobs:
             fi
             gh release create "$TAG" "${create_args[@]}" dist/*
           fi
-
-      - name: Summary
-        if: always()
-        env:
-          BUILT_VERSION: ${{ steps.version.outputs.version }}
-          IS_PRERELEASE: ${{ steps.version.outputs.is_prerelease }}
-          HAVE_NOTES: ${{ steps.notes.outputs.have_notes }}
-        # `always()` so a failed run still reports how far it got; the empty
-        # defaults below are the tell for "died before that step ran".
-        run: |
-          {
-            echo "## Release run summary"
-            echo
-            printf -- "- Ref: %s\n" "$REF_NAME"
-            printf -- "- Built version: %s\n" "${BUILT_VERSION:-<not built>}"
-            printf -- "- Pre-release: %s\n" "${IS_PRERELEASE:-unknown}"
-            printf -- "- Notes source: %s\n" \
-              "$([[ "$HAVE_NOTES" == 'true' ]] && echo CHANGELOG.md || echo generated)"
-            printf -- "- Artifact target: GitHub Release\n"
-          } >> "$GITHUB_STEP_SUMMARY"
