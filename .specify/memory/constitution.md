@@ -24,7 +24,7 @@ Every change to this repository propagates to all future derived projects. Contr
 All code MUST pass `make check` before being committed. This command runs formatting, linting, type checking, and tests.
 
 - `ruff` enforces linting and formatting rules (`.ruff.toml`).
-- `mypy` enforces strict static type checking (`.mypy.ini`).
+- `ty` enforces static type checking (`ty.toml`), with `basedpyright` (`pyrightconfig.json`) and `pylint` (`.pylintrc`) limited to the checks it does not make.
 - `pytest` runs the test suite with coverage reporting.
 - Pre-commit hooks MUST remain active; contributors MUST NOT bypass them with `--no-verify`.
 - CI via GitHub Actions reproduces these checks on every pull request.
@@ -63,9 +63,9 @@ Start simple. Reject speculative complexity.
 - **Language**: defined in `.python-version` and `pyproject.toml`.
 - **Package Manager**: `uv` for dependency management, virtual environments, and lock files.
 - **Linting/Formatting**: `ruff` (replaces black, isort, flake8, autoflake).
-- **Type Checking**: `mypy` in strict mode with Pydantic plugin.
+- **Type Checking**: `ty`, with its stricter rules raised to errors; `basedpyright` and `pylint` for the checks ty does not make.
 - **Testing**: `pytest` with `pytest-cov` and `pytest-xdist`; `nox` for reproducible CI environments.
-- **Pre-commit**: Hooks for security scanning (gitleaks, talisman), code quality (ruff, pylint, shellcheck, markdownlint, yamllint, codespell, typos), type checking (mypy), and commit message validation (gitlint).
+- **Pre-commit**: Hooks for security scanning (gitleaks, talisman), code quality (ruff, pylint, shellcheck, markdownlint, yamllint, codespell, typos), type checking (ty, basedpyright), and commit message validation (gitlint).
 - **CI/CD**: GitHub Actions with dependency caching and Dependabot.
 - **Changelog**: `git-cliff` auto-generates from conventional commits.
 - **CLI Framework**: Typer for example scripts.

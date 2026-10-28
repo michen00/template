@@ -33,7 +33,6 @@ _typos.toml
 .gitignore
 .gitlint
 .markdownlint.yml
-.mypy.ini
 .pre-commit-config.yaml
 .prettierignore
 .prettierrc
@@ -61,6 +60,7 @@ Makefile
 notebooks/.gitkeep
 noxfile.py
 pyproject.toml
+pyrightconfig.json
 pytest.toml
 RELEASING.md
 scripts/concat-gitignores.sh
@@ -79,6 +79,8 @@ tests/__init__.py
 tests/test_.py
 tests/test_approve_bot_gated_runs.py
 tests/test_checks.py
+tests/test_ci_analysis.py
 tests/test_pr_catchup_workflow.py
 tests/test_workflow_injection.py
+ty.toml
 uv.lock
