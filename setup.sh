@@ -126,7 +126,7 @@ fix_module_name_references() {
   local pyproject="$project_dir/pyproject.toml"
   if [ -f "$pyproject" ]; then
     LC_ALL=C sed -i.bak \
-      -e "s/= '${project_name}\./= '${module_name}./" \
+      -e "s/= \"${project_name}\./= \"${module_name}./" \
       "$pyproject" || return 1
   fi
 
@@ -211,8 +211,7 @@ disable_example_script() {
 
   if [ -f "$pyproject" ]; then
     LC_ALL=C sed -i.bak \
-      -e 's/^\[project\.scripts\]/# [project.scripts]/' \
-      -e 's/^example-script = /# example-script = /' \
+      -e 's/^scripts\.example-script = /# scripts.example-script = /' \
       "$pyproject" || return 1
   fi
   return 0

@@ -469,12 +469,7 @@ assert_generated_config_uses_expected_names() {
     exit 1
   fi
 
-  if ! grep -q "# \[project.scripts\]" "$project_root/pyproject.toml"; then
-    printf '%s[ERROR]%s [project.scripts] section header in pyproject.toml should be commented out.\n' "$RED" "$RESET" >&2
-    exit 1
-  fi
-
-  expected_script_line="# example-script = '$module_name.bin.example_script:run_script'"
+  expected_script_line="# scripts.example-script = \"$module_name.bin.example_script:run_script\""
   if ! grep -Fqx "$expected_script_line" "$project_root/pyproject.toml"; then
     printf '%s[ERROR]%s expected pyproject.toml example-script line to equal: %s\n' "$RED" "$RESET" "$expected_script_line" >&2
     exit 1
