@@ -13,8 +13,9 @@ ci:
     for more information, see https://pre-commit.ci
   # Dependabot bumps hooks; quarterly is as close to off as pre-commit.ci allows.
   autoupdate_schedule: quarterly
-  # tombi needs the network for its schema catalog; CI's pre-commit job runs it.
-  skip: [tombi-format, tombi-lint]
+  # tombi needs the network for its schema catalog, and ty to sync the project
+  # environment it checks against; CI's pre-commit and analysis jobs run them.
+  skip: [tombi-format, tombi-lint, ty]
 
 default_install_hook_types:
   - commit-msg
@@ -166,19 +167,43 @@ repos:
       - id: actionlint
 
   # static type analysis
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.4.0
+  #
+  # Locally, ty runs at commit, where it takes under a second, and basedpyright and
+  # pylint at push: each checks the whole project, which would add seconds to every
+  # commit that staged Python. All three also list the manual stage, which is the one
+  # CI's `nox -s analysis` runs them at, so CI runs all three whatever stage each runs
+  # at here.
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: v0.0.94
     hooks:
-      - id: mypy
-        exclude: '.ipynb$'
-        args: ['--config-file=.mypy.ini', '--install-types', '--non-interactive']
-        additional_dependencies:
-          - nox[uv]
-          - pydantic
-          - pytest
-          - types-pyyaml
-          - typer
-        stages: [pre-push]
+      - id: ty
+        stages: [pre-commit, manual]
+        # The hook syncs uv.lock into the project environment and checks against it,
+        # so no import list is kept here. default-groups is empty, so --all-groups is
+        # passed to include every group; without it the tests' imports would not
+        # resolve. The hook brings its own uv, so --locked stops it from rewriting a
+        # stale uv.lock.
+        args: ['--all-groups', '--locked']
+  - repo: local
+    hooks:
+      # Both run in the project environment from uv.lock, so imports resolve and the
+      # version is the locked one. pyrightconfig.json and .pylintrc choose the checks.
+      - id: basedpyright
+        name: basedpyright
+        entry: uv run --locked --all-groups basedpyright
+        language: system
+        types_or: [python, pyi, jupyter]
+        pass_filenames: false
+        require_serial: true
+        stages: [pre-push, manual]
+      - id: pylint
+        name: pylint
+        entry: uv run --locked --all-groups pylint checks noxfile.py scripts src tests
+        language: system
+        types: [python]
+        pass_filenames: false
+        require_serial: true
+        stages: [pre-push, manual]
 
   # configuration validation
   - repo: https://github.com/abravalheri/validate-pyproject

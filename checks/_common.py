@@ -115,7 +115,7 @@ class Findings:
         Workflow commands are read from stdout, so the annotation form goes there
         while a local run keeps the stream and the wording it always had.
         """
-        if os.environ.get('GITHUB_ACTIONS'):
+        if os.environ.get('GITHUB_ACTIONS', ''):
             print(f'::{severity}::{message}')
         else:
             print(f'{severity}: {message}', file=sys.stderr)
