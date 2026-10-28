@@ -126,7 +126,7 @@ fix_module_name_references() {
   local pyproject="$project_dir/pyproject.toml"
   if [ -f "$pyproject" ]; then
     LC_ALL=C sed -i.bak \
-      -e "s/= '${project_name}\./= '${module_name}./" \
+      -e "s/= \"${project_name}\./= \"${module_name}./" \
       "$pyproject" || return 1
   fi
 
@@ -170,19 +170,17 @@ handle_cliff_email_swap() {
   case "$CLIFF_EMAIL_SWAP" in
     keep) ;;
     reverse)
-      local personal_toml_pat new_replace
+      local personal_toml_pat new_pattern new_replace
       personal_toml_pat="$(printf '%s' "$TMPL_AUTHOR_EMAIL" | sed 's/[.]/\\./g')"
+      new_pattern="$(escape_sed_replacement "$personal_toml_pat")"
       new_replace="$(escape_sed_replacement "$AUTHOR_EMAIL")"
+      # Two spaces and single quotes, the layout tombi gives the rest of the file.
       LC_ALL=C sed -i.bak \
-        -e 's/# Replace work email with personal email/# Replace personal email with work email/' \
-        "$cliff_file" || return 1
-      LC_ALL=C sed -i.bak \
-        -e "/pattern = '.*@/s|.*|    { pattern = '${personal_toml_pat}', replace = \"${new_replace}\" },|" \
+        -e "/pattern = '.*@/s|.*|  { pattern = '${new_pattern}', replace = '${new_replace}' },|" \
         "$cliff_file" || return 1
       ;;
     remove)
       LC_ALL=C sed -i.bak \
-        -e '/# Replace work email with personal email/d' \
         -e "/pattern = '.*@/d" \
         "$cliff_file" || return 1
       ;;
@@ -211,8 +209,7 @@ disable_example_script() {
 
   if [ -f "$pyproject" ]; then
     LC_ALL=C sed -i.bak \
-      -e 's/^\[project\.scripts\]/# [project.scripts]/' \
-      -e 's/^example-script = /# example-script = /' \
+      -e 's/^scripts\.example-script = /# scripts.example-script = /' \
       "$pyproject" || return 1
   fi
   return 0
