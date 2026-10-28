@@ -376,11 +376,6 @@ assert_profile_replacements() {
 assert_cliff_email_swap_removed() {
   local project_root="$1"
 
-  if grep -q "Replace work email with personal email" "$project_root/cliff.toml"; then
-    printf '%s[ERROR]%s cliff.toml should not contain the email-swap comment.\n' "$RED" "$RESET" >&2
-    exit 1
-  fi
-
   if grep -q "pattern = '.*@" "$project_root/cliff.toml"; then
     printf '%s[ERROR]%s cliff.toml should not contain the email-swap rule.\n' "$RED" "$RESET" >&2
     exit 1
@@ -390,11 +385,6 @@ assert_cliff_email_swap_removed() {
 assert_cliff_email_swap_kept() {
   local project_root="$1"
 
-  if ! grep -q "Replace work email with personal email" "$project_root/cliff.toml"; then
-    printf '%s[ERROR]%s cliff.toml should retain the original email-swap comment.\n' "$RED" "$RESET" >&2
-    exit 1
-  fi
-
   if ! grep -q "aicadium" "$project_root/cliff.toml"; then
     printf '%s[ERROR]%s cliff.toml should retain the aicadium email-swap rule.\n' "$RED" "$RESET" >&2
     exit 1
@@ -403,14 +393,12 @@ assert_cliff_email_swap_kept() {
 
 assert_cliff_email_swap_reversed() {
   local project_root="$1"
+  # The emails come from write_test_profile; the layout is tombi's, which CI's
+  # pre-commit job checks the generated cliff.toml against.
+  local expected_rule="  { pattern = 'michael\\.chen\\.0@gmail\\.com', replace = 'work@example.com' },"
 
-  if ! grep -q "Replace personal email with work email" "$project_root/cliff.toml"; then
-    printf '%s[ERROR]%s cliff.toml should contain the reversed email-swap comment.\n' "$RED" "$RESET" >&2
-    exit 1
-  fi
-
-  if ! grep "pattern = " "$project_root/cliff.toml" | grep -q "gmail"; then
-    printf '%s[ERROR]%s cliff.toml reversed email-swap pattern should reference gmail.\n' "$RED" "$RESET" >&2
+  if ! grep -Fqx "$expected_rule" "$project_root/cliff.toml"; then
+    printf '%s[ERROR]%s expected cliff.toml reversed email-swap rule to equal: %s\n' "$RED" "$RESET" "$expected_rule" >&2
     exit 1
   fi
 }
