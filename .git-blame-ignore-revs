@@ -21,3 +21,4 @@ cbb4f61e8e0af839ccfbb4d17ba52157092e244a  # style(pyproject.toml): prefer single
 c32dcf13c3e32eea7702d5f9a41d82d86c9f195e  # style: remove manual line breaks
 7619d067db884a869a40edad68f1533b021f2d84  # style: remove manual line breaks
 b7463cf13f6e2b21f849e295f6cc9729999f1405  # chore: sync .editorconfig (#265)
+884d468808f7b729aeb386a75dbe86b67c8f4a6a  # chore: format TOML with tombi and pyproject-fmt (#271)
