@@ -79,7 +79,7 @@ jobs:
       - name: Run pre-commit
         env:
           # The analysis job runs these, by the ids in noxfile.py's _ANALYSIS_HOOKS.
-          SKIP: ty
+          SKIP: ty,basedpyright
         run: |-
           bash .github/scripts/ci-ruff-args.sh
           uv run --locked --only-group dev nox -s precommit
@@ -91,7 +91,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        hooks: [ty]
+        hooks: [ty basedpyright]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

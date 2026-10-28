@@ -60,6 +60,7 @@ Makefile
 notebooks/.gitkeep
 noxfile.py
 pyproject.toml
+pyrightconfig.json
 pytest.toml
 RELEASING.md
 scripts/concat-gitignores.sh

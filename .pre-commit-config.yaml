@@ -168,8 +168,10 @@ repos:
 
   # static type analysis
   #
-  # ty runs at commit, where it takes under a second. It also lists the manual stage,
-  # which is the one CI's `nox -s analysis` runs it at.
+  # Locally, ty runs at commit, where it takes under a second, and basedpyright at
+  # push, because it checks the whole project. Both also list the manual stage, which
+  # is the one CI's `nox -s analysis` runs them at, so CI runs both whatever stage each
+  # runs at here.
   - repo: https://github.com/astral-sh/ty-pre-commit
     rev: v0.0.94
     hooks:
@@ -181,6 +183,19 @@ repos:
         # resolve. The hook brings its own uv, so --locked stops it from rewriting a
         # stale uv.lock.
         args: ['--all-groups', '--locked']
+  - repo: local
+    hooks:
+      # Runs in the project environment from uv.lock, so imports resolve and the
+      # version is the locked one. pyrightconfig.json chooses the checks: only the
+      # ones ty does not make.
+      - id: basedpyright
+        name: basedpyright
+        entry: uv run --locked --all-groups basedpyright
+        language: system
+        types_or: [python, pyi, jupyter]
+        pass_filenames: false
+        require_serial: true
+        stages: [pre-push, manual]
 
   # configuration validation
   - repo: https://github.com/abravalheri/validate-pyproject

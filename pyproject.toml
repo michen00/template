@@ -29,6 +29,7 @@ scripts.example-script = "template.bin.example_script:run_script"
 
 [dependency-groups]
 dev = [
+  "basedpyright>=1.40.2",
   "nox[uv]>=2026.10.20",
   "pip>=26.2.2",
   "pre-commit>=4.7",
