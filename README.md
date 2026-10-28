@@ -23,7 +23,7 @@ This template helps you set up:
 
 - **[`uv`](https://github.com/astral-sh/uv)** - Lightning-fast Python package manager (replaces pip, pip-tools, poetry)
 - **[`ruff`](https://github.com/astral-sh/ruff)** - Fast Python linter and formatter (replaces black, isort, flake8, autoflake, and more)
-- **[`mypy`](https://mypy.readthedocs.io/)** - Static type checker with strict mode enabled
+- **[`ty`](https://docs.astral.sh/ty/)** - Fast static type checker, with its stricter rules raised to errors
 - **[`pytest`](https://pytest.org/)** - Testing framework with coverage reporting
 - **[`nox`](https://nox.thea.codes/)** - Reproducible CI environments
 
@@ -34,17 +34,18 @@ This template helps you set up:
   - Code formatting (ruff, prettier, shfmt, markdownlint)
   - Linting (ruff, pylint, shellcheck, actionlint, yamllint)
   - Spell checking (codespell, typos)
-  - Type checking (mypy)
+  - Type checking (ty, basedpyright)
   - Git commit message validation (conventional commits)
 - **Custom linter configurations** included:
   - `.ruff.toml` - Ruff linting and formatting rules
-  - `.pylintrc` - Pylint configuration
+  - `.pylintrc` - Pylint, limited to the checks no other tool makes
   - `.codespellrc` - Spell checking configuration
   - `.markdownlint.yml` - Markdown linting rules
   - `.yamllint` - YAML linting configuration
   - `.gitlint` - Git commit message linting
   - `.editorconfig` - Editor configuration for consistent formatting
-  - `.mypy.ini` - Mypy strict type checking configuration
+  - `ty.toml` - ty type checking rules
+  - `pyrightconfig.json` - basedpyright, limited to the checks ty does not make
 - **GitHub Actions workflows** for:
   - Automated testing and linting on every PR
   - Dependabot for dependency updates
@@ -137,11 +138,11 @@ After running `setup.sh`, you'll have a fully configured Python project with:
 
 - ✅ All dependencies configured in `pyproject.toml`
 - ✅ Pre-commit hook configuration (run `make develop` to install)
-- ✅ Custom linter configurations (ruff, pylint, mypy, codespell, etc.)
+- ✅ Custom linter configurations (ruff, pylint, ty, basedpyright, codespell, etc.)
 - ✅ GitHub Actions workflows for CI/CD
 - ✅ VS Code settings for consistent development
 - ✅ Testing framework with coverage
-- ✅ Type checking configured with strict mypy settings
+- ✅ Type checking with ty, its stricter rules raised to errors
 - ✅ AI assistant instructions (AGENTS.md, CLAUDE.md, Copilot instructions)
 - ✅ Project constitution (`.specify/memory/constitution.md`) with design principles and coding standards
 - ✅ Documentation templates
@@ -164,7 +165,7 @@ The template includes multiple layers of quality checks with carefully tuned con
 
 - **Formatting**: Automatic code formatting with ruff (custom `.ruff.toml` config)
 - **Linting**: Multiple linters (ruff, pylint, shellcheck, yamllint) with pre-configured rules
-- **Type Safety**: Strict mypy configuration in `.mypy.ini` catches type errors early
+- **Type Safety**: ty, configured in `ty.toml`, catches type errors early
 - **Security**: Automated secret scanning in commits (gitleaks, talisman)
 - **Documentation**: Spell checking (codespell) and markdown linting with custom configs
 - **Git Hygiene**: Git commit message validation (gitlint) and editor consistency (editorconfig)
