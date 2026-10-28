@@ -355,12 +355,12 @@ assert_profile_replacements() {
     exit 1
   fi
 
-  if ! grep -q "name = '$expected_author'" "$project_root/pyproject.toml"; then
+  if ! grep -q "name = \"$expected_author\"" "$project_root/pyproject.toml"; then
     printf '%s[ERROR]%s pyproject.toml should contain author name %s.\n' "$RED" "$RESET" "$expected_author" >&2
     exit 1
   fi
 
-  if ! grep -q "email = '$expected_email'" "$project_root/pyproject.toml"; then
+  if ! grep -q "email = \"$expected_email\"" "$project_root/pyproject.toml"; then
     printf '%s[ERROR]%s pyproject.toml should contain author email %s.\n' "$RED" "$RESET" "$expected_email" >&2
     exit 1
   fi
@@ -464,7 +464,7 @@ assert_generated_config_uses_expected_names() {
   local module_name="$3"
   local expected_script_line
 
-  if ! grep -q "^name = '$project_name'$" "$project_root/pyproject.toml"; then
+  if ! grep -q "^name = \"$project_name\"$" "$project_root/pyproject.toml"; then
     printf '%s[ERROR]%s pyproject.toml project name should be exactly %s.\n' "$RED" "$RESET" "$project_name" >&2
     exit 1
   fi
@@ -759,7 +759,7 @@ run_setup_with_inputs "$TEMPLATE_DIR_DEP_NAMED" "new directory mode (project nam
   $'2\n'"$PROJECT_NAME_DEP_NAMED"
 verify_new_directory_project "$PROJECT_DIR_DEP_NAMED" "$PROJECT_NAME_DEP_NAMED" "$MODULE_NAME_DEP_NAMED"
 assert_profile_replacements "$PROJECT_DIR_DEP_NAMED" "$TEST_OWNER" "$TEST_AUTHOR_NAME" "$TEST_AUTHOR_EMAIL"
-if ! grep -q "github.com/$TEST_OWNER/$PROJECT_NAME_DEP_NAMED\"" "$PROJECT_DIR_DEP_NAMED/cliff.toml"; then
+if ! grep -q "github.com/$TEST_OWNER/$PROJECT_NAME_DEP_NAMED'" "$PROJECT_DIR_DEP_NAMED/cliff.toml"; then
   printf '%s[ERROR]%s cliff.toml should point at %s/%s.\n' \
     "$RED" "$RESET" "$TEST_OWNER" "$PROJECT_NAME_DEP_NAMED" >&2
   exit 1
