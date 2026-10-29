@@ -90,8 +90,19 @@ def test_permissions_cover_approval_and_stay_least_privilege() -> None:
     assert _granted_permissions() == {
         'actions': 'write',
         'contents': 'write',
-        'pull-requests': 'write',
+        'pull-requests': 'read',
     }
+
+
+def test_the_app_token_asks_only_for_what_the_merge_call_needs() -> None:
+    """The App token makes only the merge call, so it asks for contents alone."""
+    mint = _extract_step('Mint an App token, if one is configured')
+    asked = [
+        line.strip()
+        for line in mint.splitlines()
+        if line.strip().startswith('permission-')
+    ]
+    assert asked == ['permission-contents: write']
 
 
 def test_the_approval_script_is_checked_out_before_it_is_sourced() -> None:
