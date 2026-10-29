@@ -85,10 +85,7 @@ def _granted_permissions() -> dict[str, str]:
 
 
 def test_permissions_cover_approval_and_stay_least_privilege() -> None:
-    """Approving a gated run needs actions: write, and nothing wider is granted.
-
-    The merge call needs contents: write, and listing pull requests needs only read.
-    """
+    """Approving a gated run needs actions: write, and nothing wider is granted."""
     assert _DIRECTIVES.count('permissions:') == 1
     assert _granted_permissions() == {
         'actions': 'write',
