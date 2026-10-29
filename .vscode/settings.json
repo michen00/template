@@ -35,16 +35,12 @@
   "evenBetterToml.formatter.trailingNewline": true,
   "evenBetterToml.schema.associations": {
     ".ruff.toml": "https://json.schemastore.org/ruff.json",
-    "pyproject.toml": "https://json.schemastore.org/pyproject.json"
+    "pyproject.toml": "https://json.schemastore.org/pyproject.json",
+    "ty.toml": "https://www.schemastore.org/ty.json"
   },
   "files.trimFinalNewlines": true,
   "files.trimTrailingWhitespace": true,
   "makefile.configureOnOpen": true,
-  "mypy-type-checker.args": ["--config-file=pyproject.toml"],
-  "mypy-type-checker.importStrategy": "fromEnvironment",
-  "mypy-type-checker.severity": {
-    "error": "Warning"
-  },
   "notebook.defaultFormatter": "charliermarsh.ruff",
   "notebook.output.textLineLimit": 88,
   "pylint.importStrategy": "fromEnvironment",

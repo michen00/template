@@ -60,7 +60,7 @@ The `Makefile` is the primary entry point for development tasks:
 - **Install Dependencies:** `make develop` (installs dev deps, git hooks, and configures git)
 - **Run All Checks (CI):** `make check` (runs `make tidy`, both pre-commit stages, and tests)
 - **Run Tests:** `make test` or `nox -s test`
-- **Type Checking:** `nox -s mypy` (runs mypy through its pre-commit hook; CI gives it its own job)
+- **Static Analysis:** `nox -s analysis` (runs ty, basedpyright and pylint through their pre-commit hooks; CI gives them their own job)
 - **Linting:** `make lint` (ruff check --fix)
 - **Release:** `make release-pr VERSION=X.Y.Z`, then `make release-tag VERSION=X.Y.Z` (see `RELEASING.md`)
 - **Formatting:** `make format` (ruff format), `make tidy` (best-effort lint autofix + format), or `make tidy-all` (pre-commit + tidy)
@@ -128,7 +128,7 @@ This includes login, logout, and token refresh endpoints.
 
 ### Code Style
 
-- Enforced by `ruff` (linting and formatting) and `mypy` (type checking).
+- Enforced by `ruff` (linting and formatting) and `ty` (type checking), with `basedpyright` and `pylint` for the checks those two do not make.
 - Run `make format` before committing.
 - Run `make check` to verify all checks pass.
 

@@ -73,8 +73,6 @@ install: check-install-uv build/install-python-versions ## Install the project
 WITH_HOOKS ?= true
 WITH_SYNC_MAIN ?= false
 develop: check-install-uv build/install-dev ## Install the project for development (WITH_HOOKS={true|false}, default=true)
-	@echo "Installing missing type stubs..." && \
-        $(UV) run mypy --install-types --non-interactive --follow-imports=silent > /dev/null 2>&1 || true
 	@if ! git config --local --get-all include.path | grep -q ".gitconfigs/alias"; then \
         git config --local --add include.path "$(CURDIR)/.gitconfigs/alias"; \
     fi
