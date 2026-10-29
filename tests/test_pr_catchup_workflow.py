@@ -246,7 +246,7 @@ def _update_stub(tmp_path: Path) -> Path:
     stub.write_text(
         dedent('''\
             #!/usr/bin/env python3
-            """Answer the two calls the update loop makes; reject anything else."""
+            """Answer the three calls the update loop makes; reject anything else."""
             import os
             import sys
             from pathlib import Path
@@ -260,6 +260,9 @@ def _update_stub(tmp_path: Path) -> Path:
                     raise SystemExit(1)
                 for number in os.environ["FAKE_PRS"].split():
                     print(number, f"feat/pr-{number}")
+            elif args[:2] == ["pr", "view"]:
+                conflicting = args[2] in os.environ["FAKE_CONFLICTING"].split()
+                print("CONFLICTING" if conflicting else "MERGEABLE")
             elif args[0] == "api" and any(arg.endswith("/merges") for arg in args):
                 fields = {}
                 for flag, value in zip(args, args[1:]):
@@ -275,7 +278,8 @@ def _update_stub(tmp_path: Path) -> Path:
                     and os.environ.get("FAKE_APP_REFUSED") == "yes"):
                     print("gh: App denied (HTTP 403)", file=sys.stderr)
                     raise SystemExit(1)
-                if number in os.environ["FAKE_CONFLICTING"].split():
+                if number in (os.environ["FAKE_CONFLICTING"].split()
+                              + os.environ["FAKE_WITHHELD"].split()):
                     refusal = "gh: Merge conflict (HTTP 409)"
                 elif number in os.environ["FAKE_REFUSED"].split():
                     refusal = "gh: Resource not accessible by integration (HTTP 403)"
@@ -299,6 +303,7 @@ def _run_update_step(  # noqa: PLR0913 -- one keyword per way the merge call ans
     prs: str = '31',
     current: str = '',
     conflicting: str = '',
+    withheld: str = '',
     refused: str = '',
     list_fails: bool = False,
     app_token: str = '',
@@ -306,8 +311,9 @@ def _run_update_step(  # noqa: PLR0913 -- one keyword per way the merge call ans
 ) -> subprocess.CompletedProcess[str]:
     """Run the update loop against the stub, naming how the merge answers each PR.
 
-    A PR named in none of `current`, `conflicting` or `refused` is merged and
-    moves to a new head.
+    A PR named in none of `current`, `conflicting`, `withheld`, or `refused` is
+    merged and moves to a new head. A `withheld` PR gets the same 409 as a
+    `conflicting` one, but GitHub reports it as mergeable.
 
     Returns:
         The finished step.
@@ -325,6 +331,7 @@ def _run_update_step(  # noqa: PLR0913 -- one keyword per way the merge call ans
             'FAKE_PRS': prs,
             'FAKE_CURRENT': current,
             'FAKE_CONFLICTING': conflicting,
+            'FAKE_WITHHELD': withheld,
             'FAKE_REFUSED': refused,
             'FAKE_LIST_FAILS': 'yes' if list_fails else 'no',
             'APP_TOKEN': app_token,
@@ -434,7 +441,7 @@ def test_a_branch_already_carrying_main_is_not_treated_as_a_failure(
 def test_a_conflict_the_listing_could_not_hold_out_is_not_a_failure(
     tmp_path: Path,
 ) -> None:
-    """A 409 leaves the PR behind without failing the run; only its author can fix it.
+    """A 409 on a conflicting PR leaves it behind without failing the run.
 
     `mergeable` reads UNKNOWN until GitHub has computed it, and the listing holds
     out only CONFLICTING, so a conflicting PR can still reach the merge call.
@@ -451,15 +458,37 @@ def test_a_conflict_the_listing_could_not_hold_out_is_not_a_failure(
     assert '#31 conflicts with main' in update.stdout
 
 
+def test_a_409_on_a_pr_github_reports_as_mergeable_fails_the_run(
+    tmp_path: Path,
+) -> None:
+    """A 409 is a conflict only when GitHub also reports the PR as conflicting.
+
+    A clean merge that would change a workflow file the token cannot write is
+    refused with a 409 too. Reading that as a conflict leaves the PR behind
+    under a green run with a notice that misnames the cause.
+    """
+    update = _run_update_step(tmp_path, prs='31', withheld='31')
+    recorded = (tmp_path / 'pr-catchup-refused.txt').read_text(encoding='utf-8')
+    verify = _run_verification_step(tmp_path, refused_lines=recorded)
+
+    assert update.returncode == 0
+    assert 'conflicts with main' not in update.stdout
+    assert recorded.split()[:2] == ['31', 'feat/pr-31']
+    assert '409' in recorded
+    assert 'MERGEABLE' in recorded
+    assert verify.returncode != 0
+
+
 def test_a_refusal_that_is_neither_204_nor_409_is_reported_rather_than_read_as_current(
     tmp_path: Path,
 ) -> None:
     """A 403, a 404 or a rate limit leaves the branch behind, and the run says so.
 
-    Only an empty body means the branch is already current, and only a 409 means
-    the merge was never this workflow's to make. Folding any other refusal into
-    either leaves a catch-up that was refused permission reporting success -- the
-    PR looks current, and the runs that would have tested it were never created.
+    Only an empty body means the branch is already current, and only a 409 on a
+    conflicting PR means the merge was never this workflow's to make. Folding any
+    other refusal into either leaves a catch-up that was refused permission
+    reporting success -- the PR looks current, and the runs that would have
+    tested it were never created.
     """
     update = _run_update_step(tmp_path, prs='31', refused='31')
     recorded = (tmp_path / 'pr-catchup-refused.txt').read_text(encoding='utf-8')
