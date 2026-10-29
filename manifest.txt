@@ -82,5 +82,6 @@ tests/test_checks.py
 tests/test_ci_analysis.py
 tests/test_pr_catchup_workflow.py
 tests/test_workflow_injection.py
+tombi.toml
 ty.toml
 uv.lock
