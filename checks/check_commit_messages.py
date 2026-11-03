@@ -64,14 +64,16 @@ def check_commits(
     request title answer to the same maximum from the same sources.
 
     Returns:
-        The merged findings of every checked commit, each labeled by its short SHA.
+        The merged findings of every checked commit, each labeled by its short SHA
+        and subject, so the reader can find the commit without opening the log.
     """
     aggregate = Findings()
     merge_findings = aggregate.merge
     for sha, author, subject in rows:
         if _is_bot(author):
             continue
-        merge_findings(check_subject(subject, label=sha[:7], max_length=max_length))
+        label = f'{sha[:7]} "{subject}"'
+        merge_findings(check_subject(subject, label=label, max_length=max_length))
     return aggregate
 
 
@@ -109,7 +111,14 @@ def main(argv: list[str] | None = None) -> int:
             ok_message += ', length not checked'
     else:
         ok_message = ''
-    return found.emit(ok_message)
+    status = found.emit(ok_message)
+    if status:
+        base = args.range.split('..', 1)[0] or 'origin/main'
+        print(
+            f"to fix: git rebase -i {base}, change 'pick' to 'reword' on each commit "
+            'named above, then git push --force-with-lease'
+        )
+    return status
 
 
 if __name__ == '__main__':

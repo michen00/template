@@ -90,7 +90,9 @@ def test_an_unusable_argument_is_an_error(setting: str) -> None:
 def test_the_error_names_the_applied_bound(max_length: int | None, bound: int) -> None:
     """The length error reports the maximum that was actually applied."""
     found = check_subject(_title(51), label='title', max_length=max_length)
-    assert found.errors == [f'title: 51 chars exceeds hard max {bound}']
+    assert found.errors == [
+        f'title: 51 chars exceeds hard max {bound}; cut at least {51 - bound}'
+    ]
 
 
 def test_commit_subjects_take_the_same_maximum() -> None:

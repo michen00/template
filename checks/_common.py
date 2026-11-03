@@ -272,7 +272,8 @@ def check_subject(
     first_word = subject.split(' ', 1)[0]
     if maximum is not None and len(subject_line) > maximum:
         found.errors.append(
-            f'{label}: {len(subject_line)} chars exceeds hard max {maximum}'
+            f'{label}: {len(subject_line)} chars exceeds hard max {maximum}; '
+            f'cut at least {len(subject_line) - maximum}'
         )
     if subject_line.endswith('.'):
         found.errors.append(f'{label}: must not end with a period')

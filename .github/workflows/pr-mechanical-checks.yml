@@ -97,14 +97,14 @@ jobs:
           bad=""
           if [ "$TITLE_OUTCOME" != success ]; then
             if [ "$TITLE_OUTCOME" != skipped ] || [ "$AUTHOR_IS_HUMAN" = true ]; then
-              bad="$bad title=$TITLE_OUTCOME"
+              bad="$bad 'Check PR title' ($TITLE_OUTCOME)"
             fi
           fi
           if [ "$COMMITS_OUTCOME" != success ]; then
-            bad="$bad commit-subjects=$COMMITS_OUTCOME"
+            bad="$bad 'Check commit subjects' ($COMMITS_OUTCOME)"
           fi
           if [ -n "$bad" ]; then
-            echo "::error::these checks did not pass:$bad"
+            echo "::error::these steps did not pass; open each for what to fix:$bad"
             exit 1
           fi
           echo "every check passed"
