@@ -94,17 +94,26 @@ jobs:
           # request, where the if: above holds it back deliberately. The commit-subject
           # check carries no such condition -- it skips bot-authored commits from the
           # inside instead -- so a skip there always means it did not run.
-          bad=""
+          # A skipped check never ran, so its own log has nothing to fix; the failure
+          # is in an earlier step.
+          bad=0
+          report() {
+            bad=1
+            if [ "$2" = skipped ]; then
+              echo "::error::'$1' did not run: an earlier step failed; open that one"
+            else
+              echo "::error::'$1' did not pass ($2): open it for what to fix"
+            fi
+          }
           if [ "$TITLE_OUTCOME" != success ]; then
             if [ "$TITLE_OUTCOME" != skipped ] || [ "$AUTHOR_IS_HUMAN" = true ]; then
-              bad="$bad title=$TITLE_OUTCOME"
+              report 'Check PR title' "$TITLE_OUTCOME"
             fi
           fi
           if [ "$COMMITS_OUTCOME" != success ]; then
-            bad="$bad commit-subjects=$COMMITS_OUTCOME"
+            report 'Check commit subjects' "$COMMITS_OUTCOME"
           fi
-          if [ -n "$bad" ]; then
-            echo "::error::these checks did not pass:$bad"
+          if [ "$bad" = 1 ]; then
             exit 1
           fi
           echo "every check passed"
