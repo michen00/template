@@ -64,15 +64,33 @@ def check_commits(
     request title answer to the same maximum from the same sources.
 
     Returns:
-        The merged findings of every checked commit, each labeled by its short SHA.
+        The merged findings of every checked commit, each labeled by its short SHA
+        and subject, so the reader can find the commit without opening the log.
     """
     aggregate = Findings()
     merge_findings = aggregate.merge
     for sha, author, subject in rows:
         if _is_bot(author):
             continue
-        merge_findings(check_subject(subject, label=sha[:7], max_length=max_length))
+        label = f'{sha[:7]} "{subject}"'
+        merge_findings(check_subject(subject, label=label, max_length=max_length))
     return aggregate
+
+
+def _reword_hint(rev_range: str) -> str:
+    """Return how to reword the failing commits, naming a rebase base only when sure.
+
+    Only a two-dot range has a left side that one rebase is guaranteed to cover.
+    """
+    base, sep, _ = rev_range.partition('..')
+    if sep and not rev_range.startswith('.', len(base) + 2):
+        command = f'git rebase -i {base or "HEAD"}'
+    else:
+        command = 'an interactive rebase onto a base below every commit named above'
+    return (
+        f"{command}, change 'pick' to 'reword' on each commit named above, "
+        'then git push --force-with-lease'
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -109,7 +127,10 @@ def main(argv: list[str] | None = None) -> int:
             ok_message += ', length not checked'
     else:
         ok_message = ''
-    return found.emit(ok_message)
+    status = found.emit(ok_message)
+    if status:
+        print(f'to fix: {_reword_hint(args.range)}')
+    return status
 
 
 if __name__ == '__main__':
