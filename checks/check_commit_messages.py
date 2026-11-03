@@ -77,6 +77,22 @@ def check_commits(
     return aggregate
 
 
+def _reword_hint(rev_range: str) -> str:
+    """Return how to reword the failing commits, naming a rebase base only when sure.
+
+    Only a two-dot range has a left side that one rebase is guaranteed to cover.
+    """
+    base, sep, _ = rev_range.partition('..')
+    if sep and not rev_range.startswith('.', len(base) + 2):
+        command = f'git rebase -i {base or "HEAD"}'
+    else:
+        command = 'an interactive rebase onto a base below every commit named above'
+    return (
+        f"{command}, change 'pick' to 'reword' on each commit named above, "
+        'then git push --force-with-lease'
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     """Validate every human commit subject in the range and return an exit code."""
     parser = argparse.ArgumentParser(description='Check commit subjects on a branch.')
@@ -113,11 +129,7 @@ def main(argv: list[str] | None = None) -> int:
         ok_message = ''
     status = found.emit(ok_message)
     if status:
-        base = args.range.split('..', 1)[0] or 'origin/main'
-        print(
-            f"to fix: git rebase -i {base}, change 'pick' to 'reword' on each commit "
-            'named above, then git push --force-with-lease'
-        )
+        print(f'to fix: {_reword_hint(args.range)}')
     return status
 
 

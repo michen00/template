@@ -11,7 +11,7 @@ from checks._common import (
     parse_max_length,
     subject_max_length,
 )
-from checks.check_commit_messages import check_commits
+from checks.check_commit_messages import _reword_hint, check_commits
 
 
 @pytest.fixture(autouse=True)
@@ -135,3 +135,19 @@ def test_the_squash_suffix_is_not_counted(
     monkeypatch.setenv('PR_NUMBER', '100')
     assert check_pr_title.main([_title(50)]) == 0
     assert capsys.readouterr().err == ''
+
+
+@pytest.mark.parametrize(
+    ('rev_range', 'command'),
+    [
+        ('origin/main..HEAD', 'git rebase -i origin/main,'),
+        ('..HEAD', 'git rebase -i HEAD,'),
+        ('main...HEAD', 'an interactive rebase onto'),
+        ('HEAD', 'an interactive rebase onto'),
+    ],
+)
+def test_the_reword_hint_names_a_base_only_for_a_two_dot_range(
+    rev_range: str, command: str
+) -> None:
+    """A symmetric range or a bare revision gets no base one rebase might not cover."""
+    assert _reword_hint(rev_range).startswith(command)
