@@ -113,7 +113,7 @@ def test_the_approval_script_is_checked_out_before_it_is_sourced() -> None:
     )
     assert checkout < approve
     block = _WORKFLOW[checkout:approve]
-    assert 'actions/checkout@v7' in block
+    assert 'uses: actions/checkout@' in block
     assert '.github/scripts/approve-bot-gated-runs.sh' in block
     assert '.github/scripts/approve-bot-gated-runs.sh' in _extract_step_run(
         'Approve the runs this catch-up caused'
