@@ -90,7 +90,7 @@ repos:
       - id: prettier
         types_or: [css, html, javascript, json, markdown, scss, ts, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.3
+    rev: v0.17.4
     hooks:
       - id: ruff-check
         types_or: [jupyter, pyi, python, toml]
@@ -103,7 +103,7 @@ repos:
       - id: shfmt
   # pyproject-fmt owns pyproject.toml; tombi.toml keeps tombi's formatter off it.
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.30.3
+    rev: v2.30.6
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/tombi-toml/tombi-pre-commit
@@ -174,7 +174,7 @@ repos:
   # CI's `nox -s analysis` runs them at, so CI runs all three whatever stage each runs
   # at here.
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: v0.0.97
+    rev: v0.0.98
     hooks:
       - id: ty
         stages: [pre-commit, manual]
