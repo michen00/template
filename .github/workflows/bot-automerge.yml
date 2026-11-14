@@ -360,3 +360,30 @@ jobs:
           fi
           GH_TOKEN="$ARM_TOKEN" gh pr merge --auto --squash \
             --match-head-commit "$VERIFIED_HEAD" "$PR_NUMBER"
+
+      # Turns off auto-merge, whoever armed it, when this run errored or did not trust the
+      # head. A run for a label change or a reopen does so too, since it can cancel the run
+      # for a push. A hold for eligibility leaves it: a person may have armed the update.
+      - name: Disarm auto-merge unless this run vouched for the head
+        if: always() && steps.provenance.outputs.trusted != 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        run: |
+          set -euo pipefail
+          # Fails closed: anything short of a confirmed "off" leads to another disable.
+          for attempt in 1 2 3 4; do
+            armed=$(gh pr view "$PR_NUMBER" --json autoMergeRequest \
+              --jq '.autoMergeRequest != null') || armed=unknown
+            if [ "$armed" = false ]; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 4 ]; then
+              echo "::error::could not confirm auto-merge is off on a head no run vouched for."
+              exit 1
+            fi
+            if gh pr merge --disable-auto "$PR_NUMBER"; then
+              echo "::warning::auto-merge disarmed: this run did not vouch for the head."
+            else
+              sleep 5
+            fi
+          done
