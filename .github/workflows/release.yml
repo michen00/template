@@ -34,11 +34,6 @@ env:
   # Kept in step with .python-version and pyproject.toml's requires-python.
   PYTHON_VERSION: '3.13'
 
-# `astral-sh/setup-uv@v9.0.0` is pinned to an exact patch while the other
-# actions float on their major. See the long note in CI.yml: upstream stopped
-# publishing rolling major tags after v7, so an exact pin is the only pin that
-# can move forward.
-
 jobs:
   # Builds under the read-only token, so uv and the build backend never run
   # beside the write token `publish` needs.
