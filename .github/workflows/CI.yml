@@ -24,14 +24,6 @@ env:
   # context cannot be built from an expression.
   PYTHON_VERSION: '3.13'
 
-# A note on `astral-sh/setup-uv@v9.0.0` below, which is pinned to an exact patch
-# while every other action here floats on its major: upstream stopped publishing
-# rolling major tags after v7. There is no `v8` or `v9` ref, so a `@v8`/`@v9` pin
-# does not resolve and a `@v7` pin is frozen for good -- Dependabot cannot
-# advance it, because the tag it would advance to does not exist. Pinning the
-# exact release is the only way to stay current; the cost is that each setup-uv
-# release raises its own Dependabot pull request, grouped with the other actions.
-
 jobs:
   precommit:
     name: Pre-commit
