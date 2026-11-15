@@ -11,7 +11,7 @@ updates:
       uv-minor-patch:
         update-types: [minor, patch]
     cooldown:
-      semver-major-days: 30
+      default-days: 7
   # Dependabot owns hook bumps. pre-commit.ci is left as a slow backstop via
   # `autoupdate_schedule: quarterly` in .pre-commit-config.yaml -- its schedule
   # accepts only weekly/monthly/quarterly and cannot be stood down, so the two
@@ -30,8 +30,7 @@ updates:
       - /
       - /.github/actions/*
     schedule:
-      interval: cron
-      cronjob: '0 0 1,15 * *' # 1st and 15th monthly at midnight UTC
+      interval: weekly
     groups:
       actions:
         patterns: ['*']
@@ -42,6 +41,5 @@ updates:
       - dependency-name: taiki-e/install-action
     cooldown:
       # default-days only: GitHub rejects the semver-* keys for this ecosystem,
-      # and an invalid key silently drops this whole entry. The delay is long
-      # because majors merge with no other soak.
-      default-days: 30
+      # and an invalid key silently drops this whole entry.
+      default-days: 7
