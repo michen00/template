@@ -11,9 +11,9 @@ name: PR mechanical checks
 # hooks installed, so it never sees the pull request title -- which, under squash merge,
 # is the subject that lands on the default branch with " (#N)" appended.
 #
-# Bot-authored pull requests are exempt from the title check, because tool-generated
-# titles keep their own format. The commit-subject check runs for everyone; it already
-# skips bot-authored commits from the inside.
+# michen00/pr-checks checks the title, and skips a bot-authored pull request, whose
+# tool-generated title keeps its own format. The commit-subject check is this
+# repository's own; it skips bot-authored commits from the inside.
 
 on:
   pull_request:
@@ -49,19 +49,21 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      # The checks are pure standard library, so a bare interpreter is all they need.
+      # The commit-subject check is pure standard library, so a bare interpreter is all
+      # it needs, and pr-checks runs on the same one.
       # Deliberately NOT `uv sync`: resolving the pull request's own dependency
       # metadata to run the gate that judges it is work with a downside and no upside.
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.13'
       - name: Check PR title
-        id: title
+        id: pr
         continue-on-error: true
-        if: ${{ !endsWith(github.event.pull_request.user.login, '[bot]') }}
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: python -m checks.check_pr_title
+        uses: michen00/pr-checks@db89b15bfdb59cf850f498b56d9e3aaba0b2c005 # v0.1.0
+        with:
+          max-length: ${{ env.SUBJECT_MAX_LENGTH }}
+          check-body: 'false'
+          upload-findings: 'false'
       - name: Check commit subjects
         id: commits
         continue-on-error: true
@@ -81,19 +83,10 @@ jobs:
       - name: Fail if any check did not pass
         if: always()
         env:
-          # A skip is only acceptable where a step is held back on purpose, so the gate
-          # needs the same author test that step uses. Repeated verbatim rather than
-          # restated: were the two to disagree, the symptom would be a red Dependabot
-          # pull request, or an accepted skip on a human's.
-          AUTHOR_IS_HUMAN: ${{ !endsWith(github.event.pull_request.user.login, '[bot]') }}
-          TITLE_OUTCOME: ${{ steps.title.outcome }}
+          PR_OUTCOME: ${{ steps.pr.outcome }}
           COMMITS_OUTCOME: ${{ steps.commits.outcome }}
         run: |
           set -euo pipefail
-          # `skipped` counts as a pass only for the title check on a bot-authored pull
-          # request, where the if: above holds it back deliberately. The commit-subject
-          # check carries no such condition -- it skips bot-authored commits from the
-          # inside instead -- so a skip there always means it did not run.
           # A skipped check never ran, so its own log has nothing to fix; the failure
           # is in an earlier step.
           bad=0
@@ -105,10 +98,8 @@ jobs:
               echo "::error::'$1' did not pass ($2): open it for what to fix"
             fi
           }
-          if [ "$TITLE_OUTCOME" != success ]; then
-            if [ "$TITLE_OUTCOME" != skipped ] || [ "$AUTHOR_IS_HUMAN" = true ]; then
-              report 'Check PR title' "$TITLE_OUTCOME"
-            fi
+          if [ "$PR_OUTCOME" != success ]; then
+            report 'Check PR title' "$PR_OUTCOME"
           fi
           if [ "$COMMITS_OUTCOME" != success ]; then
             report 'Check commit subjects' "$COMMITS_OUTCOME"
