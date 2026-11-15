@@ -174,7 +174,7 @@ repos:
   # CI's `nox -s analysis` runs them at, so CI runs all three whatever stage each runs
   # at here.
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: v0.0.98
+    rev: v0.0.99
     hooks:
       - id: ty
         stages: [pre-commit, manual]
