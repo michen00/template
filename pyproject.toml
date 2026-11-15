@@ -22,7 +22,7 @@ dependencies = [
   "pydantic-settings>=2.16.2",
   "pyyaml>=6.0.2",
   "rich-argparse>=1.8",
-  "typer>=0.27.3",
+  "typer>=0.28.0",
   "yapic-json>=1.9.5",
 ]
 scripts.example-script = "template.bin.example_script:run_script"
