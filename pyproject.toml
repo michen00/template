@@ -15,7 +15,7 @@ classifiers = [
 ]
 dependencies = [
   "loguru>=0.7.3",
-  "pandera[polars]>=0.35",
+  "pandera[polars]>=0.36.0",
   "plotly>=7.1",
   "polars>=2.1.0",
   "pydantic>=2.14.3",
