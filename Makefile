@@ -1,4 +1,9 @@
 VENV = .venv
+# Every worktree runs the hooks in the common git directory, and each hook runs the
+# interpreter pre-commit was installed from. Installing from a worktree's .venv would
+# leave every worktree without hooks once that one is removed, so the hooks get an
+# environment of their own beside them.
+HOOKS_VENV = $(shell git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)/pre-commit-venv
 
 SHELL := /bin/bash
 .SHELLFLAGS := -o pipefail -c
@@ -225,20 +230,14 @@ sync-main: ## Sync local branch with latest main
     trap - EXIT
 
 # pre-commit refuses to install when core.hooksPath is set, even to the
-# default .git/hooks. Checks pre-commit is present first, so a hooks
-# framework without it gets the plain warning below rather than a hard
-# error. Auto-unsets only the no-op default (matched by absolute path too,
-# since --git-common-dir is relative outside a worktree) -- and only once a
-# global/system value isn't waiting to take its place; anything else is a
-# real hooks framework, reported rather than overridden.
+# default .git/hooks. Auto-unsets only the no-op default (matched by absolute
+# path too, since --git-common-dir is relative outside a worktree) -- and only
+# once a global/system value isn't waiting to take its place; anything else is
+# a real hooks framework, reported rather than overridden. HOOKS_VENV gets the
+# pre-commit version uv.lock pins, so the hooks run what `make check` runs.
 .PHONY: enable-pre-commit
 enable-pre-commit: check-install-uv ## Enable pre-commit hooks
-	@if ! $(UV) run pre-commit --version >/dev/null 2>&1; then \
-        echo "$(YELLOW)Warning: pre-commit is not installed. Skipping hook installation.$(_COLOR)"; \
-        echo "Install it with: uv sync (or make develop)"; \
-        exit 0; \
-    fi; \
-    hookspath="$$(git config --local --get core.hooksPath 2>/dev/null || true)"; \
+	@hookspath="$$(git config --local --get core.hooksPath 2>/dev/null || true)"; \
     common_hooks_dir="$$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)/hooks"; \
     if [ -n "$$hookspath" ]; then \
         case "$$hookspath" in \
@@ -271,7 +270,11 @@ enable-pre-commit: check-install-uv ## Enable pre-commit hooks
                 ;; \
         esac; \
     fi; \
-    $(UV) run pre-commit install
+    version="$$($(UV) export --frozen --all-groups --no-hashes --no-header --no-annotate \
+        --no-emit-project | sed -n 's/^pre-commit==\([^ ;]*\).*/\1/p')"; \
+    $(UV) venv --allow-existing "$(HOOKS_VENV)" && \
+    $(UV) pip install --python "$(HOOKS_VENV)" "pre-commit$${version:+==$$version}" && \
+    "$(HOOKS_VENV)/bin/pre-commit" install
 
 .PHONY: disable-pre-commit
 disable-pre-commit: check-install-uv ## Disable pre-commit hooks
