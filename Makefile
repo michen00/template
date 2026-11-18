@@ -230,9 +230,8 @@ sync-main: ## Sync local branch with latest main
 # once a global/system value isn't waiting to take its place; anything else is
 # a real hooks framework, reported rather than overridden.
 #
-# Every worktree runs the hooks in the common git directory, and each hook runs
-# the interpreter pre-commit was installed from, so the hooks get an environment
-# of their own there (pre-commit-venv), synced from uv.lock's dev group.
+# Every worktree shares these hooks, so they run from an environment in the
+# common git directory rather than a worktree's .venv, which goes with it.
 .PHONY: enable-pre-commit
 enable-pre-commit: check-install-uv ## Enable pre-commit hooks
 	@hookspath="$$(git config --local --get core.hooksPath 2>/dev/null || true)"; \
