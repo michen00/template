@@ -1,15 +1,24 @@
 ---
 version: 2
+# Version updates only: a security update still opens a pull request of its own.
+multi-ecosystem-groups:
+  deps:
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: build
+      include: scope
+# The uv and pre-commit entries take their schedule and version-update commit
+# message from the group above. A grouped entry cannot set `commit-message`, so
+# their security updates take the commit style Dependabot detects in this
+# repository. ruff is pinned in both ecosystems, so a ruff release moves both
+# pins in the same pull request.
 updates:
   - package-ecosystem: uv
     directory: /
-    schedule:
-      interval: daily
-    groups:
-      uv-major:
-        update-types: [major]
-      uv-minor-patch:
-        update-types: [minor, patch]
+    patterns: ['*']
+    multi-ecosystem-group: deps
     cooldown:
       default-days: 7
   # Dependabot owns hook bumps. pre-commit.ci is left as a slow backstop via
@@ -18,22 +27,25 @@ updates:
   # cannot both be primary.
   - package-ecosystem: pre-commit
     directory: /
-    schedule:
-      interval: weekly
-    groups:
-      pre-commit:
-        patterns: ['*']
+    patterns: ['*']
+    multi-ecosystem-group: deps
     cooldown:
       default-days: 7
+  # Not in the `deps` group: actions run in jobs that hold write scopes, so they
+  # get a pull request of their own that a failing tool update cannot hold.
   - package-ecosystem: github-actions
     directories:
       - /
       - /.github/actions/*
     schedule:
       interval: weekly
+      day: monday
     groups:
       actions:
         patterns: ['*']
+    commit-message:
+      prefix: build
+      include: scope
     ignore:
       # changelog-autoupdate.yml floats this on the major on purpose:
       # install-action resolves an unversioned tool from manifests in its own
