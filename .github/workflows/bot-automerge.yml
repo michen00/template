@@ -1,11 +1,8 @@
 ---
 name: Bot auto-merge
 
-# Approves eligible Dependabot and pre-commit-ci pull requests and arms native auto-merge
-# (squash) on them.
-#
-# No check polling: `gh pr checks --required --watch` fails when it runs before CI has
-# registered its checks, and auto-merge waits for required checks anyway.
+# Approves eligible Dependabot and pre-commit-ci pull requests and arms squash
+# auto-merge on them. Auto-merge waits for required checks, so nothing here polls them.
 
 on:
   pull_request:
@@ -21,8 +18,7 @@ concurrency:
 
 jobs:
   bot-automerge:
-    # The guard reads `pull_request.user.login`, not `github.actor`: the actor is whoever
-    # caused this event, so a later push by anyone else would skip the job.
+    # The author, not `github.actor`: a catch-up push makes its pusher the actor.
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
       (github.event.pull_request.user.login == 'dependabot[bot]' ||
@@ -34,10 +30,8 @@ jobs:
       GH_REPO: ${{ github.repository }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
     steps:
-      # Optional App identity for arming: auto-merge completes as whoever armed it, and a
-      # merge under `GITHUB_TOKEN` starts no workflows, so pr-catchup.yml would not run.
-      # Dependabot-triggered runs read only the Dependabot secret store, so the key must be
-      # in both stores.
+      # Auto-merge completes as whoever armed it, and a merge as `GITHUB_TOKEN` triggers
+      # no workflows, hence the App. Dependabot's runs read only Dependabot secrets.
       - name: Detect App credentials
         id: creds
         env:
@@ -64,7 +58,7 @@ jobs:
           permission-contents: write
           permission-pull-requests: write
 
-      # `continue-on-error` records a failed mint as a success, so report it here.
+      # `continue-on-error` hides a failed mint.
       - name: Report a mint that failed
         if: >-
           steps.creds.outputs.available == 'true' &&
@@ -87,8 +81,8 @@ jobs:
         run: |
           echo "::notice::No update-type for ${ECOSYSTEM:-unknown}; leaving this for a human."
 
-      # The default branch, never the pull request's head, so nothing from the pull
-      # request runs. The next step fetches its commits as objects for `git merge-tree`.
+      # Never the head, so nothing from the pull request runs. The next step fetches the
+      # head's commits as objects only.
       - name: Check out the default branch's history
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -112,8 +106,7 @@ jobs:
           # - every commit that anyone but the author or an admin pushed, in any push
           #   since the branch was created, is a clean merge of two parents, since
           #   GitHub also signs whatever an App or `GITHUB_TOKEN` creates through its API.
-          # Every check reads the one head commit that a trusted verdict names in `head`,
-          # which must be the head this run's event brought.
+          # Every check reads the one head commit that a trusted verdict names in `head`.
           # Fails closed: a failed query or fetch leaves `trusted` unset.
           set -euo pipefail
           head=$(gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}" --jq '.head.sha')
@@ -138,10 +131,9 @@ jobs:
             .sha,
             ([.parents[].sha] | join(" "))
           ] | join("|")'
-          # The endpoint returns at most 250 commits and still exits 0, so refuse rather
-          # than inspect part of the pull request.
+          # The commits endpoint stops at 250 without an error.
           total=$(gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}" --jq '.commits')
-          # A non-integer count makes the tests below error, which `if` reads as false.
+          # On a non-integer, `-gt` errors, and `if` reads that as false.
           if ! [[ "$total" =~ ^[0-9]+$ ]]; then
             echo "::error::could not read the PR's commit count; holding."
             exit 1
@@ -212,9 +204,8 @@ jobs:
               rejected=$((rejected + 1))
             fi
           done <<< "$rows"
-          # Every push since the branch was last created, newest first, as GitHub
-          # records it. A held push's commits stay in the branch, so the push that
-          # started this run cannot vouch for the branch alone.
+          # A held push's commits stay in the branch, so the push that started this run
+          # cannot vouch for the branch alone.
           for attempt in 1 2 3; do
             pushes=$(gh api -X GET "repos/${GH_REPO}/activity" -f ref="refs/heads/${HEAD_REF}" \
               -f direction=desc -F per_page=100 --paginate \
@@ -231,14 +222,13 @@ jobs:
             echo "trusted=false" >>"$GITHUB_OUTPUT"
             exit 0
           fi
-          # Assigned, so a failed listing fails the step. `^HEAD` leaves out the default
-          # branch's commits, which a catch-up brings in but did not write.
+          # `^HEAD` leaves out the default branch's commits, which a catch-up brings in
+          # but did not write. Assigned, so a failed listing fails the step.
           in_branch=$(git rev-list "$head" '^HEAD')
           end=''
           expected=$head
           while IFS='|' read -r change pusher before after; do
             [ -z "$change" ] && continue
-            # Each record must end where the next newer one began, or a change is missing.
             if [ "$after" != "$expected" ]; then
               echo "::warning::the branch's push history skips a change; holding."
               rejected=$((rejected + 1))
@@ -314,8 +304,6 @@ jobs:
               echo "should_merge=true" >>"$GITHUB_OUTPUT"
               ;;
             version-update:semver-major)
-              # CI exercises only code a pull request runs, so a major used only by a
-              # workflow that no pull request starts merges untested.
               echo "::notice::${ECOSYSTEM:-unknown} major; eligible on green CI."
               echo "should_merge=true" >>"$GITHUB_OUTPUT"
               ;;
@@ -325,8 +313,8 @@ jobs:
               ;;
           esac
 
-      # Re-read the label: one applied during this run is not in the event payload, and the
-      # disarm run may already have finished.
+      # A label applied during this run is not in the payload, and its disarm run may
+      # have finished already.
       - name: Re-check the kill switch, then approve and arm
         if: steps.eligible.outputs.should_merge == 'true'
         env:
@@ -334,7 +322,7 @@ jobs:
           ARM_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
           VERIFIED_HEAD: ${{ steps.provenance.outputs.head }}
         run: |
-          # Read into a variable under `set -e`, so a failed query is not read as "no label".
+          # Assigned under `set -e`, so a failed query does not read as no label.
           set -euo pipefail
           if ! [[ "$VERIFIED_HEAD" =~ ^[0-9a-f]{40}([0-9a-f]{24})?$ ]]; then
             echo "::error::no verified head commit to approve; not arming."
@@ -370,7 +358,7 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
         run: |
           set -euo pipefail
-          # Fails closed: anything short of a confirmed "off" leads to another disable.
+          # Fails closed: anything short of a confirmed "off" disables again.
           for attempt in 1 2 3 4; do
             armed=$(gh pr view "$PR_NUMBER" --json autoMergeRequest \
               --jq '.autoMergeRequest != null') || armed=unknown
