@@ -49,7 +49,6 @@ CHANGELOG.md
 checks/__init__.py
 checks/_common.py
 checks/check_commit_messages.py
-checks/check_pr_title.py
 cliff.toml
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md

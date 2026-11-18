@@ -292,7 +292,7 @@ PROFILE
 # rewrote a call would point that workflow at a repository that does not exist.
 assert_owner_only_in_dependencies() {
   local path="$1"
-  local dependencies=(markdown-prose-hooks freeze-pr-links)
+  local dependencies=(markdown-prose-hooks freeze-pr-links pr-checks)
   local dependency alternation stray calls rewritten
 
   alternation="$(

@@ -24,14 +24,6 @@ env:
   # context cannot be built from an expression.
   PYTHON_VERSION: '3.13'
 
-# A note on `astral-sh/setup-uv@v9.0.0` below, which is pinned to an exact patch
-# while every other action here floats on its major: upstream stopped publishing
-# rolling major tags after v7. There is no `v8` or `v9` ref, so a `@v8`/`@v9` pin
-# does not resolve and a `@v7` pin is frozen for good -- Dependabot cannot
-# advance it, because the tag it would advance to does not exist. Pinning the
-# exact release is the only way to stay current; the cost is that each setup-uv
-# release raises its own Dependabot pull request, grouped with the other actions.
-
 jobs:
   precommit:
     name: Pre-commit
@@ -47,11 +39,11 @@ jobs:
         with:
           fetch-depth: 0
       - name: Secret scanning
-        uses: trufflesecurity/trufflehog@e76dff8a7e57d6df0c60ad8cbf5d5cba505a8fc9 # v3.99.2
+        uses: trufflesecurity/trufflehog@ea68ca03c865c5f324e86e849ced20ed3cf9dbbb # v3.99.8
         with:
           extra_args: --results=verified,unknown
       - name: Set up uv
-        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           enable-cache: true
           cache-dependency-glob: |
@@ -98,7 +90,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up uv
-        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           enable-cache: true
           cache-dependency-glob: |
@@ -138,7 +130,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up uv
-        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           enable-cache: true
           cache-dependency-glob: |

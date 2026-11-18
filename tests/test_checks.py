@@ -4,7 +4,6 @@ __all__ = ()
 
 import pytest
 
-from checks import check_pr_title
 from checks._common import (
     SUBJECT_MAX_DEFAULT,
     check_subject,
@@ -21,7 +20,6 @@ def _isolated_environment(monkeypatch: pytest.MonkeyPatch) -> None:
         'SUBJECT_MAX_LENGTH',
         'GITHUB_ACTIONS',
         'PR_WARNINGS_FILE',
-        'PR_TITLE',
     ):
         monkeypatch.delenv(name, raising=False)
 
@@ -101,40 +99,6 @@ def test_commit_subjects_take_the_same_maximum() -> None:
     assert not check_commits(rows).ok
     assert check_commits(rows, max_length=72).ok
     assert check_commits(rows, max_length='off').ok
-
-
-def test_max_length_passes_a_title_that_fails_at_the_default() -> None:
-    """``--max-length 72`` passes a 56-character title that fails at 50."""
-    assert check_pr_title.main([_title(56)]) == 1
-    assert check_pr_title.main([_title(56), '--max-length', '72']) == 0
-
-
-def test_off_on_the_command_line_says_so(capsys: pytest.CaptureFixture[str]) -> None:
-    """`--max-length off` passes a long title, and the log says so."""
-    assert check_pr_title.main([_title(60), '--max-length', 'off']) == 0
-    assert capsys.readouterr() == ('title OK, length not checked\n', '')
-
-
-@pytest.mark.parametrize('setting', ['0', '-3', 'sixty'])
-def test_an_unusable_flag_is_a_usage_error(
-    setting: str, capsys: pytest.CaptureFixture[str]
-) -> None:
-    """A bad `--max-length` stops with a usage error that names the flag."""
-    with pytest.raises(SystemExit) as stopped:
-        check_pr_title.main(['docs: fix a typo', '--max-length', setting])
-    assert stopped.value.code == 2
-    assert 'argument --max-length: expected a positive whole number or off' in (
-        capsys.readouterr().err
-    )
-
-
-def test_the_squash_suffix_is_not_counted(
-    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
-) -> None:
-    """A title at the maximum passes cleanly, whatever its pull request number."""
-    monkeypatch.setenv('PR_NUMBER', '100')
-    assert check_pr_title.main([_title(50)]) == 0
-    assert capsys.readouterr().err == ''
 
 
 @pytest.mark.parametrize(
