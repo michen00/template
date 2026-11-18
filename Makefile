@@ -1,9 +1,4 @@
 VENV = .venv
-# Every worktree runs the hooks in the common git directory, and each hook runs the
-# interpreter pre-commit was installed from. Installing from a worktree's .venv would
-# leave every worktree without hooks once that one is removed, so the hooks get an
-# environment of their own beside them.
-HOOKS_VENV = $(shell git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)/pre-commit-venv
 
 SHELL := /bin/bash
 .SHELLFLAGS := -o pipefail -c
@@ -233,8 +228,11 @@ sync-main: ## Sync local branch with latest main
 # default .git/hooks. Auto-unsets only the no-op default (matched by absolute
 # path too, since --git-common-dir is relative outside a worktree) -- and only
 # once a global/system value isn't waiting to take its place; anything else is
-# a real hooks framework, reported rather than overridden. HOOKS_VENV gets the
-# pre-commit version uv.lock pins, so the hooks run what `make check` runs.
+# a real hooks framework, reported rather than overridden.
+#
+# Every worktree runs the hooks in the common git directory, and each hook runs
+# the interpreter pre-commit was installed from, so the hooks get an environment
+# of their own there (pre-commit-venv), synced from uv.lock's dev group.
 .PHONY: enable-pre-commit
 enable-pre-commit: check-install-uv ## Enable pre-commit hooks
 	@hookspath="$$(git config --local --get core.hooksPath 2>/dev/null || true)"; \
@@ -270,11 +268,10 @@ enable-pre-commit: check-install-uv ## Enable pre-commit hooks
                 ;; \
         esac; \
     fi; \
-    version="$$($(UV) export --frozen --all-groups --no-hashes --no-header --no-annotate \
-        --no-emit-project | sed -n 's/^pre-commit==\([^ ;]*\).*/\1/p')"; \
-    $(UV) venv --allow-existing "$(HOOKS_VENV)" && \
-    $(UV) pip install --python "$(HOOKS_VENV)" "pre-commit$${version:+==$$version}" && \
-    "$(HOOKS_VENV)/bin/pre-commit" install
+    common_dir="$$(git rev-parse --path-format=absolute --git-common-dir)" || exit 1; \
+    hooks_venv="$$common_dir/pre-commit-venv"; \
+    UV_PROJECT_ENVIRONMENT="$$hooks_venv" $(UV) sync --frozen --no-install-project --only-group dev && \
+    "$$hooks_venv/bin/pre-commit" install
 
 .PHONY: disable-pre-commit
 disable-pre-commit: check-install-uv ## Disable pre-commit hooks
