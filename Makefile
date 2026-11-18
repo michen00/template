@@ -225,20 +225,16 @@ sync-main: ## Sync local branch with latest main
     trap - EXIT
 
 # pre-commit refuses to install when core.hooksPath is set, even to the
-# default .git/hooks. Checks pre-commit is present first, so a hooks
-# framework without it gets the plain warning below rather than a hard
-# error. Auto-unsets only the no-op default (matched by absolute path too,
-# since --git-common-dir is relative outside a worktree) -- and only once a
-# global/system value isn't waiting to take its place; anything else is a
-# real hooks framework, reported rather than overridden.
+# default .git/hooks. Auto-unsets only the no-op default (matched by absolute
+# path too, since --git-common-dir is relative outside a worktree) -- and only
+# once a global/system value isn't waiting to take its place; anything else is
+# a real hooks framework, reported rather than overridden.
+#
+# Every worktree shares these hooks, so they run from an environment in the
+# common git directory rather than a worktree's .venv, which goes with it.
 .PHONY: enable-pre-commit
 enable-pre-commit: check-install-uv ## Enable pre-commit hooks
-	@if ! $(UV) run pre-commit --version >/dev/null 2>&1; then \
-        echo "$(YELLOW)Warning: pre-commit is not installed. Skipping hook installation.$(_COLOR)"; \
-        echo "Install it with: uv sync (or make develop)"; \
-        exit 0; \
-    fi; \
-    hookspath="$$(git config --local --get core.hooksPath 2>/dev/null || true)"; \
+	@hookspath="$$(git config --local --get core.hooksPath 2>/dev/null || true)"; \
     common_hooks_dir="$$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)/hooks"; \
     if [ -n "$$hookspath" ]; then \
         case "$$hookspath" in \
@@ -271,7 +267,10 @@ enable-pre-commit: check-install-uv ## Enable pre-commit hooks
                 ;; \
         esac; \
     fi; \
-    $(UV) run pre-commit install
+    common_dir="$$(git rev-parse --path-format=absolute --git-common-dir)" || exit 1; \
+    hooks_venv="$$common_dir/pre-commit-venv"; \
+    UV_PROJECT_ENVIRONMENT="$$hooks_venv" $(UV) sync --frozen --no-install-project --only-group dev && \
+    "$$hooks_venv/bin/pre-commit" install
 
 .PHONY: disable-pre-commit
 disable-pre-commit: check-install-uv ## Disable pre-commit hooks
