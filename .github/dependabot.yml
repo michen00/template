@@ -9,7 +9,11 @@ multi-ecosystem-groups:
     commit-message:
       prefix: build
       include: scope
-# Each entry takes its schedule and commit message from the group above.
+# The uv and pre-commit entries take their schedule and version-update commit
+# message from the group above. A grouped entry cannot set `commit-message`, so
+# their security updates take the commit style Dependabot detects in this
+# repository. ruff is pinned in both ecosystems, so a ruff release moves both
+# pins in the same pull request.
 updates:
   - package-ecosystem: uv
     directory: /
@@ -27,12 +31,21 @@ updates:
     multi-ecosystem-group: deps
     cooldown:
       default-days: 7
+  # Not in the `deps` group: actions run in jobs that hold write scopes, so they
+  # get a pull request of their own that a failing tool update cannot hold.
   - package-ecosystem: github-actions
     directories:
       - /
       - /.github/actions/*
-    patterns: ['*']
-    multi-ecosystem-group: deps
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: build
+      include: scope
     ignore:
       # changelog-autoupdate.yml floats this on the major on purpose:
       # install-action resolves an unversioned tool from manifests in its own
