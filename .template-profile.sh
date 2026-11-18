@@ -26,11 +26,3 @@ profile_personal() {
   CLIFF_EMAIL_SWAP="keep"
   INCLUDE_DEEPWIKI=true
 }
-
-profile_work() {
-  GITHUB_OWNER="aicadium-ai"
-  AUTHOR_NAME="Michael Chen"
-  AUTHOR_EMAIL="michael.chen@aicadium.ai"
-  CLIFF_EMAIL_SWAP="reverse"
-  INCLUDE_DEEPWIKI=false
-}
