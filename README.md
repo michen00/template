@@ -49,7 +49,6 @@ This template helps you set up:
 - **GitHub Actions workflows** for:
   - Automated testing and linting on every PR
   - Dependabot for dependency updates
-  - Contributor greeting automation
 
 ### 🛠️ Developer Experience
 

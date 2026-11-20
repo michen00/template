@@ -23,7 +23,6 @@ _typos.toml
 .github/workflows/CI.yml
 .github/workflows/delete-bot-branches-for-closed-prs.yml
 .github/workflows/freeze-pr-links.yml
-.github/workflows/greet-new-contributors.yml
 .github/workflows/lint-github-actions.yml
 .github/workflows/pr-body-unwrap-check.yml
 .github/workflows/pr-body-unwrap.yml
