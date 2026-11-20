@@ -12,6 +12,7 @@
 *.htm           text diff=html
 *.html          text diff=html
 *.ini           text
+*.ipynb         text eol=lf diff=ipynb
 *.java          text diff=java
 *.js            text
 *.json          text
