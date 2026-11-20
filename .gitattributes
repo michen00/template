@@ -17,6 +17,7 @@
 *.js            text
 *.json          text
 *.jsp           text
+*.lock          text
 *.md            text diff=markdown
 *.php           text diff=php
 *.properties    text
