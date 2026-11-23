@@ -85,12 +85,12 @@ repos:
       - id: requirements-txt-fixer
       - id: trailing-whitespace
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.9.10
+    rev: v3.10.1
     hooks:
       - id: prettier
         types_or: [css, html, javascript, json, markdown, scss, ts, yaml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.4
+    rev: v0.17.5
     hooks:
       - id: ruff-check
         types_or: [jupyter, pyi, python, toml]
@@ -107,12 +107,12 @@ repos:
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/tombi-toml/tombi-pre-commit
-    rev: v1.11.2
+    rev: v1.11.3
     hooks:
       - id: tombi-format
   # Before markdownlint, so its --fix sees the final text; nothing here rewraps prose.
   - repo: https://github.com/michen00/markdown-prose-hooks-py
-    rev: v0.5.2
+    rev: v0.5.3
     hooks:
       - id: unwrap-markdown-prose-py
   - repo: https://github.com/igorshubovych/markdownlint-cli
@@ -140,7 +140,7 @@ repos:
       - id: name-tests-test
         args: [--pytest-test-first]
   - repo: https://github.com/tombi-toml/tombi-pre-commit
-    rev: v1.11.2
+    rev: v1.11.3
     hooks:
       - id: tombi-lint
   - repo: https://github.com/adrienverge/yamllint.git
@@ -149,7 +149,7 @@ repos:
       - id: yamllint
         args: [--strict]
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.52.0
+    rev: v1.52.2
     hooks:
       - id: typos
   - repo: https://github.com/codespell-project/codespell
@@ -174,7 +174,7 @@ repos:
   # CI's `nox -s analysis` runs them at, so CI runs all three whatever stage each runs
   # at here.
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: v0.0.100
+    rev: v0.0.104
     hooks:
       - id: ty
         stages: [pre-commit, manual]
