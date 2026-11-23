@@ -1,6 +1,6 @@
 [build-system]
 build-backend = "uv_build"
-requires = [ "uv-build>=0.13.7,<0.14" ]
+requires = [ "uv-build>=0.13.8,<0.14" ]
 
 [project]
 name = "template"
@@ -14,15 +14,15 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-  "loguru>=0.7.3",
+  "loguru>=0.8.0",
   "pandera[polars]>=0.36.0",
   "plotly>=7.1",
   "polars>=2.1.0",
   "pydantic>=2.14.3",
-  "pydantic-settings>=2.16.2",
+  "pydantic-settings>=2.16.3",
   "pyyaml>=6.0.2",
   "rich-argparse>=1.8",
-  "typer>=0.29.0",
+  "typer>=0.29.1",
   "yapic-json>=1.9.5",
 ]
 scripts.example-script = "template.bin.example_script:run_script"
@@ -33,10 +33,10 @@ dev = [
   "nox[uv]>=2026.10.20",
   "pip>=26.3",
   "pre-commit>=4.7",
-  "prek>=0.5.10",
-  "pylint>=4.1.3",
-  "ruff>=0.17.4",
-  "types-pyyaml>=6.0.12.20261103",
+  "prek>=0.5.11",
+  "pylint>=4.1.4",
+  "ruff>=0.17.5",
+  "types-pyyaml>=6.0.12.20261113",
 ]
 test = [ "pytest>=9.2", "pytest-cov>=6.2.1", "pytest-xdist>=3.8" ]
 
